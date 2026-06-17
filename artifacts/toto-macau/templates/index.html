@@ -145,6 +145,14 @@
   .history-row2 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .history-shio-txt { font-size: 0.68rem; color: var(--accent); }
   .pred-preview { font-size: 0.65rem; color: var(--muted); font-family: 'Courier New', monospace; }
+  .edit-btn { background: none; border: 1px solid rgba(255,255,255,0.12); color: var(--muted); font-size: 0.65rem; padding: 2px 7px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+  .edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .edit-inline { display: none; margin-top: 8px; padding: 10px; background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid var(--border); }
+  .edit-inline.open { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .edit-inline input { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; width: 120px; outline: none; }
+  .edit-inline input:focus { border-color: var(--accent); }
+  .save-btn { background: var(--accent); color: #000; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+  .cancel-btn { background: none; border: 1px solid rgba(255,255,255,0.15); color: var(--muted); padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; }
 
   /* Paito */
   .paito-table { width: 100%; border-collapse: collapse; }
@@ -469,7 +477,7 @@ function renderHistory(history) {
     document.getElementById('historyContent').innerHTML = '<div class="loading">Belum ada data</div>'; return;
   }
   let html = '<div class="history-card"><div class="history-header">📋 Riwayat Hasil Keluaran</div>';
-  history.forEach(item => {
+  history.forEach((item, idx) => {
     const predNums = (item.predictions||'').split(',').map(s=>s.trim()).filter(Boolean);
     const badge = !predNums.length ? '' :
       item.is_hit ? '<span class="badge badge-hit">EXACT HIT</span>' :
@@ -477,18 +485,27 @@ function renderHistory(history) {
       '<span class="badge badge-miss">Miss</span>';
 
     const predPreview = predNums.length ? `<span class="pred-preview">${predNums.slice(0,5).join(' ')}</span>` : '';
-    const periodeStr = item.periode ? `<span class="history-periode">#${item.periode}</span>` : '';
+    const periodeLabel = item.periode ? `#${item.periode}` : '<span style="color:rgba(255,255,255,0.25)">no#</span>';
+    const editId = `edit-${idx}`;
 
     html += `
     <div class="history-item">
       <div class="history-row1">
-        <div>
-          <div class="history-meta">${formatDate(item.tanggal)} · Sesi ${item.sesi} ${periodeStr}</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div class="history-meta">${formatDate(item.tanggal)} · Sesi ${item.sesi}</div>
+          <span class="history-periode" style="cursor:default">${periodeLabel}</span>
+          <button class="edit-btn" onclick="toggleEdit('${editId}','${item.tanggal}',${item.sesi},${item.periode||0})">✏️ edit#</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="history-result" onclick="copyNum('${item.nomor}',this)">${item.nomor}</span>
           ${badge}
         </div>
+      </div>
+      <div id="${editId}" class="edit-inline">
+        <span style="font-size:0.75rem;color:var(--muted)">No. Periode:</span>
+        <input type="number" id="inp-${editId}" placeholder="cth: 3388" value="${item.periode||''}">
+        <button class="save-btn" onclick="savePeriode('${editId}','${item.tanggal}',${item.sesi})">Simpan</button>
+        <button class="cancel-btn" onclick="toggleEdit('${editId}')">Batal</button>
       </div>
       <div class="history-row2">
         <span class="history-shio-txt">${getShio(item.nomor)}</span>
@@ -498,6 +515,35 @@ function renderHistory(history) {
   });
   html += '</div>';
   document.getElementById('historyContent').innerHTML = html;
+}
+
+function toggleEdit(id, tanggal, sesi, periode) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) {
+    const inp = document.getElementById('inp-' + id);
+    if (inp) { inp.focus(); inp.select(); }
+  }
+}
+
+async function savePeriode(id, tanggal, sesi) {
+  const inp = document.getElementById('inp-' + id);
+  const periode = parseInt(inp.value);
+  if (!periode || periode <= 0) { showToast('Masukkan nomor periode yang valid'); return; }
+
+  try {
+    const res = await fetch('/results', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tanggal, sesi, periode })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`Periode #${periode} disimpan!`);
+      document.getElementById(id).classList.remove('open');
+      await loadHistory();
+    } else { showToast('Gagal menyimpan'); }
+  } catch(e) { showToast('Error: ' + e.message); }
 }
 
 async function loadPaito() {
