@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Prediksi Toto Macau 5D</title>
+<style>
+  :root {
+    --bg: #0d0d1a;
+    --card: #1a1a2e;
+    --card2: #16213e;
+    --accent: #f0a500;
+    --accent2: #e94560;
+    --text: #e0e0e0;
+    --muted: #888;
+    --green: #00c853;
+    --red: #e94560;
+    --blue: #1565c0;
+    --border: rgba(240,165,0,0.2);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header h1 { font-size: 1.1rem; color: var(--accent); font-weight: 700; letter-spacing: 0.5px; }
+  .header .subtitle { font-size: 0.7rem; color: var(--muted); }
+  .time-badge { background: rgba(240,165,0,0.15); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; color: var(--accent); }
+
+  /* Nav tabs */
+  .tabs { display: flex; background: var(--card); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tab { flex: 1; min-width: 80px; text-align: center; padding: 12px 8px; font-size: 0.8rem; cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Content */
+  .content { padding: 14px; max-width: 600px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Session badge */
+  .session-banner {
+    background: linear-gradient(135deg, var(--card2), var(--card));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .session-info .label { font-size: 0.72rem; color: var(--muted); margin-bottom: 2px; }
+  .session-info .value { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+  .session-dots { display: flex; gap: 8px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid var(--muted); transition: all 0.3s; }
+  .dot.done { background: var(--green); border-color: var(--green); }
+  .dot.active { background: var(--accent); border-color: var(--accent); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+  /* Prediction cards */
+  .method-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .method-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px;
+    background: rgba(240,165,0,0.08);
+    border-bottom: 1px solid var(--border);
+  }
+  .method-name { font-weight: 700; font-size: 0.85rem; color: var(--accent); }
+  .method-desc { font-size: 0.7rem; color: var(--muted); }
+
+  .copy-all-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    transition: opacity 0.2s;
+  }
+  .copy-all-btn:active { opacity: 0.7; }
+
+  /* Number grid */
+  .numbers-grid { padding: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .num-item {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: all 0.15s;
+    user-select: none;
+  }
+  .num-item:active { background: rgba(240,165,0,0.15); border-color: var(--accent); }
+  .num-item.copied { background: rgba(0,200,83,0.15); border-color: var(--green); }
+  .num-rank { font-size: 0.65rem; color: var(--muted); min-width: 16px; }
+  .num-value { font-size: 1.25rem; font-weight: 800; color: #fff; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+  .num-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .num-shio { font-size: 0.65rem; color: var(--accent); }
+  .num-warna { font-size: 0.6rem; display: flex; gap: 1px; }
+  .w-m { color: #e94560; }
+  .w-h { color: #888; }
+
+  /* Copy icon */
+  .copy-icon { font-size: 0.75rem; color: var(--muted); }
+
+  /* Method tabs */
+  .method-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .method-tab {
+    padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; cursor: pointer;
+    border: 1px solid var(--border); color: var(--muted); background: transparent;
+    transition: all 0.2s;
+  }
+  .method-tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+  /* Input form */
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .form-title { font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
+  .form-row { margin-bottom: 12px; }
+  .form-row label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+  .form-row input, .form-row select {
+    width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 1rem; outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-row input:focus, .form-row select:focus { border-color: var(--accent); }
+  .form-row select option { background: #1a1a2e; }
+  .submit-btn {
+    width: 100%; padding: 13px; background: var(--accent); color: #000; border: none;
+    border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+  }
+  .submit-btn:active { opacity: 0.8; }
+  .success-msg { background: rgba(0,200,83,0.15); border: 1px solid var(--green); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: var(--green); margin-top: 10px; display: none; }
+  .error-msg { background: rgba(233,69,96,0.15); border: 1px solid var(--red); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: var(--red); margin-top: 10px; display: none; }
+
+  /* Big number input display */
+  .num-input-display {
+    font-size: 2.5rem; font-family: 'Courier New', monospace; letter-spacing: 8px; font-weight: 800;
+    text-align: center; color: var(--accent); margin: 8px 0 4px;
+    min-height: 56px;
+  }
+  #nomorInput { font-size: 1.5rem; font-family: 'Courier New', monospace; letter-spacing: 4px; text-align: center; }
+
+  /* History table */
+  .history-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .history-header { padding: 12px 14px; background: rgba(240,165,0,0.08); border-bottom: 1px solid var(--border); font-weight: 700; font-size: 0.85rem; color: var(--accent); }
+  .history-item {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-left .date { font-size: 0.72rem; color: var(--muted); }
+  .history-left .sesi { font-size: 0.68rem; color: var(--accent); margin-top: 2px; }
+  .history-result { font-size: 1.3rem; font-weight: 800; font-family: 'Courier New', monospace; color: #fff; letter-spacing: 2px; }
+  .history-right { text-align: right; }
+  .history-shio { font-size: 0.68rem; color: var(--accent); }
+  .hit-badge { font-size: 0.65rem; background: rgba(0,200,83,0.2); color: var(--green); border-radius: 4px; padding: 2px 6px; margin-left: 6px; }
+  .miss-badge { font-size: 0.65rem; background: rgba(233,69,96,0.2); color: var(--red); border-radius: 4px; padding: 2px 6px; margin-left: 6px; }
+
+  /* Paito table */
+  .paito-table { width: 100%; border-collapse: collapse; }
+  .paito-table th { font-size: 0.68rem; color: var(--muted); padding: 6px 8px; text-align: left; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); }
+  .paito-table td { padding: 7px 8px; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+  .paito-table tr:last-child td { border-bottom: none; }
+  .paito-num { font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: 1px; }
+  .color-dots { display: flex; gap: 3px; }
+  .color-dot { width: 16px; height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; }
+  .color-dot.m { background: rgba(233,69,96,0.3); color: #e94560; border: 1px solid #e94560; }
+  .color-dot.h { background: rgba(100,100,100,0.2); color: #888; border: 1px solid #555; }
+
+  /* Toast notification */
+  .toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: rgba(0,200,83,0.9); color: #000; padding: 10px 20px; border-radius: 8px;
+    font-size: 0.82rem; font-weight: 700; opacity: 0; transition: all 0.3s;
+    pointer-events: none; z-index: 999; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Loading */
+  .loading { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 0.85rem; }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(240,165,0,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .regen-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--accent);
+    padding: 8px 16px; border-radius: 20px; font-size: 0.78rem; cursor: pointer;
+    display: block; margin: 0 auto 16px; transition: all 0.2s;
+  }
+  .regen-btn:active { background: rgba(240,165,0,0.1); }
+
+  /* Responsive */
+  @media (min-width: 480px) {
+    .numbers-grid { grid-template-columns: repeat(2, 1fr); }
+    .num-value { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>🎯 Toto Macau 5D</h1>
+    <div class="subtitle">Sistem Prediksi Otomatis</div>
+  </div>
+  <div class="time-badge" id="serverTime">--:--</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('prediksi')">Prediksi</div>
+  <div class="tab" onclick="switchTab('input')">Input Hasil</div>
+  <div class="tab" onclick="switchTab('history')">History</div>
+  <div class="tab" onclick="switchTab('paito')">Paito</div>
+</div>
+
+<div class="content">
+
+  <!-- PREDIKSI TAB -->
+  <div class="section active" id="tab-prediksi">
+    <div class="session-banner" id="sessionBanner">
+      <div class="session-info">
+        <div class="label">Prediksi Untuk</div>
+        <div class="value" id="predTarget">Memuat...</div>
+      </div>
+      <div>
+        <div style="font-size:0.68rem;color:var(--muted);text-align:right;margin-bottom:6px">Progress Hari Ini</div>
+        <div class="session-dots">
+          <div class="dot" id="dot1" title="Sesi 1"></div>
+          <div class="dot" id="dot2" title="Sesi 2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="method-tabs">
+      <button class="method-tab active" onclick="showMethod('gabungan')">Gabungan</button>
+      <button class="method-tab" onclick="showMethod('paito')">Paito</button>
+      <button class="method-tab" onclick="showMethod('shio')">Shio</button>
+      <button class="method-tab" onclick="showMethod('ai')">AI</button>
+    </div>
+
+    <button class="regen-btn" onclick="regenerate()">↻ Generate Ulang</button>
+
+    <div id="prediksiContent">
+      <div class="loading"><div class="spinner"></div>Memuat prediksi...</div>
+    </div>
+  </div>
+
+  <!-- INPUT TAB -->
+  <div class="section" id="tab-input">
+    <div class="form-card">
+      <div class="form-title">Input Hasil Keluaran</div>
+      <div class="form-row">
+        <label>Tanggal</label>
+        <input type="date" id="inputTanggal">
+      </div>
+      <div class="form-row">
+        <label>Sesi</label>
+        <select id="inputSesi">
+          <option value="1">Sesi 1</option>
+          <option value="2">Sesi 2</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Nomor Hasil (5 digit)</label>
+        <input type="number" id="nomorInput" min="0" max="99999" placeholder="00000"
+               oninput="updateDisplay(this.value)" maxlength="5">
+        <div class="num-input-display" id="numDisplay">—</div>
+      </div>
+      <button class="submit-btn" onclick="submitResult()">Simpan Hasil</button>
+      <div class="success-msg" id="successMsg"></div>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-title" style="margin-bottom:8px">Sesi Hari Ini</div>
+      <div id="todayStatus" style="font-size:0.82rem;color:var(--muted)">Memuat...</div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div class="section" id="tab-history">
+    <div id="historyContent">
+      <div class="loading"><div class="spinner"></div>Memuat history...</div>
+    </div>
+  </div>
+
+  <!-- PAITO TAB -->
+  <div class="section" id="tab-paito">
+    <div id="paitoContent">
+      <div class="loading"><div class="spinner"></div>Memuat paito...</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentTab = 'prediksi';
+let currentMethod = 'gabungan';
+let predData = null;
+let statusData = null;
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  // Set today's date in input
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('inputTanggal').value = today;
+
+  loadStatus();
+  loadPredictions();
+
+  // Refresh every 30 seconds
+  setInterval(loadStatus, 30000);
+});
+
+function switchTab(name) {
+  currentTab = name;
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['prediksi','input','history','paito'][i] === name);
+  });
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+
+  if (name === 'history') loadHistory();
+  if (name === 'paito') loadPaito();
+  if (name === 'input') loadStatusForInput();
+}
+
+function showMethod(method) {
+  currentMethod = method;
+  document.querySelectorAll('.method-tab').forEach(t => {
+    t.classList.toggle('active', t.textContent.toLowerCase() === method ||
+      (method === 'gabungan' && t.textContent === 'Gabungan') ||
+      (method === 'paito' && t.textContent === 'Paito') ||
+      (method === 'shio' && t.textContent === 'Shio') ||
+      (method === 'ai' && t.textContent === 'AI')
+    );
+  });
+  if (predData) renderPredictions(predData);
+}
+
+async function loadStatus() {
+  try {
+    const res = await fetch('/status');
+    statusData = await res.json();
+    document.getElementById('serverTime').textContent = statusData.server_time;
+
+    // Update session dots
+    const d1 = document.getElementById('dot1');
+    const d2 = document.getElementById('dot2');
+    if (statusData.sesi1_done) d1.classList.add('done'); else d1.classList.remove('done');
+    if (statusData.sesi2_done) d2.classList.add('done'); else d2.classList.remove('done');
+
+    if (!statusData.sesi1_done) d1.classList.add('active'); else d1.classList.remove('active');
+    if (statusData.sesi1_done && !statusData.sesi2_done) d2.classList.add('active'); else d2.classList.remove('active');
+
+    // Update target
+    const label = `Sesi ${statusData.next_sesi} — ${formatDate(statusData.next_tanggal)}`;
+    document.getElementById('predTarget').textContent = label;
+  } catch(e) {}
+}
+
+async function loadPredictions() {
+  try {
+    const res = await fetch('/predictions');
+    predData = await res.json();
+    renderPredictions(predData);
+  } catch(e) {
+    document.getElementById('prediksiContent').innerHTML = '<div class="loading">Gagal memuat prediksi</div>';
+  }
+}
+
+function renderPredictions(data) {
+  const method = currentMethod;
+  const numbers = data[method] || [];
+
+  if (!numbers.length) {
+    document.getElementById('prediksiContent').innerHTML = '<div class="loading">Belum ada prediksi</div>';
+    return;
+  }
+
+  const methodLabels = {
+    gabungan: { name: 'GABUNGAN', desc: 'Kombinasi semua metode — 10 nomor terbaik' },
+    paito: { name: 'PAITO', desc: 'Analisis pola warna merah/hitam per posisi' },
+    shio: { name: 'SHIO', desc: 'Prediksi berdasarkan siklus zodiak Tionghoa' },
+    ai: { name: 'AI', desc: 'Analisis statistik frekuensi & tren digit' },
+  };
+
+  const info = methodLabels[method] || { name: method.toUpperCase(), desc: '' };
+  const allNums = numbers.map(n => n.nomor).join(', ');
+
+  let html = `
+  <div class="method-card">
+    <div class="method-header">
+      <div>
+        <div class="method-name">Metode ${info.name}</div>
+        <div class="method-desc">${info.desc}</div>
+      </div>
+      <button class="copy-all-btn" onclick="copyAll('${allNums}')">
+        <span>📋</span> Copy Semua
+      </button>
+    </div>
+    <div class="numbers-grid">
+  `;
+
+  numbers.forEach((item, i) => {
+    const warnaHtml = (item.warna || '').split('').map(c =>
+      `<span class="w-${c.toLowerCase()}">${c}</span>`
+    ).join('');
+
+    html += `
+    <div class="num-item" onclick="copyNum('${item.nomor}', this)" title="Tap untuk copy">
+      <div class="num-rank">#${i+1}</div>
+      <div class="num-value">${item.nomor}</div>
+      <div class="num-right">
+        <div class="num-shio">${item.shio || ''}</div>
+        <div class="num-warna">${warnaHtml}</div>
+        <div class="copy-icon">📋</div>
+      </div>
+    </div>`;
+  });
+
+  html += `</div></div>`;
+
+  document.getElementById('prediksiContent').innerHTML = html;
+}
+
+async function regenerate() {
+  document.getElementById('prediksiContent').innerHTML = '<div class="loading"><div class="spinner"></div>Menghasilkan prediksi baru...</div>';
+  try {
+    await fetch('/generate');
+    await loadPredictions();
+    showToast('Prediksi baru berhasil dihasilkan!');
+  } catch(e) {
+    showToast('Gagal generate prediksi');
+  }
+}
+
+function copyNum(num, el) {
+  navigator.clipboard.writeText(num).then(() => {
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 1500);
+    showToast(`Nomor ${num} disalin!`);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = num;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast(`Nomor ${num} disalin!`);
+  });
+}
+
+function copyAll(nums) {
+  const text = nums.split(', ').join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Semua nomor disalin!');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Semua nomor disalin!');
+  });
+}
+
+function updateDisplay(val) {
+  const el = document.getElementById('numDisplay');
+  if (!val) { el.textContent = '—'; return; }
+  const padded = val.padStart(5, '0').slice(-5);
+  el.textContent = padded;
+}
+
+async function submitResult() {
+  const tanggal = document.getElementById('inputTanggal').value;
+  const sesi = parseInt(document.getElementById('inputSesi').value);
+  const nomor = document.getElementById('nomorInput').value.trim();
+
+  const successEl = document.getElementById('successMsg');
+  const errorEl = document.getElementById('errorMsg');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  if (!tanggal || !nomor) {
+    errorEl.textContent = 'Tanggal dan nomor harus diisi';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  if (nomor.length > 5 || isNaN(nomor)) {
+    errorEl.textContent = 'Nomor harus berupa angka 5 digit (00000-99999)';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch('/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tanggal, sesi, nomor })
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      successEl.textContent = `✅ ${data.message} — Prediksi sesi ${data.next_sesi} (${data.next_tanggal}) telah diperbarui otomatis!`;
+      successEl.style.display = 'block';
+      document.getElementById('nomorInput').value = '';
+      document.getElementById('numDisplay').textContent = '—';
+      await loadStatus();
+      await loadPredictions();
+      showToast('Hasil disimpan & prediksi diperbarui!');
+    } else {
+      throw new Error(data.error || 'Gagal menyimpan');
+    }
+  } catch(e) {
+    errorEl.textContent = 'Gagal menyimpan: ' + e.message;
+    errorEl.style.display = 'block';
+  }
+}
+
+async function loadStatusForInput() {
+  await loadStatus();
+  if (!statusData) return;
+  let html = '';
+  if (statusData.sesi1_done) {
+    html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+      <span>✅ Sesi 1</span><span style="font-family:monospace;font-weight:700;color:var(--accent)">${statusData.sesi1_result}</span></div>`;
+  } else {
+    html += `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted)">⏳ Sesi 1 — Belum ada hasil</div>`;
+  }
+  if (statusData.sesi2_done) {
+    html += `<div style="display:flex;justify-content:space-between;padding:8px 0">
+      <span>✅ Sesi 2</span><span style="font-family:monospace;font-weight:700;color:var(--accent)">${statusData.sesi2_result}</span></div>`;
+  } else {
+    html += `<div style="padding:8px 0;color:var(--muted)">⏳ Sesi 2 — Belum ada hasil</div>`;
+  }
+  document.getElementById('todayStatus').innerHTML = html;
+}
+
+async function loadHistory() {
+  document.getElementById('historyContent').innerHTML = '<div class="loading"><div class="spinner"></div>Memuat...</div>';
+  try {
+    const res = await fetch('/history');
+    const data = await res.json();
+    renderHistory(data.history || []);
+  } catch(e) {}
+}
+
+function renderHistory(history) {
+  if (!history || history.length === 0) {
+    document.getElementById('historyContent').innerHTML =
+      '<div class="loading">Belum ada history hasil</div>';
+    return;
+  }
+
+  let html = '<div class="history-card"><div class="history-header">📊 Riwayat Hasil</div>';
+  history.forEach(item => {
+    const predictions = (item.predictions || '').split(',').map(s => s.trim()).filter(Boolean);
+    const isHit = predictions.includes(item.nomor);
+    const hitBadge = predictions.length > 0
+      ? (isHit ? '<span class="hit-badge">HIT</span>' : '<span class="miss-badge">MISS</span>')
+      : '';
+
+    html += `
+    <div class="history-item">
+      <div class="history-left">
+        <div class="date">${formatDate(item.tanggal)}</div>
+        <div class="sesi">Sesi ${item.sesi}</div>
+      </div>
+      <div style="text-align:center">
+        <div class="history-result" onclick="copyNum('${item.nomor}', this)" style="cursor:pointer">${item.nomor}</div>
+        <div style="font-size:0.65rem;color:var(--muted)">tap untuk copy</div>
+      </div>
+      <div class="history-right">
+        <div class="history-shio">${getShio(item.nomor)}</div>
+        ${hitBadge}
+      </div>
+    </div>`;
+  });
+
+  html += '</div>';
+  document.getElementById('historyContent').innerHTML = html;
+}
+
+async function loadPaito() {
+  document.getElementById('paitoContent').innerHTML = '<div class="loading"><div class="spinner"></div>Memuat paito...</div>';
+  try {
+    const res = await fetch('/paito');
+    const data = await res.json();
+    renderPaito(data.paito || []);
+  } catch(e) {}
+}
+
+function renderPaito(paito) {
+  if (!paito || paito.length === 0) {
+    document.getElementById('paitoContent').innerHTML =
+      '<div class="loading">Belum ada data paito</div>';
+    return;
+  }
+
+  let html = `
+  <div class="history-card">
+    <div class="history-header">🎨 Tabel Paito (M=Merah/Ganjil, H=Hitam/Genap)</div>
+    <div style="overflow-x:auto;padding:4px">
+    <table class="paito-table">
+      <thead>
+        <tr>
+          <th>Tgl</th>
+          <th>S</th>
+          <th>Nomor</th>
+          <th>Warna</th>
+          <th>Shio</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  paito.forEach(item => {
+    const colors = (item.colors || '').split('');
+    const colorDots = colors.map(c =>
+      `<div class="color-dot ${c.toLowerCase()}">${c}</div>`
+    ).join('');
+
+    html += `
+      <tr>
+        <td style="font-size:0.72rem;color:var(--muted)">${formatDateShort(item.tanggal)}</td>
+        <td style="color:var(--accent);font-size:0.75rem">${item.sesi}</td>
+        <td><span class="paito-num" style="color:#fff">${item.nomor}</span></td>
+        <td><div class="color-dots">${colorDots}</div></td>
+        <td style="font-size:0.72rem;color:var(--accent)">${item.shio}</td>
+      </tr>`;
+  });
+
+  html += `</tbody></table></div></div>`;
+  document.getElementById('paitoContent').innerHTML = html;
+}
+
+// Helpers
+const shioList = ['Tikus','Kerbau','Macan','Kelinci','Naga','Ular','Kuda','Kambing','Monyet','Ayam','Anjing','Babi'];
+function getShio(nomor) {
+  if (!nomor || nomor.length < 2) return '';
+  const n = parseInt(nomor.slice(-2)) || 0;
+  return shioList[n % 12];
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const parts = d.split('-');
+  if (parts.length !== 3) return d;
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  return `${parts[2]} ${months[parseInt(parts[1])-1]} ${parts[0]}`;
+}
+
+function formatDateShort(d) {
+  if (!d) return '';
+  const parts = d.split('-');
+  if (parts.length !== 3) return d;
+  return `${parts[2]}/${parts[1]}`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
+`
+
+// htmlTemplate is the full single-page web app served by the Go server
+const htmlTemplate = indexHTML
