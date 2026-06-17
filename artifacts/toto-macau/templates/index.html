@@ -398,15 +398,14 @@ function renderPredictions(data) {
       </div>
       <button class="copy-all-btn" onclick="copyAll(${JSON.stringify(allNums)})">📋 Copy</button>
     </div>
-    <div class="numbers-grid" style="${isSubDigit ? 'grid-template-columns:repeat(3,1fr)' : ''}">`;
+    <div class="numbers-grid">`;
 
   numbers.forEach((item, i) => {
     const wHtml = (item.warna||'').split('').map(c=>`<span class="w-${c.toLowerCase()}">${c}</span>`).join('');
-    const numStyle = isSubDigit ? 'font-size:1.5rem;letter-spacing:3px' : '';
     html += `
     <div class="num-item" onclick="copyNum('${item.nomor}', this)">
       <span class="num-rank">#${i+1}</span>
-      <span class="num-value" style="${numStyle}">${item.nomor}</span>
+      <span class="num-value">${item.nomor}</span>
       <div class="num-right">
         <div class="num-shio">${item.shio||''}</div>
         <div class="num-warna">${wHtml}</div>
