@@ -10,18 +10,15 @@
     --card: #1a1a2e;
     --card2: #16213e;
     --accent: #f0a500;
-    --accent2: #e94560;
     --text: #e0e0e0;
     --muted: #888;
     --green: #00c853;
     --red: #e94560;
-    --blue: #1565c0;
     --border: rgba(240,165,0,0.2);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
 
-  /* Header */
   .header {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     border-bottom: 2px solid var(--accent);
@@ -29,27 +26,24 @@
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 100;
   }
-  .header h1 { font-size: 1.1rem; color: var(--accent); font-weight: 700; letter-spacing: 0.5px; }
+  .header h1 { font-size: 1.1rem; color: var(--accent); font-weight: 700; }
   .header .subtitle { font-size: 0.7rem; color: var(--muted); }
   .time-badge { background: rgba(240,165,0,0.15); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; color: var(--accent); }
 
-  /* Nav tabs */
   .tabs { display: flex; background: var(--card); border-bottom: 1px solid var(--border); overflow-x: auto; }
-  .tab { flex: 1; min-width: 80px; text-align: center; padding: 12px 8px; font-size: 0.8rem; cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .tab { flex: 1; min-width: 70px; text-align: center; padding: 12px 6px; font-size: 0.78rem; cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
   .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* Content */
   .content { padding: 14px; max-width: 600px; margin: 0 auto; }
   .section { display: none; }
   .section.active { display: block; }
 
-  /* Session badge */
   .session-banner {
     background: linear-gradient(135deg, var(--card2), var(--card));
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 14px 16px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     display: flex; align-items: center; justify-content: space-between;
   }
   .session-info .label { font-size: 0.72rem; color: var(--muted); margin-bottom: 2px; }
@@ -58,90 +52,72 @@
   .dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid var(--muted); transition: all 0.3s; }
   .dot.done { background: var(--green); border-color: var(--green); }
   .dot.active { background: var(--accent); border-color: var(--accent); animation: pulse 1.5s infinite; }
-  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }
 
-  /* Prediction cards */
-  .method-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    margin-bottom: 14px;
-    overflow: hidden;
-  }
-  .method-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 14px;
-    background: rgba(240,165,0,0.08);
-    border-bottom: 1px solid var(--border);
-  }
+  .method-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
+  .method-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(240,165,0,0.08); border-bottom: 1px solid var(--border); }
   .method-name { font-weight: 700; font-size: 0.85rem; color: var(--accent); }
   .method-desc { font-size: 0.7rem; color: var(--muted); }
 
   .copy-all-btn {
-    background: var(--accent);
-    color: #000;
-    border: none;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 5px;
-    transition: opacity 0.2s;
+    background: var(--accent); color: #000; border: none;
+    padding: 7px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; gap: 4px; transition: opacity 0.2s;
   }
   .copy-all-btn:active { opacity: 0.7; }
 
-  /* Number grid */
   .numbers-grid { padding: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .num-item {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    padding: 10px 12px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 10px 12px;
     display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer; transition: all 0.15s;
-    user-select: none;
+    cursor: pointer; transition: all 0.15s; user-select: none;
   }
-  .num-item:active { background: rgba(240,165,0,0.15); border-color: var(--accent); }
+  .num-item:active, .num-item:hover { background: rgba(240,165,0,0.1); border-color: rgba(240,165,0,0.4); }
   .num-item.copied { background: rgba(0,200,83,0.15); border-color: var(--green); }
-  .num-rank { font-size: 0.65rem; color: var(--muted); min-width: 16px; }
-  .num-value { font-size: 1.25rem; font-weight: 800; color: #fff; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+  .num-rank { font-size: 0.65rem; color: var(--muted); min-width: 18px; }
+  .num-value { font-size: 1.3rem; font-weight: 800; color: #fff; font-family: 'Courier New', monospace; letter-spacing: 2px; }
   .num-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
   .num-shio { font-size: 0.65rem; color: var(--accent); }
   .num-warna { font-size: 0.6rem; display: flex; gap: 1px; }
   .w-m { color: #e94560; }
-  .w-h { color: #888; }
+  .w-h { color: #666; }
 
-  /* Copy icon */
-  .copy-icon { font-size: 0.75rem; color: var(--muted); }
-
-  /* Method tabs */
   .method-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
   .method-tab {
     padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; cursor: pointer;
-    border: 1px solid var(--border); color: var(--muted); background: transparent;
-    transition: all 0.2s;
+    border: 1px solid var(--border); color: var(--muted); background: transparent; transition: all 0.2s;
   }
   .method-tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
 
-  /* Input form */
-  .form-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 14px;
+  /* Win Rate Card */
+  .wr-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; margin-bottom: 14px;
   }
+  .wr-title { font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+  .wr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
+  .wr-stat { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px; text-align: center; }
+  .wr-stat .val { font-size: 1.6rem; font-weight: 800; }
+  .wr-stat .lbl { font-size: 0.68rem; color: var(--muted); margin-top: 4px; }
+  .wr-bar-wrap { margin-top: 4px; }
+  .wr-bar-label { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+  .wr-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .wr-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .wr-note { font-size: 0.72rem; color: var(--muted); margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; }
+
+  /* Form */
+  .form-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
   .form-title { font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
   .form-row { margin-bottom: 12px; }
   .form-row label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
   .form-row input, .form-row select {
     width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-    color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 1rem; outline: none;
-    transition: border-color 0.2s;
+    color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s;
   }
   .form-row input:focus, .form-row select:focus { border-color: var(--accent); }
   .form-row select option { background: #1a1a2e; }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .submit-btn {
     width: 100%; padding: 13px; background: var(--accent); color: #000; border: none;
     border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s;
@@ -149,73 +125,46 @@
   .submit-btn:active { opacity: 0.8; }
   .success-msg { background: rgba(0,200,83,0.15); border: 1px solid var(--green); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: var(--green); margin-top: 10px; display: none; }
   .error-msg { background: rgba(233,69,96,0.15); border: 1px solid var(--red); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: var(--red); margin-top: 10px; display: none; }
+  .num-input-display { font-size: 2.2rem; font-family: 'Courier New', monospace; letter-spacing: 8px; font-weight: 800; text-align: center; color: var(--accent); margin: 8px 0 4px; min-height: 52px; }
+  #nomorInput { font-size: 1.4rem; font-family: 'Courier New', monospace; letter-spacing: 4px; text-align: center; }
 
-  /* Big number input display */
-  .num-input-display {
-    font-size: 2.5rem; font-family: 'Courier New', monospace; letter-spacing: 8px; font-weight: 800;
-    text-align: center; color: var(--accent); margin: 8px 0 4px;
-    min-height: 56px;
-  }
-  #nomorInput { font-size: 1.5rem; font-family: 'Courier New', monospace; letter-spacing: 4px; text-align: center; }
-
-  /* History table */
-  .history-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 14px;
-  }
+  /* History */
+  .history-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
   .history-header { padding: 12px 14px; background: rgba(240,165,0,0.08); border-bottom: 1px solid var(--border); font-weight: 700; font-size: 0.85rem; color: var(--accent); }
-  .history-item {
-    padding: 12px 14px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    display: flex; justify-content: space-between; align-items: center;
-  }
+  .history-item { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
   .history-item:last-child { border-bottom: none; }
-  .history-left .date { font-size: 0.72rem; color: var(--muted); }
-  .history-left .sesi { font-size: 0.68rem; color: var(--accent); margin-top: 2px; }
-  .history-result { font-size: 1.3rem; font-weight: 800; font-family: 'Courier New', monospace; color: #fff; letter-spacing: 2px; }
-  .history-right { text-align: right; }
-  .history-shio { font-size: 0.68rem; color: var(--accent); }
-  .hit-badge { font-size: 0.65rem; background: rgba(0,200,83,0.2); color: var(--green); border-radius: 4px; padding: 2px 6px; margin-left: 6px; }
-  .miss-badge { font-size: 0.65rem; background: rgba(233,69,96,0.2); color: var(--red); border-radius: 4px; padding: 2px 6px; margin-left: 6px; }
+  .history-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .history-meta { font-size: 0.7rem; color: var(--muted); }
+  .history-periode { font-size: 0.7rem; color: rgba(240,165,0,0.6); }
+  .history-result { font-size: 1.25rem; font-weight: 800; font-family: 'Courier New', monospace; color: #fff; letter-spacing: 2px; cursor: pointer; }
+  .history-result:hover { color: var(--accent); }
+  .badge { font-size: 0.62rem; border-radius: 4px; padding: 2px 7px; font-weight: 700; }
+  .badge-hit { background: rgba(0,200,83,0.2); color: var(--green); border: 1px solid rgba(0,200,83,0.3); }
+  .badge-shio { background: rgba(240,165,0,0.15); color: var(--accent); border: 1px solid rgba(240,165,0,0.3); }
+  .badge-miss { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
+  .history-row2 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .history-shio-txt { font-size: 0.68rem; color: var(--accent); }
+  .pred-preview { font-size: 0.65rem; color: var(--muted); font-family: 'Courier New', monospace; }
 
-  /* Paito table */
+  /* Paito */
   .paito-table { width: 100%; border-collapse: collapse; }
   .paito-table th { font-size: 0.68rem; color: var(--muted); padding: 6px 8px; text-align: left; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); }
   .paito-table td { padding: 7px 8px; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
   .paito-table tr:last-child td { border-bottom: none; }
   .paito-num { font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: 1px; }
   .color-dots { display: flex; gap: 3px; }
-  .color-dot { width: 16px; height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; }
-  .color-dot.m { background: rgba(233,69,96,0.3); color: #e94560; border: 1px solid #e94560; }
-  .color-dot.h { background: rgba(100,100,100,0.2); color: #888; border: 1px solid #555; }
+  .color-dot { width: 17px; height: 17px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 700; }
+  .color-dot.m { background: rgba(233,69,96,0.25); color: #e94560; border: 1px solid #e94560; }
+  .color-dot.h { background: rgba(80,80,80,0.2); color: #666; border: 1px solid #444; }
 
-  /* Toast notification */
-  .toast {
-    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: rgba(0,200,83,0.9); color: #000; padding: 10px 20px; border-radius: 8px;
-    font-size: 0.82rem; font-weight: 700; opacity: 0; transition: all 0.3s;
-    pointer-events: none; z-index: 999; white-space: nowrap;
-  }
+  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,200,83,0.9); color: #000; padding: 10px 20px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* Loading */
   .loading { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 0.85rem; }
   .spinner { width: 28px; height: 28px; border: 3px solid rgba(240,165,0,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .regen-btn {
-    background: transparent; border: 1px solid var(--border); color: var(--accent);
-    padding: 8px 16px; border-radius: 20px; font-size: 0.78rem; cursor: pointer;
-    display: block; margin: 0 auto 16px; transition: all 0.2s;
-  }
-  .regen-btn:active { background: rgba(240,165,0,0.1); }
-
-  /* Responsive */
   @media (min-width: 480px) {
-    .numbers-grid { grid-template-columns: repeat(2, 1fr); }
     .num-value { font-size: 1.4rem; }
   }
 </style>
@@ -235,19 +184,20 @@
   <div class="tab" onclick="switchTab('input')">Input Hasil</div>
   <div class="tab" onclick="switchTab('history')">History</div>
   <div class="tab" onclick="switchTab('paito')">Paito</div>
+  <div class="tab" onclick="switchTab('winrate')">Win Rate</div>
 </div>
 
 <div class="content">
 
   <!-- PREDIKSI TAB -->
   <div class="section active" id="tab-prediksi">
-    <div class="session-banner" id="sessionBanner">
+    <div class="session-banner">
       <div class="session-info">
         <div class="label">Prediksi Untuk</div>
         <div class="value" id="predTarget">Memuat...</div>
       </div>
       <div>
-        <div style="font-size:0.68rem;color:var(--muted);text-align:right;margin-bottom:6px">Progress Hari Ini</div>
+        <div style="font-size:0.68rem;color:var(--muted);text-align:right;margin-bottom:6px">Hari Ini</div>
         <div class="session-dots">
           <div class="dot" id="dot1" title="Sesi 1"></div>
           <div class="dot" id="dot2" title="Sesi 2"></div>
@@ -262,8 +212,6 @@
       <button class="method-tab" onclick="showMethod('ai')">AI</button>
     </div>
 
-    <button class="regen-btn" onclick="regenerate()">↻ Generate Ulang</button>
-
     <div id="prediksiContent">
       <div class="loading"><div class="spinner"></div>Memuat prediksi...</div>
     </div>
@@ -273,30 +221,36 @@
   <div class="section" id="tab-input">
     <div class="form-card">
       <div class="form-title">Input Hasil Keluaran</div>
-      <div class="form-row">
-        <label>Tanggal</label>
-        <input type="date" id="inputTanggal">
+      <div class="form-row-2">
+        <div class="form-row">
+          <label>Tanggal</label>
+          <input type="date" id="inputTanggal">
+        </div>
+        <div class="form-row">
+          <label>Sesi</label>
+          <select id="inputSesi">
+            <option value="1">Sesi 1</option>
+            <option value="2">Sesi 2</option>
+          </select>
+        </div>
       </div>
       <div class="form-row">
-        <label>Sesi</label>
-        <select id="inputSesi">
-          <option value="1">Sesi 1</option>
-          <option value="2">Sesi 2</option>
-        </select>
+        <label>Nomor Periode (opsional)</label>
+        <input type="number" id="inputPeriode" placeholder="contoh: 3388">
       </div>
       <div class="form-row">
         <label>Nomor Hasil (5 digit)</label>
         <input type="number" id="nomorInput" min="0" max="99999" placeholder="00000"
-               oninput="updateDisplay(this.value)" maxlength="5">
+               oninput="updateDisplay(this.value)">
         <div class="num-input-display" id="numDisplay">—</div>
       </div>
-      <button class="submit-btn" onclick="submitResult()">Simpan Hasil</button>
+      <button class="submit-btn" onclick="submitResult()">💾 Simpan Hasil</button>
       <div class="success-msg" id="successMsg"></div>
       <div class="error-msg" id="errorMsg"></div>
     </div>
 
     <div class="form-card">
-      <div class="form-title" style="margin-bottom:8px">Sesi Hari Ini</div>
+      <div class="form-title" style="margin-bottom:8px">Status Hari Ini</div>
       <div id="todayStatus" style="font-size:0.82rem;color:var(--muted)">Memuat...</div>
     </div>
   </div>
@@ -315,6 +269,13 @@
     </div>
   </div>
 
+  <!-- WIN RATE TAB -->
+  <div class="section" id="tab-winrate">
+    <div id="winrateContent">
+      <div class="loading"><div class="spinner"></div>Menghitung win rate...</div>
+    </div>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -325,41 +286,31 @@ let currentMethod = 'gabungan';
 let predData = null;
 let statusData = null;
 
-// Init
 document.addEventListener('DOMContentLoaded', () => {
-  // Set today's date in input
   const today = new Date().toISOString().slice(0, 10);
   document.getElementById('inputTanggal').value = today;
-
   loadStatus();
   loadPredictions();
-
-  // Refresh every 30 seconds
-  setInterval(loadStatus, 30000);
+  setInterval(loadStatus, 60000);
 });
 
 function switchTab(name) {
   currentTab = name;
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', ['prediksi','input','history','paito'][i] === name);
-  });
+  const tabNames = ['prediksi','input','history','paito','winrate'];
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', tabNames[i] === name));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-
   if (name === 'history') loadHistory();
   if (name === 'paito') loadPaito();
+  if (name === 'winrate') loadWinRate();
   if (name === 'input') loadStatusForInput();
 }
 
 function showMethod(method) {
   currentMethod = method;
   document.querySelectorAll('.method-tab').forEach(t => {
-    t.classList.toggle('active', t.textContent.toLowerCase() === method ||
-      (method === 'gabungan' && t.textContent === 'Gabungan') ||
-      (method === 'paito' && t.textContent === 'Paito') ||
-      (method === 'shio' && t.textContent === 'Shio') ||
-      (method === 'ai' && t.textContent === 'AI')
-    );
+    const m = t.textContent.toLowerCase();
+    t.classList.toggle('active', m === method || (method === 'gabungan' && m === 'gabungan'));
   });
   if (predData) renderPredictions(predData);
 }
@@ -369,17 +320,10 @@ async function loadStatus() {
     const res = await fetch('/status');
     statusData = await res.json();
     document.getElementById('serverTime').textContent = statusData.server_time;
-
-    // Update session dots
     const d1 = document.getElementById('dot1');
     const d2 = document.getElementById('dot2');
-    if (statusData.sesi1_done) d1.classList.add('done'); else d1.classList.remove('done');
-    if (statusData.sesi2_done) d2.classList.add('done'); else d2.classList.remove('done');
-
-    if (!statusData.sesi1_done) d1.classList.add('active'); else d1.classList.remove('active');
-    if (statusData.sesi1_done && !statusData.sesi2_done) d2.classList.add('active'); else d2.classList.remove('active');
-
-    // Update target
+    d1.className = 'dot' + (statusData.sesi1_done ? ' done' : ' active');
+    d2.className = 'dot' + (statusData.sesi2_done ? ' done' : (statusData.sesi1_done ? ' active' : ''));
     const label = `Sesi ${statusData.next_sesi} — ${formatDate(statusData.next_tanggal)}`;
     document.getElementById('predTarget').textContent = label;
   } catch(e) {}
@@ -398,21 +342,19 @@ async function loadPredictions() {
 function renderPredictions(data) {
   const method = currentMethod;
   const numbers = data[method] || [];
-
   if (!numbers.length) {
     document.getElementById('prediksiContent').innerHTML = '<div class="loading">Belum ada prediksi</div>';
     return;
   }
 
-  const methodLabels = {
-    gabungan: { name: 'GABUNGAN', desc: 'Kombinasi semua metode — 10 nomor terbaik' },
-    paito: { name: 'PAITO', desc: 'Analisis pola warna merah/hitam per posisi' },
-    shio: { name: 'SHIO', desc: 'Prediksi berdasarkan siklus zodiak Tionghoa' },
-    ai: { name: 'AI', desc: 'Analisis statistik frekuensi & tren digit' },
+  const labels = {
+    gabungan: { name: 'GABUNGAN', desc: 'Kombinasi Paito + Shio + AI — 10 nomor terkuat' },
+    paito: { name: 'PAITO', desc: 'Analisis pola warna Merah/Hitam per posisi digit' },
+    shio: { name: 'SHIO', desc: 'Prediksi siklus 12 zodiak Tionghoa' },
+    ai: { name: 'AI', desc: 'Analisis statistik frekuensi, gap & tren digit' },
   };
-
-  const info = methodLabels[method] || { name: method.toUpperCase(), desc: '' };
-  const allNums = numbers.map(n => n.nomor).join(', ');
+  const info = labels[method] || { name: method.toUpperCase(), desc: '' };
+  const allNums = numbers.map(n => n.nomor).join('\n');
 
   let html = `
   <div class="method-card">
@@ -421,150 +363,96 @@ function renderPredictions(data) {
         <div class="method-name">Metode ${info.name}</div>
         <div class="method-desc">${info.desc}</div>
       </div>
-      <button class="copy-all-btn" onclick="copyAll('${allNums}')">
-        <span>📋</span> Copy Semua
-      </button>
+      <button class="copy-all-btn" onclick="copyAll(${JSON.stringify(allNums)})">📋 Copy Semua</button>
     </div>
-    <div class="numbers-grid">
-  `;
+    <div class="numbers-grid">`;
 
   numbers.forEach((item, i) => {
-    const warnaHtml = (item.warna || '').split('').map(c =>
-      `<span class="w-${c.toLowerCase()}">${c}</span>`
-    ).join('');
-
+    const wHtml = (item.warna||'').split('').map(c=>`<span class="w-${c.toLowerCase()}">${c}</span>`).join('');
     html += `
-    <div class="num-item" onclick="copyNum('${item.nomor}', this)" title="Tap untuk copy">
-      <div class="num-rank">#${i+1}</div>
-      <div class="num-value">${item.nomor}</div>
+    <div class="num-item" onclick="copyNum('${item.nomor}', this)">
+      <span class="num-rank">#${i+1}</span>
+      <span class="num-value">${item.nomor}</span>
       <div class="num-right">
-        <div class="num-shio">${item.shio || ''}</div>
-        <div class="num-warna">${warnaHtml}</div>
-        <div class="copy-icon">📋</div>
+        <div class="num-shio">${item.shio||''}</div>
+        <div class="num-warna">${wHtml}</div>
+        <span style="font-size:0.7rem;color:var(--muted)">📋</span>
       </div>
     </div>`;
   });
 
   html += `</div></div>`;
-
   document.getElementById('prediksiContent').innerHTML = html;
 }
 
-async function regenerate() {
-  document.getElementById('prediksiContent').innerHTML = '<div class="loading"><div class="spinner"></div>Menghasilkan prediksi baru...</div>';
-  try {
-    await fetch('/generate');
-    await loadPredictions();
-    showToast('Prediksi baru berhasil dihasilkan!');
-  } catch(e) {
-    showToast('Gagal generate prediksi');
-  }
-}
-
 function copyNum(num, el) {
-  navigator.clipboard.writeText(num).then(() => {
-    el.classList.add('copied');
-    setTimeout(() => el.classList.remove('copied'), 1500);
-    showToast(`Nomor ${num} disalin!`);
-  }).catch(() => {
-    // Fallback
+  navigator.clipboard.writeText(num).catch(()=>{
     const ta = document.createElement('textarea');
-    ta.value = num;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast(`Nomor ${num} disalin!`);
+    ta.value = num; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
   });
+  el.classList.add('copied');
+  setTimeout(() => el.classList.remove('copied'), 1500);
+  showToast(`${num} disalin!`);
 }
 
-function copyAll(nums) {
-  const text = nums.split(', ').join('\n');
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('Semua nomor disalin!');
-  }).catch(() => {
+function copyAll(text) {
+  navigator.clipboard.writeText(text).catch(()=>{
     const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('Semua nomor disalin!');
+    ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
   });
+  showToast('Semua nomor disalin!');
 }
 
 function updateDisplay(val) {
   const el = document.getElementById('numDisplay');
   if (!val) { el.textContent = '—'; return; }
-  const padded = val.padStart(5, '0').slice(-5);
-  el.textContent = padded;
+  el.textContent = String(val).padStart(5, '0').slice(-5);
 }
 
 async function submitResult() {
   const tanggal = document.getElementById('inputTanggal').value;
   const sesi = parseInt(document.getElementById('inputSesi').value);
   const nomor = document.getElementById('nomorInput').value.trim();
+  const periode = parseInt(document.getElementById('inputPeriode').value) || 0;
 
   const successEl = document.getElementById('successMsg');
   const errorEl = document.getElementById('errorMsg');
   successEl.style.display = 'none';
   errorEl.style.display = 'none';
 
-  if (!tanggal || !nomor) {
-    errorEl.textContent = 'Tanggal dan nomor harus diisi';
-    errorEl.style.display = 'block';
-    return;
-  }
-
-  if (nomor.length > 5 || isNaN(nomor)) {
-    errorEl.textContent = 'Nomor harus berupa angka 5 digit (00000-99999)';
-    errorEl.style.display = 'block';
-    return;
-  }
+  if (!tanggal || !nomor) { errorEl.textContent = 'Tanggal dan nomor harus diisi'; errorEl.style.display = 'block'; return; }
 
   try {
     const res = await fetch('/results', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tanggal, sesi, nomor })
+      body: JSON.stringify({ periode, tanggal, sesi, nomor })
     });
-
     const data = await res.json();
-
     if (res.ok && data.success) {
-      successEl.textContent = `✅ ${data.message} — Prediksi sesi ${data.next_sesi} (${data.next_tanggal}) telah diperbarui otomatis!`;
+      successEl.textContent = `✅ ${data.message} — Prediksi sesi ${data.next_sesi} (${data.next_tanggal}) sudah siap!`;
       successEl.style.display = 'block';
       document.getElementById('nomorInput').value = '';
+      document.getElementById('inputPeriode').value = '';
       document.getElementById('numDisplay').textContent = '—';
       await loadStatus();
       await loadPredictions();
-      showToast('Hasil disimpan & prediksi diperbarui!');
-    } else {
-      throw new Error(data.error || 'Gagal menyimpan');
-    }
-  } catch(e) {
-    errorEl.textContent = 'Gagal menyimpan: ' + e.message;
-    errorEl.style.display = 'block';
-  }
+      showToast('Hasil disimpan! Prediksi diperbarui.');
+    } else { throw new Error(data.error || 'Gagal'); }
+  } catch(e) { errorEl.textContent = 'Error: ' + e.message; errorEl.style.display = 'block'; }
 }
 
 async function loadStatusForInput() {
   await loadStatus();
   if (!statusData) return;
   let html = '';
-  if (statusData.sesi1_done) {
-    html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-      <span>✅ Sesi 1</span><span style="font-family:monospace;font-weight:700;color:var(--accent)">${statusData.sesi1_result}</span></div>`;
-  } else {
-    html += `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted)">⏳ Sesi 1 — Belum ada hasil</div>`;
-  }
-  if (statusData.sesi2_done) {
-    html += `<div style="display:flex;justify-content:space-between;padding:8px 0">
-      <span>✅ Sesi 2</span><span style="font-family:monospace;font-weight:700;color:var(--accent)">${statusData.sesi2_result}</span></div>`;
-  } else {
-    html += `<div style="padding:8px 0;color:var(--muted)">⏳ Sesi 2 — Belum ada hasil</div>`;
-  }
-  document.getElementById('todayStatus').innerHTML = html;
+  const s1 = statusData.sesi1_done
+    ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><span>✅ Sesi 1</span><span style="font-family:monospace;font-weight:700;color:var(--accent)">${statusData.sesi1_result}</span></div>`
+    : `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted)">⏳ Sesi 1 — Belum ada hasil</div>`;
+  const s2 = statusData.sesi2_done
+    ? `<div style="display:flex;justify-content:space-between;padding:8px 0"><span>✅ Sesi 2</span><span style="font-family:monospace;font-weight:700;color:var(--accent)">${statusData.sesi2_result}</span></div>`
+    : `<div style="padding:8px 0;color:var(--muted)">⏳ Sesi 2 — Belum ada hasil</div>`;
+  document.getElementById('todayStatus').innerHTML = s1 + s2;
 }
 
 async function loadHistory() {
@@ -577,43 +465,43 @@ async function loadHistory() {
 }
 
 function renderHistory(history) {
-  if (!history || history.length === 0) {
-    document.getElementById('historyContent').innerHTML =
-      '<div class="loading">Belum ada history hasil</div>';
-    return;
+  if (!history || !history.length) {
+    document.getElementById('historyContent').innerHTML = '<div class="loading">Belum ada data</div>'; return;
   }
-
-  let html = '<div class="history-card"><div class="history-header">📊 Riwayat Hasil</div>';
+  let html = '<div class="history-card"><div class="history-header">📋 Riwayat Hasil Keluaran</div>';
   history.forEach(item => {
-    const predictions = (item.predictions || '').split(',').map(s => s.trim()).filter(Boolean);
-    const isHit = predictions.includes(item.nomor);
-    const hitBadge = predictions.length > 0
-      ? (isHit ? '<span class="hit-badge">HIT</span>' : '<span class="miss-badge">MISS</span>')
-      : '';
+    const predNums = (item.predictions||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const badge = !predNums.length ? '' :
+      item.is_hit ? '<span class="badge badge-hit">EXACT HIT</span>' :
+      item.shio_hit ? '<span class="badge badge-shio">Shio Hit</span>' :
+      '<span class="badge badge-miss">Miss</span>';
+
+    const predPreview = predNums.length ? `<span class="pred-preview">${predNums.slice(0,5).join(' ')}</span>` : '';
+    const periodeStr = item.periode ? `<span class="history-periode">#${item.periode}</span>` : '';
 
     html += `
     <div class="history-item">
-      <div class="history-left">
-        <div class="date">${formatDate(item.tanggal)}</div>
-        <div class="sesi">Sesi ${item.sesi}</div>
+      <div class="history-row1">
+        <div>
+          <div class="history-meta">${formatDate(item.tanggal)} · Sesi ${item.sesi} ${periodeStr}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="history-result" onclick="copyNum('${item.nomor}',this)">${item.nomor}</span>
+          ${badge}
+        </div>
       </div>
-      <div style="text-align:center">
-        <div class="history-result" onclick="copyNum('${item.nomor}', this)" style="cursor:pointer">${item.nomor}</div>
-        <div style="font-size:0.65rem;color:var(--muted)">tap untuk copy</div>
-      </div>
-      <div class="history-right">
-        <div class="history-shio">${getShio(item.nomor)}</div>
-        ${hitBadge}
+      <div class="history-row2">
+        <span class="history-shio-txt">${getShio(item.nomor)}</span>
+        ${predPreview}
       </div>
     </div>`;
   });
-
   html += '</div>';
   document.getElementById('historyContent').innerHTML = html;
 }
 
 async function loadPaito() {
-  document.getElementById('paitoContent').innerHTML = '<div class="loading"><div class="spinner"></div>Memuat paito...</div>';
+  document.getElementById('paitoContent').innerHTML = '<div class="loading"><div class="spinner"></div>Memuat...</div>';
   try {
     const res = await fetch('/paito');
     const data = await res.json();
@@ -622,81 +510,114 @@ async function loadPaito() {
 }
 
 function renderPaito(paito) {
-  if (!paito || paito.length === 0) {
-    document.getElementById('paitoContent').innerHTML =
-      '<div class="loading">Belum ada data paito</div>';
-    return;
-  }
-
+  if (!paito || !paito.length) { document.getElementById('paitoContent').innerHTML = '<div class="loading">Belum ada data</div>'; return; }
   let html = `
   <div class="history-card">
-    <div class="history-header">🎨 Tabel Paito (M=Merah/Ganjil, H=Hitam/Genap)</div>
+    <div class="history-header">🎨 Tabel Paito (M=Merah/Ganjil · H=Hitam/Genap)</div>
     <div style="overflow-x:auto;padding:4px">
     <table class="paito-table">
-      <thead>
-        <tr>
-          <th>Tgl</th>
-          <th>S</th>
-          <th>Nomor</th>
-          <th>Warna</th>
-          <th>Shio</th>
-        </tr>
-      </thead>
+      <thead><tr><th>Tgl</th><th>S</th><th>Nomor</th><th>Warna</th><th>Shio</th></tr></thead>
       <tbody>`;
-
   paito.forEach(item => {
-    const colors = (item.colors || '').split('');
-    const colorDots = colors.map(c =>
-      `<div class="color-dot ${c.toLowerCase()}">${c}</div>`
-    ).join('');
-
-    html += `
-      <tr>
-        <td style="font-size:0.72rem;color:var(--muted)">${formatDateShort(item.tanggal)}</td>
-        <td style="color:var(--accent);font-size:0.75rem">${item.sesi}</td>
-        <td><span class="paito-num" style="color:#fff">${item.nomor}</span></td>
-        <td><div class="color-dots">${colorDots}</div></td>
-        <td style="font-size:0.72rem;color:var(--accent)">${item.shio}</td>
-      </tr>`;
+    const dots = (item.colors||'').split('').map(c=>`<div class="color-dot ${c.toLowerCase()}">${c}</div>`).join('');
+    html += `<tr>
+      <td style="font-size:0.72rem;color:var(--muted)">${formatDateShort(item.tanggal)}</td>
+      <td style="color:var(--accent);font-size:0.75rem">${item.sesi}</td>
+      <td><span class="paito-num" style="color:#fff">${item.nomor}</span></td>
+      <td><div class="color-dots">${dots}</div></td>
+      <td style="font-size:0.72rem;color:var(--accent)">${item.shio}</td>
+    </tr>`;
   });
-
   html += `</tbody></table></div></div>`;
   document.getElementById('paitoContent').innerHTML = html;
+}
+
+async function loadWinRate() {
+  document.getElementById('winrateContent').innerHTML = '<div class="loading"><div class="spinner"></div>Menghitung...</div>';
+  try {
+    const res = await fetch('/winrate');
+    const wr = await res.json();
+    renderWinRate(wr);
+  } catch(e) {}
+}
+
+function renderWinRate(wr) {
+  const exactPct = wr.rate_exact ? wr.rate_exact.toFixed(2) : '0.00';
+  const shioPct = wr.rate_shio ? wr.rate_shio.toFixed(2) : '0.00';
+  const exactColor = wr.rate_exact > 5 ? 'var(--green)' : wr.rate_exact > 0 ? 'var(--accent)' : 'var(--muted)';
+  const shioColor = wr.rate_shio > 30 ? 'var(--green)' : wr.rate_shio > 10 ? 'var(--accent)' : 'var(--muted)';
+
+  let html = `
+  <div class="wr-card">
+    <div class="wr-title">📊 Win Rate Prediksi GABUNGAN</div>
+    <div class="wr-grid">
+      <div class="wr-stat">
+        <div class="val" style="color:${exactColor}">${exactPct}%</div>
+        <div class="lbl">Exact Hit Rate</div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px">${wr.wins} dari ${wr.total}</div>
+      </div>
+      <div class="wr-stat">
+        <div class="val" style="color:${shioColor}">${shioPct}%</div>
+        <div class="lbl">Shio Hit Rate</div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px">${wr.shio_wins} dari ${wr.total}</div>
+      </div>
+    </div>
+
+    <div class="wr-bar-wrap">
+      <div class="wr-bar-label"><span>Exact (5D tepat)</span><span>${exactPct}%</span></div>
+      <div class="wr-bar"><div class="wr-bar-fill" style="width:${Math.min(wr.rate_exact||0,100)}%;background:var(--green)"></div></div>
+    </div>
+    <div class="wr-bar-wrap" style="margin-top:8px">
+      <div class="wr-bar-label"><span>Shio (zodiak cocok)</span><span>${shioPct}%</span></div>
+      <div class="wr-bar"><div class="wr-bar-fill" style="width:${Math.min(wr.rate_shio||0,100)}%;background:var(--accent)"></div></div>
+    </div>
+
+    <div class="wr-note">
+      <strong>Cara hitung Win Rate:</strong><br>
+      • <strong>Exact Hit</strong> = nomor hasil keluaran ada persis di 10 prediksi GABUNGAN<br>
+      • <strong>Shio Hit</strong> = shio hasil cocok dengan salah satu shio dalam prediksi<br>
+      • Total sesi dihitung hanya yang punya prediksi (${wr.total} sesi)<br><br>
+      <strong>Catatan:</strong> Exact hit 5D murni probabilistik (10/100.000 = 0.01%). Shio hit (10 dari 12 shio mungkin cocok) lebih realistis sebagai ukuran kualitas.
+    </div>
+  </div>
+
+  <div class="wr-card">
+    <div class="wr-title">📈 Penjelasan Metode Prediksi</div>
+    <div style="font-size:0.8rem;line-height:1.7;color:var(--muted)">
+      <p><strong style="color:var(--accent)">Paito</strong> — Analisis warna Merah (ganjil) / Hitam (genap) per posisi digit. Jika 3x berturut-turut merah → prediksi hitam (reversal).</p>
+      <p style="margin-top:8px"><strong style="color:var(--accent)">Shio</strong> — 12 zodiak Tionghoa. Shio ditentukan dari 2 digit terakhir (mod 12). Sistem cari shio yang "jarang muncul" dan generate nomor bersesuaian.</p>
+      <p style="margin-top:8px"><strong style="color:var(--accent)">AI</strong> — Frekuensi digit per posisi (dengan pembobotan waktu), gap analysis (digit yang lama tidak muncul), dan deteksi tren naik/turun/osilasi.</p>
+      <p style="margin-top:8px"><strong style="color:var(--accent)">Gabungan</strong> — Paito + AI + Shio digabung, duplikat dihapus, diambil 10 nomor terkuat. <strong>Prediksi fix setelah dibuat</strong> — tidak berubah kecuali hasil baru diinput.</p>
+    </div>
+  </div>`;
+
+  document.getElementById('winrateContent').innerHTML = html;
 }
 
 // Helpers
 const shioList = ['Tikus','Kerbau','Macan','Kelinci','Naga','Ular','Kuda','Kambing','Monyet','Ayam','Anjing','Babi'];
 function getShio(nomor) {
   if (!nomor || nomor.length < 2) return '';
-  const n = parseInt(nomor.slice(-2)) || 0;
-  return shioList[n % 12];
+  return shioList[parseInt(nomor.slice(-2)||'0') % 12];
 }
 
 function formatDate(d) {
   if (!d) return '';
-  const parts = d.split('-');
-  if (parts.length !== 3) return d;
-  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  return `${parts[2]} ${months[parseInt(parts[1])-1]} ${parts[0]}`;
+  const p = d.split('-');
+  if (p.length !== 3) return d;
+  return `${p[2]} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][parseInt(p[1])-1]} ${p[0]}`;
 }
-
 function formatDateShort(d) {
   if (!d) return '';
-  const parts = d.split('-');
-  if (parts.length !== 3) return d;
-  return `${parts[2]}/${parts[1]}`;
+  const p = d.split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}` : d;
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 </script>
 </body>
 </html>
-`
-
-// htmlTemplate is the full single-page web app served by the Go server
-const htmlTemplate = indexHTML
