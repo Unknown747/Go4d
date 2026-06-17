@@ -258,8 +258,15 @@ func calculateWinRate() WinRate {
         return wr
 }
 
+// WIB = UTC+7
+var wib = time.FixedZone("WIB", 7*60*60)
+
+func nowWIB() time.Time {
+        return time.Now().In(wib)
+}
+
 func todayStr() string {
-        return time.Now().Format("2006-01-02")
+        return nowWIB().Format("2006-01-02")
 }
 
 func nextSessionInfo() (string, int) {
@@ -274,8 +281,38 @@ func nextSessionInfo() (string, int) {
                 return today, 2
         }
 
-        tomorrow := time.Now().AddDate(0, 0, 1).Format("2006-01-02")
+        tomorrow := nowWIB().AddDate(0, 0, 1).Format("2006-01-02")
         return tomorrow, 1
+}
+
+// DayPair menyimpan pasangan hasil sesi 1 & sesi 2 dalam satu hari
+type DayPair struct {
+        Tanggal string
+        Sesi1   string
+        Sesi2   string
+}
+
+// getDayPairs mengambil pasangan (sesi1, sesi2) dari hari yang sama
+func getDayPairs(limit int) []DayPair {
+        rows, err := db.Query(`
+                SELECT r1.tanggal, r1.nomor, r2.nomor
+                FROM results r1
+                JOIN results r2 ON r1.tanggal = r2.tanggal AND r1.sesi = 1 AND r2.sesi = 2
+                ORDER BY r1.tanggal DESC
+                LIMIT ?
+        `, limit)
+        if err != nil {
+                return nil
+        }
+        defer rows.Close()
+
+        var pairs []DayPair
+        for rows.Next() {
+                var p DayPair
+                rows.Scan(&p.Tanggal, &p.Sesi1, &p.Sesi2)
+                pairs = append(pairs, p)
+        }
+        return pairs
 }
 
 func joinStrings(ss []string, sep string) string {

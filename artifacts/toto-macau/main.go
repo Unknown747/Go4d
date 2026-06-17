@@ -9,7 +9,6 @@ import (
         "os"
         "strconv"
         "strings"
-        "time"
 )
 
 //go:embed templates/index.html
@@ -82,7 +81,9 @@ func handleStatus(w http.ResponseWriter, r *http.Request) {
                 "sesi2_done":   s2Done,
                 "sesi1_result": r1.Nomor,
                 "sesi2_result": r2.Nomor,
-                "server_time":  time.Now().Format("02 Jan 2006 15:04"),
+                "server_time":  nowWIB().Format("02 Jan 2006 15:04 WIB"),
+                "jadwal_sesi1": "15:15 WIB",
+                "jadwal_sesi2": "21:15 WIB",
         }
         jsonResponse(w, data)
 }
@@ -100,7 +101,7 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
         }
 
         preds := getLatestPredictions(tanggal, sesi)
-        if len(preds) < 8 {
+        if len(preds) < 9 {
                 history := getRecentResults(50)
                 generateAndSavePredictions(tanggal, sesi, history)
                 preds = getLatestPredictions(tanggal, sesi)
@@ -231,6 +232,7 @@ func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
         shioNums := predictShio(history)
         ai := predictAI(history)
         ekorAS := predictEkorAS(history)
+        mathNums := predictMath(history)
         gabungan := predictGabungan(history)
 
         // Generate 4D, 3D, 2D then deduplicate against higher-D
@@ -238,14 +240,9 @@ func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
         raw3D := predict3D(history)
         raw2D := predict2D(history)
 
-        // Dedup 4D: remove any whose suffix already in gabungan (5D)
         deduped4D := dedupBySuffix(gabungan, raw4D)
-
-        // Dedup 3D: check against gabungan + accepted 4D
         higher4D := append(append([]string{}, gabungan...), deduped4D...)
         deduped3D := dedupBySuffix(higher4D, raw3D)
-
-        // Dedup 2D: check against gabungan + 4D + 3D
         higher3D := append(append([]string{}, higher4D...), deduped3D...)
         deduped2D := dedupBySuffix(higher3D, raw2D)
 
@@ -254,10 +251,23 @@ func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
         savePredictions(tanggal, sesi, "SHIO", shioNums)
         savePredictions(tanggal, sesi, "AI", ai)
         savePredictions(tanggal, sesi, "EKORAS", ekorAS)
+        savePredictions(tanggal, sesi, "MATH", mathNums)
         savePredictions(tanggal, sesi, "GABUNGAN", gabungan)
         savePredictions(tanggal, sesi, "4D", deduped4D)
         savePredictions(tanggal, sesi, "3D", deduped3D)
         savePredictions(tanggal, sesi, "2D", deduped2D)
+
+        // Korelasi sesi hanya untuk sesi 2 — butuh hasil sesi 1 hari yang sama
+        if sesi == 2 {
+                sesi1Result, ok := getTodayResult(tanggal, 1)
+                if ok && sesi1Result.Nomor != "" {
+                        pairs := getDayPairs(30)
+                        corrNums := predictSesiCorr(pairs, sesi1Result.Nomor)
+                        if len(corrNums) > 0 {
+                                savePredictions(tanggal, sesi, "SESICORR", corrNums)
+                        }
+                }
+        }
 }
 
 func colorCode(nomor string) string {
