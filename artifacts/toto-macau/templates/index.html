@@ -218,6 +218,12 @@
       <button class="method-tab" onclick="showMethod('paito')">Paito</button>
       <button class="method-tab" onclick="showMethod('shio')">Shio</button>
       <button class="method-tab" onclick="showMethod('ai')">AI</button>
+      <button class="method-tab" onclick="showMethod('ekoras')">AS/Ekor</button>
+    </div>
+    <div class="method-tabs" style="margin-top:-6px">
+      <button class="method-tab" onclick="showMethod('4d')" style="background:rgba(0,200,83,0.08);border-color:rgba(0,200,83,0.3);color:#00c853">4D</button>
+      <button class="method-tab" onclick="showMethod('3d')" style="background:rgba(0,200,83,0.08);border-color:rgba(0,200,83,0.3);color:#00c853">3D</button>
+      <button class="method-tab" onclick="showMethod('2d')" style="background:rgba(0,200,83,0.08);border-color:rgba(0,200,83,0.3);color:#00c853">2D</button>
     </div>
 
     <div id="prediksiContent">
@@ -317,8 +323,9 @@ function switchTab(name) {
 function showMethod(method) {
   currentMethod = method;
   document.querySelectorAll('.method-tab').forEach(t => {
-    const m = t.textContent.toLowerCase();
-    t.classList.toggle('active', m === method || (method === 'gabungan' && m === 'gabungan'));
+    const m = t.textContent.toLowerCase().replace('/', '');
+    const key = method.replace('/', '');
+    t.classList.toggle('active', m === key);
   });
   if (predData) renderPredictions(predData);
 }
@@ -350,37 +357,56 @@ async function loadPredictions() {
 function renderPredictions(data) {
   const method = currentMethod;
   const numbers = data[method] || [];
+
+  const labels = {
+    gabungan: { name: 'GABUNGAN 5D', desc: 'Paito + AI + Shio + AS/Ekor — 10 nomor terkuat (tanpa random)', badge: '5D' },
+    paito:    { name: 'PAITO 5D',    desc: 'Pola warna M/H per posisi + streak detection', badge: '5D' },
+    shio:     { name: 'SHIO 5D',     desc: 'Siklus 12 zodiak Tionghoa — due score + frekuensi', badge: '5D' },
+    ai:       { name: 'AI 5D',       desc: 'Frekuensi + gap + tren + transisi + pair analysis', badge: '5D' },
+    ekoras:   { name: 'AS / EKOR 5D',desc: 'Fokus digit pertama (AS) & terakhir (Ekor) — hot+cold blend', badge: '5D' },
+    '4d':     { name: 'PREDIKSI 4D', desc: 'Analisis 4 digit terakhir — sudah deduplikasi dari 5D', badge: '4D', dedup: true },
+    '3d':     { name: 'PREDIKSI 3D', desc: 'Analisis 3 digit terakhir — sudah deduplikasi dari 5D & 4D', badge: '3D', dedup: true },
+    '2d':     { name: 'PREDIKSI 2D', desc: 'Analisis 2 digit terakhir — sudah deduplikasi dari 5D, 4D & 3D', badge: '2D', dedup: true },
+  };
+
+  const info = labels[method] || { name: method.toUpperCase(), desc: '' };
+  const isSubDigit = ['4d','3d','2d'].includes(method);
+
   if (!numbers.length) {
-    document.getElementById('prediksiContent').innerHTML = '<div class="loading">Belum ada prediksi</div>';
+    const msg = isSubDigit
+      ? '<div class="loading" style="color:var(--green)">✅ Semua nomor sudah tercakup dalam prediksi 5D — tidak ada tambahan</div>'
+      : '<div class="loading">Belum ada prediksi</div>';
+    document.getElementById('prediksiContent').innerHTML = msg;
     return;
   }
 
-  const labels = {
-    gabungan: { name: 'GABUNGAN', desc: 'Kombinasi Paito + Shio + AI — 10 nomor terkuat' },
-    paito: { name: 'PAITO', desc: 'Analisis pola warna Merah/Hitam per posisi digit' },
-    shio: { name: 'SHIO', desc: 'Prediksi siklus 12 zodiak Tionghoa' },
-    ai: { name: 'AI', desc: 'Analisis statistik frekuensi, gap & tren digit' },
-  };
-  const info = labels[method] || { name: method.toUpperCase(), desc: '' };
   const allNums = numbers.map(n => n.nomor).join('\n');
+  const badgeStyle = isSubDigit
+    ? 'background:rgba(0,200,83,0.2);color:#00c853;border:1px solid rgba(0,200,83,0.4)'
+    : 'background:rgba(240,165,0,0.2);color:var(--accent);border:1px solid var(--border)';
 
   let html = `
   <div class="method-card">
     <div class="method-header">
       <div>
-        <div class="method-name">Metode ${info.name}</div>
+        <div class="method-name" style="display:flex;align-items:center;gap:6px">
+          ${info.name}
+          <span style="font-size:0.65rem;padding:2px 7px;border-radius:10px;font-weight:700;${badgeStyle}">${info.badge||''}</span>
+        </div>
         <div class="method-desc">${info.desc}</div>
+        ${info.dedup ? `<div style="font-size:0.65rem;color:var(--green);margin-top:3px">✅ Nomor yang sudah ada di 5D tidak ditampilkan</div>` : ''}
       </div>
-      <button class="copy-all-btn" onclick="copyAll(${JSON.stringify(allNums)})">📋 Copy Semua</button>
+      <button class="copy-all-btn" onclick="copyAll(${JSON.stringify(allNums)})">📋 Copy</button>
     </div>
-    <div class="numbers-grid">`;
+    <div class="numbers-grid" style="${isSubDigit ? 'grid-template-columns:repeat(3,1fr)' : ''}">`;
 
   numbers.forEach((item, i) => {
     const wHtml = (item.warna||'').split('').map(c=>`<span class="w-${c.toLowerCase()}">${c}</span>`).join('');
+    const numStyle = isSubDigit ? 'font-size:1.5rem;letter-spacing:3px' : '';
     html += `
     <div class="num-item" onclick="copyNum('${item.nomor}', this)">
       <span class="num-rank">#${i+1}</span>
-      <span class="num-value">${item.nomor}</span>
+      <span class="num-value" style="${numStyle}">${item.nomor}</span>
       <div class="num-right">
         <div class="num-shio">${item.shio||''}</div>
         <div class="num-warna">${wHtml}</div>
@@ -630,10 +656,12 @@ function renderWinRate(wr) {
   <div class="wr-card">
     <div class="wr-title">📈 Penjelasan Metode Prediksi</div>
     <div style="font-size:0.8rem;line-height:1.7;color:var(--muted)">
-      <p><strong style="color:var(--accent)">Paito</strong> — Analisis warna Merah (ganjil) / Hitam (genap) per posisi digit. Jika 3x berturut-turut merah → prediksi hitam (reversal).</p>
-      <p style="margin-top:8px"><strong style="color:var(--accent)">Shio</strong> — 12 zodiak Tionghoa. Shio ditentukan dari 2 digit terakhir (mod 12). Sistem cari shio yang "jarang muncul" dan generate nomor bersesuaian.</p>
-      <p style="margin-top:8px"><strong style="color:var(--accent)">AI</strong> — Frekuensi digit per posisi (dengan pembobotan waktu), gap analysis (digit yang lama tidak muncul), dan deteksi tren naik/turun/osilasi.</p>
-      <p style="margin-top:8px"><strong style="color:var(--accent)">Gabungan</strong> — Paito + AI + Shio digabung, duplikat dihapus, diambil 10 nomor terkuat. <strong>Prediksi fix setelah dibuat</strong> — tidak berubah kecuali hasil baru diinput.</p>
+      <p><strong style="color:var(--accent)">Paito</strong> — Pola warna M (ganjil) / H (genap) per posisi. Streak ≥3 → prediksi reversal. Boost 3 draw terbaru untuk akurasi.</p>
+      <p style="margin-top:8px"><strong style="color:var(--accent)">Shio</strong> — 12 zodiak Tionghoa dari 2 digit terakhir. Cari shio "due" (jarang muncul) lalu generate nomor sesuai.</p>
+      <p style="margin-top:8px"><strong style="color:var(--accent)">AI</strong> — Frekuensi + gap analysis + tren + <em>transisi digit</em> (digit apa yang biasa muncul setelah digit tertentu) + <em>pair analysis</em> (korelasi digit antar posisi bersebelahan).</p>
+      <p style="margin-top:8px"><strong style="color:var(--accent)">AS/Ekor</strong> — Fokus digit pertama (AS) dan terakhir (Ekor) menggunakan blended hot+cold score. Middle digit pakai frekuensi umum.</p>
+      <p style="margin-top:8px"><strong style="color:var(--accent)">Gabungan</strong> — Paito + AI + Shio + AS/Ekor digabung (10 nomor). Slot kosong diisi <em>cold numbers</em> (digit yang belum muncul lama) — <strong>bukan random</strong>.</p>
+      <p style="margin-top:8px"><strong style="color:#00c853">4D / 3D / 2D</strong> — Analisis khusus pada digit terakhir 4/3/2. <strong>Otomatis deduplikasi</strong>: jika suffix-nya sudah ada di 5D, tidak ditampilkan ulang.</p>
     </div>
   </div>`;
 

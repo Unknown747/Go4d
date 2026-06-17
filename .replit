@@ -11,6 +11,27 @@ env = { "CI" = "true" }
 [workflows]
 runButton = "Project"
 
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Toto Macau"
+
+[[workflows.workflow]]
+name = "Toto Macau"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd /home/runner/workspace/artifacts/toto-macau && PORT=23007 go run ."
+waitForPort = 23007
+
 [agent]
 stack = "PNPM_WORKSPACE"
 expertMode = true

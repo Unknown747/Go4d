@@ -100,7 +100,7 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
         }
 
         preds := getLatestPredictions(tanggal, sesi)
-        if len(preds) == 0 {
+        if len(preds) < 8 {
                 history := getRecentResults(50)
                 generateAndSavePredictions(tanggal, sesi, history)
                 preds = getLatestPredictions(tanggal, sesi)
@@ -230,13 +230,34 @@ func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
         paito := predictPaito(history)
         shioNums := predictShio(history)
         ai := predictAI(history)
+        ekorAS := predictEkorAS(history)
         gabungan := predictGabungan(history)
+
+        // Generate 4D, 3D, 2D then deduplicate against higher-D
+        raw4D := predict4D(history)
+        raw3D := predict3D(history)
+        raw2D := predict2D(history)
+
+        // Dedup 4D: remove any whose suffix already in gabungan (5D)
+        deduped4D := dedupBySuffix(gabungan, raw4D)
+
+        // Dedup 3D: check against gabungan + accepted 4D
+        higher4D := append(append([]string{}, gabungan...), deduped4D...)
+        deduped3D := dedupBySuffix(higher4D, raw3D)
+
+        // Dedup 2D: check against gabungan + 4D + 3D
+        higher3D := append(append([]string{}, higher4D...), deduped3D...)
+        deduped2D := dedupBySuffix(higher3D, raw2D)
 
         // INSERT OR IGNORE — predictions set once, never overwritten
         savePredictions(tanggal, sesi, "PAITO", paito)
         savePredictions(tanggal, sesi, "SHIO", shioNums)
         savePredictions(tanggal, sesi, "AI", ai)
+        savePredictions(tanggal, sesi, "EKORAS", ekorAS)
         savePredictions(tanggal, sesi, "GABUNGAN", gabungan)
+        savePredictions(tanggal, sesi, "4D", deduped4D)
+        savePredictions(tanggal, sesi, "3D", deduped3D)
+        savePredictions(tanggal, sesi, "2D", deduped2D)
 }
 
 func colorCode(nomor string) string {
