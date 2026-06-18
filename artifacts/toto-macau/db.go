@@ -4,23 +4,17 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "modernc.org/sqlite"
 )
 
 var db *sql.DB
 
 func initDB() {
-	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		log.Fatal("DATABASE_URL tidak diset")
-	}
-
 	var err error
-	db, err = sql.Open("postgres", dsn)
+	db, err = sql.Open("sqlite", "./toto.db")
 	if err != nil {
 		log.Fatal("Failed to open database:", err)
 	}
@@ -35,21 +29,21 @@ func initDB() {
 func createTables() {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS results (
-			id SERIAL PRIMARY KEY,
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			periode INTEGER,
 			tanggal TEXT NOT NULL,
 			sesi INTEGER NOT NULL,
 			nomor TEXT NOT NULL,
-			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			UNIQUE(tanggal, sesi)
 		)`,
 		`CREATE TABLE IF NOT EXISTS predictions (
-			id SERIAL PRIMARY KEY,
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			tanggal TEXT NOT NULL,
 			sesi INTEGER NOT NULL,
 			metode TEXT NOT NULL,
 			nomor_list TEXT NOT NULL,
-			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE UNIQUE INDEX IF NOT EXISTS idx_pred_once ON predictions(tanggal, sesi, metode)`,
 		`CREATE INDEX IF NOT EXISTS idx_results_tanggal ON results(tanggal)`,
@@ -61,18 +55,29 @@ func createTables() {
 	}
 }
 
-// migrateDB adds columns that may not exist in older schema.
 func migrateDB() {
-	var count int
-	err := db.QueryRow(`
-		SELECT COUNT(*) FROM information_schema.columns
-		WHERE table_name = 'results' AND column_name = 'periode'
-	`).Scan(&count)
+	rows, err := db.Query(`PRAGMA table_info(results)`)
 	if err != nil {
-		log.Printf("migrateDB: cannot check column: %v", err)
+		log.Printf("migrateDB: cannot check columns: %v", err)
 		return
 	}
-	if count == 0 {
+	defer rows.Close()
+
+	hasperiode := false
+	for rows.Next() {
+		var cid int
+		var name, colType string
+		var notNull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &colType, &notNull, &dflt, &pk); err != nil {
+			continue
+		}
+		if name == "periode" {
+			hasperiode = true
+		}
+	}
+
+	if !hasperiode {
 		if _, err := db.Exec(`ALTER TABLE results ADD COLUMN periode INTEGER`); err != nil {
 			log.Printf("migrateDB: failed to add periode column: %v", err)
 		}
@@ -108,9 +113,9 @@ type WinRate struct {
 func saveResult(periode int, tanggal string, sesi int, nomor string) error {
 	_, err := db.Exec(
 		`INSERT INTO results (periode, tanggal, sesi, nomor)
-		 VALUES ($1, $2, $3, $4)
-		 ON CONFLICT (tanggal, sesi) DO UPDATE
-		   SET periode = EXCLUDED.periode, nomor = EXCLUDED.nomor`,
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(tanggal, sesi) DO UPDATE
+		   SET periode = excluded.periode, nomor = excluded.nomor`,
 		periode, tanggal, sesi, nomor,
 	)
 	return err
@@ -118,18 +123,16 @@ func saveResult(periode int, tanggal string, sesi int, nomor string) error {
 
 func updatePeriode(tanggal string, sesi int, periode int) error {
 	_, err := db.Exec(
-		`UPDATE results SET periode = $1 WHERE tanggal = $2 AND sesi = $3`,
+		`UPDATE results SET periode = ? WHERE tanggal = ? AND sesi = ?`,
 		periode, tanggal, sesi,
 	)
 	return err
 }
 
-// savePredictions uses INSERT … ON CONFLICT DO NOTHING so predictions are written only once per session/method
 func savePredictions(tanggal string, sesi int, metode string, nomorList []string) error {
 	_, err := db.Exec(
-		`INSERT INTO predictions (tanggal, sesi, metode, nomor_list)
-		 VALUES ($1, $2, $3, $4)
-		 ON CONFLICT (tanggal, sesi, metode) DO NOTHING`,
+		`INSERT OR IGNORE INTO predictions (tanggal, sesi, metode, nomor_list)
+		 VALUES (?, ?, ?, ?)`,
 		tanggal, sesi, metode, strings.Join(nomorList, ","),
 	)
 	return err
@@ -137,8 +140,8 @@ func savePredictions(tanggal string, sesi int, metode string, nomorList []string
 
 func getRecentResults(limit int) []Result {
 	rows, err := db.Query(
-		`SELECT id, COALESCE(periode,0), tanggal, sesi, nomor, created_at::text
-		 FROM results ORDER BY tanggal DESC, sesi DESC LIMIT $1`,
+		`SELECT id, COALESCE(periode,0), tanggal, sesi, nomor, created_at
+		 FROM results ORDER BY tanggal DESC, sesi DESC LIMIT ?`,
 		limit,
 	)
 	if err != nil {
@@ -161,8 +164,8 @@ func getRecentResults(limit int) []Result {
 
 func getLatestPredictions(tanggal string, sesi int) []Prediction {
 	rows, err := db.Query(
-		`SELECT id, tanggal, sesi, metode, nomor_list, created_at::text
-		 FROM predictions WHERE tanggal = $1 AND sesi = $2 ORDER BY created_at DESC`,
+		`SELECT id, tanggal, sesi, metode, nomor_list, created_at
+		 FROM predictions WHERE tanggal = ? AND sesi = ? ORDER BY created_at DESC`,
 		tanggal, sesi,
 	)
 	if err != nil {
@@ -191,8 +194,8 @@ func getLatestPredictions(tanggal string, sesi int) []Prediction {
 func getTodayResult(tanggal string, sesi int) (Result, bool) {
 	var r Result
 	err := db.QueryRow(
-		`SELECT id, COALESCE(periode,0), tanggal, sesi, nomor, created_at::text
-		 FROM results WHERE tanggal = $1 AND sesi = $2`,
+		`SELECT id, COALESCE(periode,0), tanggal, sesi, nomor, created_at
+		 FROM results WHERE tanggal = ? AND sesi = ?`,
 		tanggal, sesi,
 	).Scan(&r.ID, &r.Periode, &r.Tanggal, &r.Sesi, &r.Nomor, &r.CreatedAt)
 	if err != nil {
@@ -208,7 +211,7 @@ func getAllHistory(limit int) []map[string]interface{} {
 		FROM results r
 		LEFT JOIN predictions p ON r.tanggal = p.tanggal AND r.sesi = p.sesi AND p.metode = 'GABUNGAN'
 		ORDER BY r.tanggal DESC, r.sesi DESC
-		LIMIT $1
+		LIMIT ?
 	`, limit)
 	if err != nil {
 		log.Printf("getAllHistory: query error: %v", err)
@@ -296,7 +299,6 @@ func calculateWinRate() WinRate {
 	return wr
 }
 
-// WIB = UTC+7
 var wib = time.FixedZone("WIB", 7*60*60)
 
 func nowWIB() time.Time {
@@ -323,21 +325,19 @@ func nextSessionInfo() (string, int) {
 	return tomorrow, 1
 }
 
-// DayPair menyimpan pasangan hasil sesi 1 & sesi 2 dalam satu hari
 type DayPair struct {
 	Tanggal string
 	Sesi1   string
 	Sesi2   string
 }
 
-// getDayPairs mengambil pasangan (sesi1, sesi2) dari hari yang sama
 func getDayPairs(limit int) []DayPair {
 	rows, err := db.Query(`
 		SELECT r1.tanggal, r1.nomor, r2.nomor
 		FROM results r1
 		JOIN results r2 ON r1.tanggal = r2.tanggal AND r1.sesi = 1 AND r2.sesi = 2
 		ORDER BY r1.tanggal DESC
-		LIMIT $1
+		LIMIT ?
 	`, limit)
 	if err != nil {
 		log.Printf("getDayPairs: query error: %v", err)
