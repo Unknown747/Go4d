@@ -34,6 +34,7 @@ func main() {
         mux.HandleFunc("/winrate", handleWinRate)
         mux.HandleFunc("/backtest", handleBacktest)
         mux.HandleFunc("/bbfs", handleBBFS)
+        mux.HandleFunc("/bbbacktest", handleBBBacktest)
 
         log.Printf("Server Macau 4D berjalan di port %s", port)
         if err := http.ListenAndServe(":"+port, corsMiddleware(mux)); err != nil {
@@ -414,16 +415,17 @@ func handleBacktest(w http.ResponseWriter, r *http.Request) {
         jsonResponse(w, report)
 }
 
-// GET /bbfs?n=6
+// GET /bbfs — always uses 6 digits
 func handleBBFS(w http.ResponseWriter, r *http.Request) {
-        nDigitsStr := r.URL.Query().Get("n")
-        nDigits := 6
-        if n, err := strconv.Atoi(nDigitsStr); err == nil && n >= 4 && n <= 7 {
-                nDigits = n
-        }
         history := getRecentResults(100)
-        result := predictBBFS(history, nDigits)
+        result := predictBBFS(history, 6)
         jsonResponse(w, result)
+}
+
+// GET /bbbacktest
+func handleBBBacktest(w http.ResponseWriter, r *http.Request) {
+        report := runBBBacktest()
+        jsonResponse(w, report)
 }
 
 func generateAndSavePredictions(tanggal string, sesi int, history []Result) {

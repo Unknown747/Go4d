@@ -925,41 +925,109 @@ function renderWinRate(wr, bt) {
 }
 
 // ─── BB CAMPURAN ────────────────────────────────────────────
-let bbcampN = 6;
 
-async function loadBBCamp(n) {
-  if (n) bbcampN = n;
+async function loadBBCamp() {
   document.getElementById('bbcampContent').innerHTML = '<div class="loading"><div class="spinner"></div>Menganalisis digit...</div>';
   try {
-    const res = await fetch('/bbfs?n=' + bbcampN);
-    const data = await res.json();
-    renderBBCamp(data);
+    const [bbRes, btRes] = await Promise.all([fetch('/bbfs'), fetch('/bbbacktest')]);
+    const data = await bbRes.json();
+    const bt = await btRes.json();
+    renderBBCamp(data, bt);
   } catch(e) {
     document.getElementById('bbcampContent').innerHTML = '<div class="loading">Gagal memuat BB Campuran</div>';
   }
 }
 
-function renderBBCamp(data) {
+function renderBBCamp(data, bt) {
   const bbDigits = data.bb_digits || [];
   const digitFreq = data.digit_freq || [];
   const top4D = data.top_4d || [];
   const top3D = data.top_3d || [];
   const all2D = data.all_2d || [];
-  const n = data.n_digits || 6;
 
-  // Header dengan digit set
-  const digitSetHtml = bbDigits.map((d, i) => `
+  // Header dengan digit set (hardcode 6 digit)
+  const digitSetHtml = bbDigits.map(d => `
     <div style="text-align:center">
       <div class="bb-digit">${d}</div>
       <div class="bb-digit-freq">${digitFreq[d]||0}×</div>
     </div>`).join('');
 
-  const nBtns = [4,5,6,7].map(x =>
-    `<button class="bb-n-btn ${x===n?'active':''}" onclick="loadBBCamp(${x})">${x} digit</button>`
-  ).join('');
-
-  // Keterangan jumlah kombinasi
+  // Keterangan jumlah kombinasi: P(6,4)=360, P(6,3)=120, P(6,2)=30
   const totalInfo = `4D: ${data.total_4d} komb · 3D: ${data.total_3d} komb · 2D: ${data.total_2d} komb`;
+
+  // ── Backtest panel ──
+  let btHtml = '';
+  if (bt && bt.total > 0) {
+    const r4 = (bt.rate_4d||0).toFixed(1);
+    const r3 = (bt.rate_3d||0).toFixed(1);
+    const r2 = (bt.rate_2d||0).toFixed(1);
+    const b4 = (bt.base_4d||0).toFixed(1);
+    const b3 = (bt.base_3d||0).toFixed(1);
+    const b2 = (bt.base_2d||0).toFixed(1);
+    const c4 = bt.rate_4d >= bt.base_4d * 1.1 ? 'var(--green)' : bt.rate_4d >= bt.base_4d * 0.9 ? 'var(--accent)' : 'var(--muted)';
+    const c3 = bt.rate_3d >= bt.base_3d * 1.1 ? 'var(--green)' : bt.rate_3d >= bt.base_3d * 0.9 ? 'var(--accent)' : 'var(--muted)';
+    const c2 = bt.rate_2d >= bt.base_2d * 1.1 ? 'var(--green)' : bt.rate_2d >= bt.base_2d * 0.9 ? 'var(--accent)' : 'var(--muted)';
+    btHtml = `
+    <div class="wr-card" style="margin-bottom:10px">
+      <div class="wr-title">📊 Backtest BB 6-Digit
+        <span style="font-size:0.62rem;font-weight:400;color:var(--muted)">${bt.total} sesi diuji</span>
+      </div>
+      <div style="font-size:0.68rem;color:var(--muted);margin-bottom:10px">
+        Seberapa sering 6 digit BB yang dipilih mencakup <em>semua</em> digit hasil aktual (4D/3D/2D)?
+      </div>
+      <div class="wr-grid">
+        <div class="wr-stat">
+          <div class="val" style="color:${c4}">${r4}%</div>
+          <div class="lbl">4D Cover</div>
+          <div style="font-size:0.6rem;color:var(--muted);margin-top:2px">${bt.hit_4d}/${bt.total}</div>
+        </div>
+        <div class="wr-stat">
+          <div class="val" style="color:${c3}">${r3}%</div>
+          <div class="lbl">3D Cover</div>
+          <div style="font-size:0.6rem;color:var(--muted);margin-top:2px">${bt.hit_3d}/${bt.total}</div>
+        </div>
+        <div class="wr-stat">
+          <div class="val" style="color:${c2}">${r2}%</div>
+          <div class="lbl">2D Cover</div>
+          <div style="font-size:0.6rem;color:var(--muted);margin-top:2px">${bt.hit_2d}/${bt.total}</div>
+        </div>
+      </div>
+      <div class="wr-bar-wrap">
+        <div class="wr-bar-label">
+          <span>2D Cover Rate</span>
+          <span>${r2}% <span style="color:var(--muted)">(baseline acak: ${b2}%)</span></span>
+        </div>
+        <div class="wr-bar">
+          <div class="wr-bar-fill" style="width:${Math.min(bt.rate_2d||0,100)}%;background:var(--green)"></div>
+        </div>
+      </div>
+      <div class="wr-bar-wrap" style="margin-top:6px">
+        <div class="wr-bar-label">
+          <span>3D Cover Rate</span>
+          <span>${r3}% <span style="color:var(--muted)">(baseline: ${b3}%)</span></span>
+        </div>
+        <div class="wr-bar">
+          <div class="wr-bar-fill" style="width:${Math.min(bt.rate_3d||0,100)}%;background:var(--accent)"></div>
+        </div>
+      </div>
+      <div class="wr-bar-wrap" style="margin-top:6px">
+        <div class="wr-bar-label">
+          <span>4D Cover Rate</span>
+          <span>${r4}% <span style="color:var(--muted)">(baseline: ${b4}%)</span></span>
+        </div>
+        <div class="wr-bar">
+          <div class="wr-bar-fill" style="width:${Math.min(bt.rate_4d||0,100)*5}%;background:rgba(240,165,0,0.6)"></div>
+        </div>
+      </div>
+      <div class="wr-note" style="margin-top:8px">
+        <strong>Cara baca:</strong> "4D Cover" = semua 4 digit hasil ada di set BB.<br>
+        Baseline acak 6 dari 10: 4D≈${b4}% · 3D≈${b3}% · 2D≈${b2}%.<br>
+        Jika BB Cover > baseline, artinya pemilihan digit lebih baik dari random.
+      </div>
+    </div>`;
+  } else if (bt && bt.note) {
+    btHtml = `<div class="wr-card" style="margin-bottom:10px"><div style="font-size:0.8rem;color:var(--muted);text-align:center;padding:8px">⚠️ ${bt.note}</div></div>`;
+  }
 
   // 4D grid
   const allNums4D = top4D.map(x=>x.nomor).join('\n');
@@ -998,13 +1066,14 @@ function renderBBCamp(data) {
 
   const html = `
   <div class="bb-header-card">
-    <div class="bb-title">🔢 BB CAMPURAN</div>
-    <div class="bb-desc">Digit terbaik dari semua metode → generate semua kombinasi BBFS → saring yang paling layak.<br>
-      ⭐ = dikonfirmasi langsung oleh prediksi metode · 🔥 = digit paling dominan</div>
+    <div class="bb-title">🔢 BB CAMPURAN — 6 Digit</div>
+    <div class="bb-desc">Digit terbaik dari semua metode → 360 kombinasi BBFS 4D → saring yang paling layak.<br>
+      ⭐ = dikonfirmasi langsung oleh prediksi metode &nbsp;|&nbsp; 🔥 = digit dominan</div>
     <div class="bb-set-row">${digitSetHtml}</div>
-    <div style="font-size:0.65rem;color:var(--muted);margin-bottom:8px">${totalInfo}</div>
-    <div class="bb-controls">${nBtns}</div>
+    <div style="font-size:0.65rem;color:var(--muted)">${totalInfo}</div>
   </div>
+
+  ${btHtml}
 
   <div class="bb-section">
     <div class="bb-section-head" onclick="bbToggle('bb4d')">
@@ -1012,7 +1081,7 @@ function renderBBCamp(data) {
         <span class="bb-section-label">4D Terbaik</span>
         <span class="bb-section-meta"> — Top ${top4D.length} dari ${data.total_4d} kombinasi</span>
       </div>
-      <button onclick="event.stopPropagation();copyAll('${allNums4D.replace(/'/g,"\\'")}');showToast('4D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
+      <button onclick="event.stopPropagation();copyAll(${JSON.stringify(allNums4D)});showToast('4D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
     </div>
     <div id="bb4d">
       <div class="bb-grid-4d">${grid4D}</div>
@@ -1025,7 +1094,7 @@ function renderBBCamp(data) {
         <span class="bb-section-label">3D Terbaik</span>
         <span class="bb-section-meta"> — Top ${top3D.length} dari ${data.total_3d} kombinasi</span>
       </div>
-      <button onclick="event.stopPropagation();copyAll('${allNums3D.replace(/'/g,"\\'")}');showToast('3D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
+      <button onclick="event.stopPropagation();copyAll(${JSON.stringify(allNums3D)});showToast('3D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
     </div>
     <div id="bb3d">
       <div class="bb-grid-3d">${grid3D}</div>
@@ -1038,7 +1107,7 @@ function renderBBCamp(data) {
         <span class="bb-section-label">2D Semua</span>
         <span class="bb-section-meta"> — ${all2D.length} ekor dari set BB</span>
       </div>
-      <button onclick="event.stopPropagation();copyAll('${allNums2D.replace(/'/g,"\\'")}');showToast('2D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
+      <button onclick="event.stopPropagation();copyAll(${JSON.stringify(allNums2D)});showToast('2D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
     </div>
     <div id="bb2d">
       <div class="bb-grid-2d">${grid2D}</div>
