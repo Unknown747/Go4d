@@ -296,7 +296,10 @@
           <div class="label">Prediksi Untuk</div>
           <div class="value" id="predTarget">Memuat...</div>
         </div>
-        <button onclick="loadPredictions()" style="background:rgba(240,165,0,0.15);border:1px solid var(--border);color:var(--accent);padding:5px 11px;border-radius:16px;font-size:0.72rem;cursor:pointer;">🔄 Refresh</button>
+        <div style="display:flex;gap:6px;">
+          <button onclick="loadPredictions()" style="background:rgba(240,165,0,0.15);border:1px solid var(--border);color:var(--accent);padding:5px 11px;border-radius:16px;font-size:0.72rem;cursor:pointer;">🔄 Refresh</button>
+          <button id="btnGenUlang" onclick="generateUlang()" style="background:rgba(0,180,120,0.15);border:1px solid rgba(0,180,120,0.4);color:#00c47a;padding:5px 11px;border-radius:16px;font-size:0.72rem;cursor:pointer;">⚡ Generate Ulang</button>
+        </div>
       </div>
       <div class="sesi-bar" id="sesiBar"></div>
     </div>
@@ -512,6 +515,32 @@ async function loadPredictions() {
     await loadStatus();
   } catch(e) {
     document.getElementById('prediksiContent').innerHTML = '<div class="loading">Gagal memuat prediksi</div>';
+  }
+}
+
+async function generateUlang() {
+  const btn = document.getElementById('btnGenUlang');
+  btn.disabled = true;
+  btn.textContent = '⏳ Memproses...';
+  try {
+    const res = await fetch('/regenerate', { method: 'POST' });
+    const data = await res.json();
+    if (data.ok) {
+      btn.textContent = '✅ Selesai!';
+      await loadPredictions();
+      setTimeout(() => {
+        btn.textContent = '⚡ Generate Ulang';
+        btn.disabled = false;
+      }, 2000);
+    } else {
+      throw new Error('Gagal');
+    }
+  } catch(e) {
+    btn.textContent = '❌ Gagal';
+    setTimeout(() => {
+      btn.textContent = '⚡ Generate Ulang';
+      btn.disabled = false;
+    }, 2000);
   }
 }
 
