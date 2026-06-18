@@ -3,6 +3,8 @@ modules = ["nodejs-20", "go-1.21", "web", "bash"]
 [deployment]
 router = "application"
 deploymentTarget = "autoscale"
+run = ["sh", "-c", "PORT=5000 ./toto-server"]
+build = ["go", "build", "-o", "toto-server", "./artifacts/toto-macau"]
 
 [deployment.postBuild]
 args = ["pnpm", "store", "prune"]
