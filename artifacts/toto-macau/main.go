@@ -451,13 +451,13 @@ func handleRekomendasi(w http.ResponseWriter, r *http.Request) {
                 confirmMap[n] = append(confirmMap[n], "Shio")
         }
         for _, n := range ai {
-                confirmMap[n] = append(confirmMap[n], "Hot·Cold")
+                confirmMap[n] = append(confirmMap[n], "Gap Analysis")
         }
         for _, n := range ekoras {
-                confirmMap[n] = append(confirmMap[n], "AS/Ekor")
+                confirmMap[n] = append(confirmMap[n], "Pola Ekor")
         }
         for _, n := range math {
-                confirmMap[n] = append(confirmMap[n], "Math")
+                confirmMap[n] = append(confirmMap[n], "Matrix")
         }
 
         // Cek apakah semua digit nomor ada dalam BB set
