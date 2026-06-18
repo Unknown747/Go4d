@@ -444,7 +444,7 @@ function renderPredictions(data) {
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         ${isGabungan ? `<button onclick="toggleGabunganSort()" style="font-size:0.65rem;padding:3px 9px;border-radius:8px;border:1px solid ${gabunganSort==='konfirmasi'?'var(--accent)':'rgba(255,255,255,0.15)'};background:${gabunganSort==='konfirmasi'?'rgba(240,165,0,0.15)':'transparent'};color:${gabunganSort==='konfirmasi'?'var(--accent)':'var(--muted)'};cursor:pointer;white-space:nowrap">⬆ ${gabunganSort==='konfirmasi'?'Konfirmasi':'Prioritas'}</button>` : ''}
-        <button class="copy-all-btn" onclick="copyAll(${JSON.stringify(allNums)})">📋 Copy</button>
+        <button class="copy-all-btn" onclick='copyAll(${JSON.stringify(allNums)})'>📋 Copy</button>
       </div>
     </div>
     <div class="numbers-grid">`;
