@@ -784,7 +784,7 @@ func predictSesiCorr(pairs []DayPair, sesi1Nomor string) []string {
 }
 
 // ============================================================
-// GABUNGAN: Combine all methods — exactly 10 numbers, no random
+// GABUNGAN: Semua nomor unik dari seluruh metode, diurutkan prioritas
 // ============================================================
 
 func predictGabungan(history []Result) []string {
@@ -798,7 +798,8 @@ func predictGabungan(history []Result) []string {
         seen := map[string]bool{}
         var all []string
 
-        // Priority: paito > ai > kopkep > math > shio > ekoras
+        // Urutan prioritas menentukan ranking, tapi SEMUA nomor unik dimasukkan
+        // Paito > AI > Kop·Kep > Rumus > Shio > AS/Ekor
         for _, nums := range [][]string{paito, ai, kopKep, mathNums, shio, ekorAS} {
                 for _, n := range nums {
                         if !seen[n] {
@@ -808,23 +809,6 @@ func predictGabungan(history []Result) []string {
                 }
         }
 
-        // Fill remaining with cold numbers (not random)
-        if len(all) < 10 && len(history) > 0 {
-                cold := predictColdNumbers(history, 30)
-                for _, n := range cold {
-                        if len(all) >= 10 {
-                                break
-                        }
-                        if !seen[n] {
-                                seen[n] = true
-                                all = append(all, n)
-                        }
-                }
-        }
-
-        if len(all) > 10 {
-                return all[:10]
-        }
         return all
 }
 
