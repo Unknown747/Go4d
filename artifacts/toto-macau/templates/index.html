@@ -305,6 +305,12 @@ let currentTab = 'prediksi';
 let currentMethod = 'gabungan';
 let predData = null;
 let statusData = null;
+let gabunganSort = 'priority'; // 'priority' | 'konfirmasi'
+
+function toggleGabunganSort() {
+  gabunganSort = gabunganSort === 'priority' ? 'konfirmasi' : 'priority';
+  if (predData) renderPredictions(predData);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const today = new Date().toISOString().slice(0, 10);
@@ -436,11 +442,19 @@ function renderPredictions(data) {
         <div class="method-desc">${info.desc}</div>
         ${info.dedup ? `<div style="font-size:0.65rem;color:var(--green);margin-top:3px">✅ Nomor yang sudah ada di 5D tidak ditampilkan</div>` : ''}
       </div>
-      <button class="copy-all-btn" onclick="copyAll(${JSON.stringify(allNums)})">📋 Copy</button>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        ${isGabungan ? `<button onclick="toggleGabunganSort()" style="font-size:0.65rem;padding:3px 9px;border-radius:8px;border:1px solid ${gabunganSort==='konfirmasi'?'var(--accent)':'rgba(255,255,255,0.15)'};background:${gabunganSort==='konfirmasi'?'rgba(240,165,0,0.15)':'transparent'};color:${gabunganSort==='konfirmasi'?'var(--accent)':'var(--muted)'};cursor:pointer;white-space:nowrap">⬆ ${gabunganSort==='konfirmasi'?'Konfirmasi':'Prioritas'}</button>` : ''}
+        <button class="copy-all-btn" onclick="copyAll(${JSON.stringify(allNums)})">📋 Copy</button>
+      </div>
     </div>
     <div class="numbers-grid">`;
 
-  numbers.forEach((item, i) => {
+  // Jika GABUNGAN dan sort aktif: urutkan nomor terbanyak konfirmasi di atas
+  const displayNumbers = (isGabungan && gabunganSort === 'konfirmasi')
+    ? [...numbers].sort((a, b) => (confirmCount[b.nomor]||0) - (confirmCount[a.nomor]||0))
+    : numbers;
+
+  displayNumbers.forEach((item, i) => {
     const wHtml = (item.warna||'').split('').map(c=>`<span class="w-${c.toLowerCase()}">${c}</span>`).join('');
     const cnt = isGabungan ? (confirmCount[item.nomor] || 0) : 0;
     const sources = isGabungan ? (methodSources[item.nomor] || []) : [];
