@@ -386,13 +386,24 @@ function renderPredictions(data) {
   const isSpecial  = method === 'sesicorr';
   const isGabungan = method === 'gabungan';
 
-  // Hitung berapa metode menghasilkan tiap nomor (untuk highlight di Gabungan)
+  // Hitung dari metode mana tiap nomor berasal (untuk highlight + ikon sumber di Gabungan)
   const confirmCount = {};
+  const methodSources = {}; // nomor -> ['P','AI',...]
   if (isGabungan) {
-    const methodKeys = ['paito','ai','shio','ekoras','kopkep','math','sesicorr'];
-    for (const mk of methodKeys) {
-      for (const item of (data[mk] || [])) {
+    const methodMeta = [
+      { key:'paito',    label:'P',  color:'#4fc3f7', bg:'rgba(79,195,247,0.15)'  },
+      { key:'ai',       label:'AI', color:'#ce93d8', bg:'rgba(206,147,216,0.15)' },
+      { key:'shio',     label:'S',  color:'#81c784', bg:'rgba(129,199,132,0.15)' },
+      { key:'ekoras',   label:'E',  color:'#ffb74d', bg:'rgba(255,183,77,0.15)'  },
+      { key:'kopkep',   label:'K',  color:'#4dd0e1', bg:'rgba(77,208,225,0.15)'  },
+      { key:'math',     label:'R',  color:'#f0a500', bg:'rgba(240,165,0,0.15)'   },
+      { key:'sesicorr', label:'C',  color:'#b06aff', bg:'rgba(176,106,255,0.15)' },
+    ];
+    for (const mm of methodMeta) {
+      for (const item of (data[mm.key] || [])) {
         confirmCount[item.nomor] = (confirmCount[item.nomor] || 0) + 1;
+        if (!methodSources[item.nomor]) methodSources[item.nomor] = [];
+        methodSources[item.nomor].push(mm);
       }
     }
   }
@@ -432,23 +443,28 @@ function renderPredictions(data) {
   numbers.forEach((item, i) => {
     const wHtml = (item.warna||'').split('').map(c=>`<span class="w-${c.toLowerCase()}">${c}</span>`).join('');
     const cnt = isGabungan ? (confirmCount[item.nomor] || 0) : 0;
-    // Level: 3+ metode = KUAT (emas), 2 metode = BAGUS (biru muda), 1 = biasa
+    const sources = isGabungan ? (methodSources[item.nomor] || []) : [];
+
+    // Border highlight: 3+ metode = emas, 2 metode = biru
     let cardExtra = '';
-    let confirmBadge = '';
     if (cnt >= 3) {
       cardExtra = 'style="border-color:var(--accent);box-shadow:0 0 8px rgba(240,165,0,0.3)"';
-      confirmBadge = `<span style="font-size:0.6rem;font-weight:700;padding:1px 5px;border-radius:8px;background:rgba(240,165,0,0.25);color:var(--accent);border:1px solid rgba(240,165,0,0.5)">★ ${cnt} metode</span>`;
     } else if (cnt === 2) {
       cardExtra = 'style="border-color:rgba(100,180,255,0.5)"';
-      confirmBadge = `<span style="font-size:0.6rem;font-weight:700;padding:1px 5px;border-radius:8px;background:rgba(100,180,255,0.1);color:#64b4ff;border:1px solid rgba(100,180,255,0.3)">◆ 2 metode</span>`;
     }
+
+    // Ikon sumber metode (P / AI / S / E / K / R / C)
+    const sourcePills = sources.map(mm =>
+      `<span style="font-size:0.55rem;font-weight:800;padding:1px 4px;border-radius:5px;background:${mm.bg};color:${mm.color};border:1px solid ${mm.color}40;line-height:1.4">${mm.label}</span>`
+    ).join('');
+
     html += `
     <div class="num-item" ${cardExtra} onclick="copyNum('${item.nomor}', this)">
       <span class="num-rank">#${i+1}</span>
       <span class="num-value">${item.nomor}</span>
       <div class="num-right">
         <div class="num-shio">${item.shio||''}</div>
-        ${confirmBadge}
+        ${sources.length ? `<div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:flex-end">${sourcePills}</div>` : ''}
         <div class="num-warna">${wHtml}</div>
         <span style="font-size:0.7rem;color:var(--muted)">📋</span>
       </div>
