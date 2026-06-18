@@ -489,57 +489,6 @@ func predictEkorAS(history []Result) []string {
 }
 
 // ============================================================
-// Cold number filler: digits that haven't appeared recently
-// ============================================================
-
-func predictColdNumbers(history []Result, count int) []string {
-        if len(history) == 0 {
-                return generateRandom(count, 7777)
-        }
-
-        n := len(history)
-        if n > 25 {
-                n = 25
-        }
-        recent := history[:n]
-
-        coldScore := [5][10]float64{}
-        for pos := 0; pos < 5; pos++ {
-                lastSeen := [10]int{}
-                for i := range lastSeen {
-                        lastSeen[i] = n + 1
-                }
-                for k, r := range recent {
-                        d := parse5D(r.Nomor)[pos]
-                        if lastSeen[d] == n+1 {
-                                lastSeen[d] = k
-                        }
-                }
-                for d := 0; d < 10; d++ {
-                        coldScore[pos][d] = float64(lastSeen[d]) / float64(n+1)
-                }
-        }
-
-        coldestPerPos := [5][]int{}
-        for pos := 0; pos < 5; pos++ {
-                type ds struct {
-                        d int
-                        s float64
-                }
-                var ranked []ds
-                for d := 0; d < 10; d++ {
-                        ranked = append(ranked, ds{d, coldScore[pos][d]})
-                }
-                sort.Slice(ranked, func(i, j int) bool { return ranked[i].s > ranked[j].s })
-                for i := 0; i < 3; i++ {
-                        coldestPerPos[pos] = append(coldestPerPos[pos], ranked[i].d)
-                }
-        }
-
-        return combinePositions(coldestPerPos, count)
-}
-
-// ============================================================
 // Method 5: KOP·KEPALA — fokus digit posisi 1 (Kop) & 3 (Kepala)
 // Melengkapi AS/Ekor: dua digit "tengah" yang sering diabaikan
 // ============================================================
