@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prediksi Toto Macau 5D</title>
+<title>Prediksi Toto Macau 4D</title>
 <style>
   :root {
     --bg: #0d0d1a;
@@ -22,177 +22,202 @@
   .header {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     border-bottom: 2px solid var(--accent);
-    padding: 14px 16px;
+    padding: 12px 16px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 100;
   }
-  .header h1 { font-size: 1.1rem; color: var(--accent); font-weight: 700; }
-  .header .subtitle { font-size: 0.7rem; color: var(--muted); }
+  .header h1 { font-size: 1.05rem; color: var(--accent); font-weight: 700; }
+  .header .subtitle { font-size: 0.68rem; color: var(--muted); }
   .time-badge { background: rgba(240,165,0,0.15); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; color: var(--accent); }
 
   .tabs { display: flex; background: var(--card); border-bottom: 1px solid var(--border); overflow-x: auto; }
-  .tab { flex: 1; min-width: 70px; text-align: center; padding: 12px 6px; font-size: 0.78rem; cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .tab { flex: 1; min-width: 60px; text-align: center; padding: 11px 4px; font-size: 0.75rem; cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
   .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  .content { padding: 14px; max-width: 600px; margin: 0 auto; }
+  .content { padding: 12px; max-width: 600px; margin: 0 auto; }
   .section { display: none; }
   .section.active { display: block; }
 
+  /* Session banner */
   .session-banner {
     background: linear-gradient(135deg, var(--card2), var(--card));
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 14px;
-    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px;
+    margin-bottom: 12px;
   }
-  .session-info .label { font-size: 0.72rem; color: var(--muted); margin-bottom: 2px; }
-  .session-info .value { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
-  .session-dots { display: flex; gap: 8px; }
-  .dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid var(--muted); transition: all 0.3s; }
-  .dot.done { background: var(--green); border-color: var(--green); }
-  .dot.active { background: var(--accent); border-color: var(--accent); animation: pulse 1.5s infinite; }
+  .banner-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .session-info .label { font-size: 0.7rem; color: var(--muted); margin-bottom: 2px; }
+  .session-info .value { font-size: 1.05rem; font-weight: 700; color: var(--accent); }
+
+  /* 6-dot sesi bar */
+  .sesi-bar { display: flex; gap: 6px; flex-wrap: wrap; }
+  .sesi-dot {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    cursor: default;
+  }
+  .sesi-dot .dot {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: rgba(255,255,255,0.07); border: 2px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: 700; color: var(--muted);
+    transition: all 0.3s;
+  }
+  .sesi-dot .dot.done { background: rgba(0,200,83,0.2); border-color: var(--green); color: var(--green); }
+  .sesi-dot .dot.next { background: rgba(240,165,0,0.2); border-color: var(--accent); color: var(--accent); animation: pulse 1.5s infinite; }
+  .sesi-dot .jam { font-size: 0.55rem; color: var(--muted); }
   @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }
 
-  .method-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
-  .method-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(240,165,0,0.08); border-bottom: 1px solid var(--border); }
-  .method-name { font-weight: 700; font-size: 0.85rem; color: var(--accent); }
-  .method-desc { font-size: 0.7rem; color: var(--muted); }
+  /* Method tabs */
+  .method-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .method-tab {
+    padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;
+    border: 1px solid var(--border); color: var(--muted); background: transparent; transition: all 0.2s;
+  }
+  .method-tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  .sub-tab { background: rgba(0,200,83,0.06); border-color: rgba(0,200,83,0.3); color: #00c853; }
+  .sub-tab.active { background: #00c853; color: #000; border-color: #00c853; }
 
+  /* Cards */
+  .method-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+  .method-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 11px 13px; background: rgba(240,165,0,0.06); border-bottom: 1px solid var(--border); gap: 8px; }
+  .method-name { font-weight: 700; font-size: 0.85rem; color: var(--accent); display: flex; align-items: center; gap: 6px; }
+  .method-desc { font-size: 0.68rem; color: var(--muted); margin-top: 2px; line-height: 1.4; }
   .copy-all-btn {
-    background: var(--accent); color: #000; border: none;
-    padding: 7px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
-    cursor: pointer; display: flex; align-items: center; gap: 4px; transition: opacity 0.2s;
+    background: var(--accent); color: #000; border: none; flex-shrink: 0;
+    padding: 6px 12px; border-radius: 16px; font-size: 0.72rem; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; gap: 3px;
   }
   .copy-all-btn:active { opacity: 0.7; }
 
-  .numbers-grid { padding: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  /* Numbers grid */
+  .numbers-grid { padding: 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
   .num-item {
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px; padding: 10px 12px;
+    border-radius: 10px; padding: 9px 11px;
     display: flex; align-items: center; justify-content: space-between;
     cursor: pointer; transition: all 0.15s; user-select: none;
   }
   .num-item:active, .num-item:hover { background: rgba(240,165,0,0.1); border-color: rgba(240,165,0,0.4); }
   .num-item.copied { background: rgba(0,200,83,0.15); border-color: var(--green); }
-  .num-rank { font-size: 0.65rem; color: var(--muted); min-width: 18px; }
-  .num-value { font-size: 1.3rem; font-weight: 800; color: #fff; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+  .num-rank { font-size: 0.62rem; color: var(--muted); min-width: 16px; }
+  .num-value { font-size: 1.35rem; font-weight: 800; color: #fff; font-family: 'Courier New', monospace; letter-spacing: 3px; }
   .num-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-  .num-shio { font-size: 0.65rem; color: var(--accent); }
-  .num-warna { font-size: 0.6rem; display: flex; gap: 1px; }
+  .num-shio { font-size: 0.62rem; color: var(--accent); }
+  .num-warna { font-size: 0.58rem; display: flex; gap: 1px; }
   .w-m { color: #e94560; }
-  .w-h { color: #666; }
+  .w-h { color: #555; }
 
-  .method-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-  .method-tab {
-    padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; cursor: pointer;
-    border: 1px solid var(--border); color: var(--muted); background: transparent; transition: all 0.2s;
-  }
-  .method-tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  /* Sub-digit (3D/2D) grid wider */
+  .numbers-grid.sub-grid { grid-template-columns: repeat(3, 1fr); }
+  .num-item.sub-item .num-value { font-size: 1.15rem; letter-spacing: 2px; }
 
-  /* Win Rate Card */
-  .wr-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 16px; margin-bottom: 14px;
-  }
-  .wr-title { font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
-  .wr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
-  .wr-stat { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px; text-align: center; }
-  .wr-stat .val { font-size: 1.6rem; font-weight: 800; }
-  .wr-stat .lbl { font-size: 0.68rem; color: var(--muted); margin-top: 4px; }
-  .wr-bar-wrap { margin-top: 4px; }
-  .wr-bar-label { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
-  .wr-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
-  .wr-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
-  .wr-note { font-size: 0.72rem; color: var(--muted); margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; }
+  /* Source pills */
+  .source-pill { font-size: 0.52rem; font-weight: 800; padding: 1px 4px; border-radius: 4px; line-height: 1.4; }
 
   /* Form */
-  .form-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
-  .form-title { font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
-  .form-row { margin-bottom: 12px; }
-  .form-row label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+  .form-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 12px; }
+  .form-title { font-size: 0.88rem; font-weight: 700; color: var(--accent); margin-bottom: 13px; }
+  .form-row { margin-bottom: 10px; }
+  .form-row label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 3px; }
   .form-row input, .form-row select {
     width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-    color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s;
+    color: #fff; padding: 9px 12px; border-radius: 8px; font-size: 0.95rem; outline: none;
   }
   .form-row input:focus, .form-row select:focus { border-color: var(--accent); }
   .form-row select option { background: #1a1a2e; }
   .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .submit-btn {
-    width: 100%; padding: 13px; background: var(--accent); color: #000; border: none;
-    border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+    width: 100%; padding: 12px; background: var(--accent); color: #000; border: none;
+    border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer;
   }
   .submit-btn:active { opacity: 0.8; }
-  .success-msg { background: rgba(0,200,83,0.15); border: 1px solid var(--green); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: var(--green); margin-top: 10px; display: none; }
-  .error-msg { background: rgba(233,69,96,0.15); border: 1px solid var(--red); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: var(--red); margin-top: 10px; display: none; }
-  .num-input-display { font-size: 2.2rem; font-family: 'Courier New', monospace; letter-spacing: 8px; font-weight: 800; text-align: center; color: var(--accent); margin: 8px 0 4px; min-height: 52px; }
+  .success-msg { background: rgba(0,200,83,0.15); border: 1px solid var(--green); border-radius: 8px; padding: 9px 12px; font-size: 0.8rem; color: var(--green); margin-top: 8px; display: none; }
+  .error-msg { background: rgba(233,69,96,0.15); border: 1px solid var(--red); border-radius: 8px; padding: 9px 12px; font-size: 0.8rem; color: var(--red); margin-top: 8px; display: none; }
+  .num-input-display { font-size: 2rem; font-family: 'Courier New', monospace; letter-spacing: 10px; font-weight: 800; text-align: center; color: var(--accent); margin: 6px 0 3px; min-height: 48px; }
   #nomorInput { font-size: 1.4rem; font-family: 'Courier New', monospace; letter-spacing: 4px; text-align: center; }
 
+  /* Import section */
+  .import-area { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 10px; border-radius: 8px; font-size: 0.8rem; font-family: 'Courier New', monospace; resize: vertical; min-height: 120px; outline: none; }
+  .import-area:focus { border-color: var(--accent); }
+  .import-hint { font-size: 0.68rem; color: var(--muted); margin-top: 5px; line-height: 1.6; }
+
   /* History */
-  .history-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
-  .history-header { padding: 12px 14px; background: rgba(240,165,0,0.08); border-bottom: 1px solid var(--border); font-weight: 700; font-size: 0.85rem; color: var(--accent); }
-  .history-item { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .history-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+  .history-header { padding: 11px 13px; background: rgba(240,165,0,0.06); border-bottom: 1px solid var(--border); font-weight: 700; font-size: 0.82rem; color: var(--accent); }
+  .history-item { padding: 10px 13px; border-bottom: 1px solid rgba(255,255,255,0.04); }
   .history-item:last-child { border-bottom: none; }
-  .history-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-  .history-meta { font-size: 0.7rem; color: var(--muted); }
-  .history-periode { font-size: 0.7rem; color: rgba(240,165,0,0.6); }
-  .history-result { font-size: 1.25rem; font-weight: 800; font-family: 'Courier New', monospace; color: #fff; letter-spacing: 2px; cursor: pointer; }
+  .history-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .history-meta { font-size: 0.68rem; color: var(--muted); }
+  .history-periode { font-size: 0.68rem; color: rgba(240,165,0,0.6); }
+  .history-result { font-size: 1.2rem; font-weight: 800; font-family: 'Courier New', monospace; color: #fff; letter-spacing: 2px; cursor: pointer; }
   .history-result:hover { color: var(--accent); }
-  .badge { font-size: 0.62rem; border-radius: 4px; padding: 2px 7px; font-weight: 700; }
+  .badge { font-size: 0.6rem; border-radius: 4px; padding: 2px 6px; font-weight: 700; }
   .badge-hit { background: rgba(0,200,83,0.2); color: var(--green); border: 1px solid rgba(0,200,83,0.3); }
-  .badge-shio { background: rgba(240,165,0,0.15); color: var(--accent); border: 1px solid rgba(240,165,0,0.3); }
+  .badge-hit2d { background: rgba(0,200,83,0.1); color: #69e090; border: 1px solid rgba(0,200,83,0.2); }
   .badge-miss { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
   .history-row2 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .history-shio-txt { font-size: 0.68rem; color: var(--accent); }
-  .pred-preview { font-size: 0.65rem; color: var(--muted); font-family: 'Courier New', monospace; }
-  .edit-btn { background: none; border: 1px solid rgba(255,255,255,0.12); color: var(--muted); font-size: 0.65rem; padding: 2px 7px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+  .history-shio-txt { font-size: 0.65rem; color: var(--accent); }
+  .pred-preview { font-size: 0.62rem; color: var(--muted); font-family: 'Courier New', monospace; }
+  .edit-btn { background: none; border: 1px solid rgba(255,255,255,0.12); color: var(--muted); font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; cursor: pointer; }
   .edit-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .edit-inline { display: none; margin-top: 8px; padding: 10px; background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid var(--border); }
-  .edit-inline.open { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .edit-inline input { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; width: 120px; outline: none; }
+  .edit-inline { display: none; margin-top: 7px; padding: 9px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border); }
+  .edit-inline.open { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .edit-inline input { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 5px 9px; border-radius: 6px; font-size: 0.85rem; width: 110px; outline: none; }
   .edit-inline input:focus { border-color: var(--accent); }
-  .save-btn { background: var(--accent); color: #000; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
-  .cancel-btn { background: none; border: 1px solid rgba(255,255,255,0.15); color: var(--muted); padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; }
+  .save-btn { background: var(--accent); color: #000; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+  .cancel-btn { background: none; border: 1px solid rgba(255,255,255,0.15); color: var(--muted); padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; }
 
   /* Paito */
   .paito-table { width: 100%; border-collapse: collapse; }
-  .paito-table th { font-size: 0.68rem; color: var(--muted); padding: 6px 8px; text-align: left; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); }
-  .paito-table td { padding: 7px 8px; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+  .paito-table th { font-size: 0.66rem; color: var(--muted); padding: 5px 7px; text-align: left; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); }
+  .paito-table td { padding: 6px 7px; font-size: 0.78rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
   .paito-table tr:last-child td { border-bottom: none; }
   .paito-num { font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: 1px; }
   .color-dots { display: flex; gap: 3px; }
-  .color-dot { width: 17px; height: 17px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 700; }
+  .color-dot { width: 16px; height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; }
   .color-dot.m { background: rgba(233,69,96,0.25); color: #e94560; border: 1px solid #e94560; }
   .color-dot.h { background: rgba(80,80,80,0.2); color: #666; border: 1px solid #444; }
 
-  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,200,83,0.9); color: #000; padding: 10px 20px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+  /* Win rate */
+  .wr-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+  .wr-title { font-size: 0.82rem; font-weight: 700; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .wr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .wr-stat { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 10px; text-align: center; }
+  .wr-stat .val { font-size: 1.4rem; font-weight: 800; }
+  .wr-stat .lbl { font-size: 0.65rem; color: var(--muted); margin-top: 3px; }
+  .wr-bar-wrap { margin-top: 6px; }
+  .wr-bar-label { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted); margin-bottom: 3px; }
+  .wr-bar { height: 7px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .wr-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .wr-note { font-size: 0.7rem; color: var(--muted); margin-top: 8px; padding: 7px; background: rgba(255,255,255,0.03); border-radius: 8px; line-height: 1.5; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,200,83,0.9); color: #000; padding: 9px 18px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  .loading { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 0.85rem; }
-  .spinner { width: 28px; height: 28px; border: 3px solid rgba(240,165,0,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+  .loading { text-align: center; padding: 36px 20px; color: var(--muted); font-size: 0.82rem; }
+  .spinner { width: 26px; height: 26px; border: 3px solid rgba(240,165,0,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (min-width: 480px) {
-    .num-value { font-size: 1.4rem; }
-  }
 </style>
 </head>
 <body>
 
 <div class="header">
   <div>
-    <h1>🎯 Toto Macau 5D</h1>
-    <div class="subtitle">Sistem Prediksi Otomatis</div>
+    <h1>🎯 Prediksi Macau 4D</h1>
+    <div class="subtitle">6 Sesi Per Hari · Sistem Prediksi Otomatis</div>
   </div>
   <div class="time-badge" id="serverTime">--:--</div>
 </div>
 
 <div class="tabs">
   <div class="tab active" onclick="switchTab('prediksi')">Prediksi</div>
-  <div class="tab" onclick="switchTab('input')">Input Hasil</div>
+  <div class="tab" onclick="switchTab('input')">Input</div>
+  <div class="tab" onclick="switchTab('import')">Import</div>
   <div class="tab" onclick="switchTab('history')">History</div>
   <div class="tab" onclick="switchTab('paito')">Paito</div>
-  <div class="tab" onclick="switchTab('winrate')">Win Rate</div>
+  <div class="tab" onclick="switchTab('winrate')">Akurasi</div>
 </div>
 
 <div class="content">
@@ -200,23 +225,17 @@
   <!-- PREDIKSI TAB -->
   <div class="section active" id="tab-prediksi">
     <div class="session-banner">
-      <div class="session-info">
-        <div class="label">Prediksi Untuk</div>
-        <div class="value" id="predTarget">Memuat...</div>
-        <div style="font-size:0.68rem;color:var(--muted);margin-top:4px" id="jadwalInfo">
-          Sesi 1: 15:15 WIB &nbsp;·&nbsp; Sesi 2: 21:15 WIB
+      <div class="banner-top">
+        <div class="session-info">
+          <div class="label">Prediksi Untuk</div>
+          <div class="value" id="predTarget">Memuat...</div>
         </div>
+        <button onclick="loadPredictions()" style="background:rgba(240,165,0,0.15);border:1px solid var(--border);color:var(--accent);padding:5px 11px;border-radius:16px;font-size:0.72rem;cursor:pointer;">🔄 Refresh</button>
       </div>
-      <div>
-        <div style="font-size:0.68rem;color:var(--muted);text-align:right;margin-bottom:6px">Hari Ini</div>
-        <div class="session-dots">
-          <div class="dot" id="dot1" title="Sesi 1"></div>
-          <div class="dot" id="dot2" title="Sesi 2"></div>
-        </div>
-      </div>
+      <div class="sesi-bar" id="sesiBar"></div>
     </div>
 
-    <div class="method-tabs">
+    <div class="method-tabs" id="methodTabs">
       <button class="method-tab active" onclick="showMethod('gabungan')">Gabungan</button>
       <button class="method-tab" onclick="showMethod('paito')">Paito</button>
       <button class="method-tab" onclick="showMethod('shio')">Shio</button>
@@ -224,12 +243,10 @@
       <button class="method-tab" onclick="showMethod('ekoras')">AS/Ekor</button>
       <button class="method-tab" onclick="showMethod('kopkep')">Kop·Kep</button>
       <button class="method-tab" onclick="showMethod('math')">Rumus</button>
-      <button id="sesicorrTab" class="method-tab" onclick="showMethod('sesicorr')" style="display:none;background:rgba(138,43,226,0.1);border-color:rgba(138,43,226,0.4);color:#b06aff">Korls2</button>
     </div>
-    <div class="method-tabs" style="margin-top:-6px">
-      <button class="method-tab" onclick="showMethod('4d')" style="background:rgba(0,200,83,0.08);border-color:rgba(0,200,83,0.3);color:#00c853">4D</button>
-      <button class="method-tab" onclick="showMethod('3d')" style="background:rgba(0,200,83,0.08);border-color:rgba(0,200,83,0.3);color:#00c853">3D</button>
-      <button class="method-tab" onclick="showMethod('2d')" style="background:rgba(0,200,83,0.08);border-color:rgba(0,200,83,0.3);color:#00c853">2D</button>
+    <div class="method-tabs" style="margin-top:-4px">
+      <button class="method-tab sub-tab" onclick="showMethod('3d')">3D</button>
+      <button class="method-tab sub-tab" onclick="showMethod('2d')">2D</button>
     </div>
 
     <div id="prediksiContent">
@@ -247,20 +264,24 @@
           <input type="date" id="inputTanggal">
         </div>
         <div class="form-row">
-          <label>Sesi</label>
+          <label>Sesi (1–6)</label>
           <select id="inputSesi">
-            <option value="1">Sesi 1</option>
-            <option value="2">Sesi 2</option>
+            <option value="1">Sesi 1 — 13:00</option>
+            <option value="2">Sesi 2 — 16:00</option>
+            <option value="3">Sesi 3 — 18:30</option>
+            <option value="4">Sesi 4 — 20:00</option>
+            <option value="5">Sesi 5 — 21:30</option>
+            <option value="6">Sesi 6 — 23:00</option>
           </select>
         </div>
       </div>
       <div class="form-row">
-        <label>Nomor Periode (opsional)</label>
-        <input type="number" id="inputPeriode" placeholder="contoh: 3388">
+        <label>No. Periode (opsional)</label>
+        <input type="number" id="inputPeriode" placeholder="cth: 4521">
       </div>
       <div class="form-row">
-        <label>Nomor Hasil (5 digit)</label>
-        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" id="nomorInput" placeholder="00000"
+        <label>Nomor Hasil (4 digit)</label>
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="nomorInput" placeholder="0000"
                oninput="updateDisplay(this.value)">
         <div class="num-input-display" id="numDisplay">—</div>
       </div>
@@ -271,7 +292,33 @@
 
     <div class="form-card">
       <div class="form-title" style="margin-bottom:8px">Status Hari Ini</div>
-      <div id="todayStatus" style="font-size:0.82rem;color:var(--muted)">Memuat...</div>
+      <div id="todayStatus" style="font-size:0.8rem;color:var(--muted)">Memuat...</div>
+    </div>
+  </div>
+
+  <!-- IMPORT TAB -->
+  <div class="section" id="tab-import">
+    <div class="form-card">
+      <div class="form-title">Import Massal Data Historis</div>
+      <div class="form-row">
+        <label>Tempel data (satu baris = satu hasil)</label>
+        <textarea class="import-area" id="importData" placeholder="2026-06-01,1,5823
+2026-06-01,2,3417
+2026-06-01,3,9012
+2026-06-01,4,6754
+2026-06-01,5,2381
+2026-06-01,6,8045
+2026-06-02,1,1234
+..."></textarea>
+        <div class="import-hint">
+          Format: <code>YYYY-MM-DD, sesi(1-6), nomor4D</code> per baris<br>
+          Boleh juga tambah kolom ke-4 untuk nomor periode: <code>2026-06-01, 1, 5823, 4521</code><br>
+          Baris diawali # diabaikan (komentar)
+        </div>
+      </div>
+      <button class="submit-btn" onclick="submitImport()" style="margin-top:4px">📥 Import Semua</button>
+      <div class="success-msg" id="importSuccess"></div>
+      <div class="error-msg" id="importError"></div>
     </div>
   </div>
 
@@ -289,10 +336,10 @@
     </div>
   </div>
 
-  <!-- WIN RATE TAB -->
+  <!-- AKURASI / WIN RATE TAB -->
   <div class="section" id="tab-winrate">
     <div id="winrateContent">
-      <div class="loading"><div class="spinner"></div>Menghitung win rate...</div>
+      <div class="loading"><div class="spinner"></div>Menghitung...</div>
     </div>
   </div>
 
@@ -305,12 +352,8 @@ let currentTab = 'prediksi';
 let currentMethod = 'gabungan';
 let predData = null;
 let statusData = null;
-let gabunganSort = 'priority'; // 'priority' | 'konfirmasi'
 
-function toggleGabunganSort() {
-  gabunganSort = gabunganSort === 'priority' ? 'konfirmasi' : 'priority';
-  if (predData) renderPredictions(predData);
-}
+const jadwalSesi = ['13:00','16:00','18:30','20:00','21:30','23:00'];
 
 document.addEventListener('DOMContentLoaded', () => {
   const today = new Date().toISOString().slice(0, 10);
@@ -322,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function switchTab(name) {
   currentTab = name;
-  const tabNames = ['prediksi','input','history','paito','winrate'];
+  const tabNames = ['prediksi','input','import','history','paito','winrate'];
   document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', tabNames[i] === name));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
@@ -347,16 +390,45 @@ async function loadStatus() {
     const res = await fetch('/status');
     statusData = await res.json();
     document.getElementById('serverTime').textContent = statusData.server_time;
-    const d1 = document.getElementById('dot1');
-    const d2 = document.getElementById('dot2');
-    d1.className = 'dot' + (statusData.sesi1_done ? ' done' : ' active');
-    d2.className = 'dot' + (statusData.sesi2_done ? ' done' : (statusData.sesi1_done ? ' active' : ''));
+
     const label = `Sesi ${statusData.next_sesi} — ${formatDate(statusData.next_tanggal)}`;
     document.getElementById('predTarget').textContent = label;
-    // Tampilkan tab Korelasi Sesi hanya saat prediksi sesi 2
-    const corrTab = document.getElementById('sesicorrTab');
-    if (corrTab) corrTab.style.display = statusData.next_sesi === 2 ? 'inline' : 'none';
+
+    // Update sesi dots
+    const bar = document.getElementById('sesiBar');
+    bar.innerHTML = '';
+    (statusData.sesi_status || []).forEach(s => {
+      const isNext = !s.done && s.sesi === statusData.next_sesi;
+      const cls = s.done ? 'done' : isNext ? 'next' : '';
+      bar.innerHTML += `
+        <div class="sesi-dot" title="Sesi ${s.sesi}: ${s.jam}${s.done ? ' — '+s.nomor : ''}">
+          <div class="dot ${cls}">${s.sesi}</div>
+          <div class="jam">${s.jam}</div>
+        </div>`;
+    });
   } catch(e) {}
+}
+
+async function loadStatusForInput() {
+  await loadStatus();
+  const el = document.getElementById('todayStatus');
+  if (!statusData) { el.textContent = 'Gagal memuat'; return; }
+  let html = '<div style="display:flex;flex-direction:column;gap:6px">';
+  (statusData.sesi_status || []).forEach(s => {
+    const color = s.done ? 'var(--green)' : 'var(--muted)';
+    const icon = s.done ? '✅' : '⏳';
+    html += `<div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--muted)">${icon} Sesi ${s.sesi} (${s.jam})</span>
+      <span style="color:${color};font-family:monospace;font-weight:700">${s.done ? s.nomor : '—'}</span>
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+
+  // Auto-select next sesi
+  if (statusData.next_sesi) {
+    document.getElementById('inputSesi').value = statusData.next_sesi;
+  }
 }
 
 async function loadPredictions() {
@@ -364,6 +436,7 @@ async function loadPredictions() {
     const res = await fetch('/predictions');
     predData = await res.json();
     renderPredictions(predData);
+    await loadStatus();
   } catch(e) {
     document.getElementById('prediksiContent').innerHTML = '<div class="loading">Gagal memuat prediksi</div>';
   }
@@ -373,37 +446,34 @@ function renderPredictions(data) {
   const method = currentMethod;
   const numbers = data[method] || [];
 
+  const isSubDigit = ['3d','2d'].includes(method);
+  const isGabungan = method === 'gabungan';
+
   const labels = {
-    gabungan: { name: 'GABUNGAN 5D',       desc: 'Max 20 nomor terbaik — diranking dari jumlah metode yang mengkonfirmasi<br><span style="font-size:0.62rem;opacity:0.8"><span style="color:var(--accent)">★ emas</span> = 3+ metode &nbsp;·&nbsp; <span style="color:#64b4ff">◆ biru</span> = 2 metode</span><br><span style="font-size:0.6rem;opacity:0.75;display:inline-flex;flex-wrap:wrap;gap:4px;margin-top:3px"><span style="background:rgba(79,195,247,0.15);color:#4fc3f7;border:1px solid #4fc3f740;padding:0 4px;border-radius:4px;font-weight:800">P</span>=Paito &nbsp;<span style="background:rgba(206,147,216,0.15);color:#ce93d8;border:1px solid #ce93d840;padding:0 4px;border-radius:4px;font-weight:800">AI</span>=AI &nbsp;<span style="background:rgba(129,199,132,0.15);color:#81c784;border:1px solid #81c78440;padding:0 4px;border-radius:4px;font-weight:800">S</span>=Shio &nbsp;<span style="background:rgba(255,183,77,0.15);color:#ffb74d;border:1px solid #ffb74d40;padding:0 4px;border-radius:4px;font-weight:800">E</span>=AS/Ekor &nbsp;<span style="background:rgba(77,208,225,0.15);color:#4dd0e1;border:1px solid #4dd0e140;padding:0 4px;border-radius:4px;font-weight:800">K</span>=Kop·Kep &nbsp;<span style="background:rgba(240,165,0,0.15);color:#f0a500;border:1px solid #f0a50040;padding:0 4px;border-radius:4px;font-weight:800">R</span>=Rumus &nbsp;<span style="background:rgba(176,106,255,0.15);color:#b06aff;border:1px solid #b06aff40;padding:0 4px;border-radius:4px;font-weight:800">C</span>=Korelasi</span>', badge: '≤20' },
-    paito:    { name: 'PAITO 5D',           desc: 'Pola warna M/H per posisi + streak detection', badge: '5D' },
-    shio:     { name: 'SHIO 5D',            desc: 'Siklus 12 zodiak Tionghoa — due score + frekuensi', badge: '5D' },
-    ai:       { name: 'AI 5D',              desc: 'Frekuensi + gap + tren + transisi + pair analysis', badge: '5D' },
-    ekoras:   { name: 'AS / EKOR 5D',       desc: 'Fokus digit pertama (AS) & terakhir (Ekor) — hot+cold blend', badge: '5D' },
-    kopkep:   { name: 'KOP · KEPALA 5D',    desc: 'Fokus posisi 2 (Kop) & 4 (Kepala) — frekuensi + gap due · bobot 2.5× lebih kuat', badge: '5D' },
-    math:     { name: 'RUMUS MATEMATIK 5D', desc: 'Cermin · Jumlah digit · Delta ±1/5 · Cross AS↔Ekor — diranking frekuensi', badge: '5D' },
-    sesicorr: { name: 'KORELASI SESI 5D',   desc: 'Pola hasil Sesi 1 → Sesi 2 dari data historis harian', badge: 'S2', special: true },
-    '4d':     { name: 'PECAHAN 4D',         desc: '4 digit terakhir dari setiap nomor 5D (otomatis) + prediksi 4D tambahan — tanpa duplikat', badge: '4D', dedup: false },
-    '3d':     { name: 'PECAHAN 3D',         desc: '3 digit terakhir dari setiap nomor 5D (otomatis) + prediksi 3D tambahan — tanpa duplikat', badge: '3D', dedup: false },
-    '2d':     { name: 'PECAHAN 2D',         desc: '2 digit terakhir dari setiap nomor 5D (otomatis) + prediksi 2D tambahan — tanpa duplikat', badge: '2D', dedup: false },
+    gabungan: { name: 'GABUNGAN 4D', desc: 'Max 20 nomor terbaik — diranking dari jumlah metode yang mengkonfirmasi', badge: '≤20' },
+    paito:    { name: 'PAITO 4D',    desc: 'Pola warna M/H per posisi + streak detection', badge: '4D' },
+    shio:     { name: 'SHIO 4D',     desc: 'Siklus 12 zodiak — shio due score + frekuensi', badge: '4D' },
+    ai:       { name: 'AI 4D',       desc: 'Frekuensi + gap + tren + transisi + pair analysis', badge: '4D' },
+    ekoras:   { name: 'AS / EKOR 4D',desc: 'Fokus digit pertama (AS) & terakhir (Ekor) — hot+cold blend', badge: '4D' },
+    kopkep:   { name: 'KOP · KPL 4D',desc: 'Fokus posisi tengah (pos 2 & 3) — frekuensi + gap due', badge: '4D' },
+    math:     { name: 'RUMUS 4D',    desc: 'Cermin · Jumlah digit · Delta ±1/5 · Cross AS↔Ekor', badge: '4D' },
+    '3d':     { name: 'PECAHAN 3D',  desc: '3 digit terakhir dari setiap prediksi 4D — tanpa duplikat', badge: '3D' },
+    '2d':     { name: 'PECAHAN 2D',  desc: '2 digit terakhir (Ekor) dari setiap prediksi 4D — tanpa duplikat', badge: '2D' },
   };
 
   const info = labels[method] || { name: method.toUpperCase(), desc: '' };
-  const isSubDigit = ['4d','3d','2d'].includes(method);
-  const isSpecial  = method === 'sesicorr';
-  const isGabungan = method === 'gabungan';
 
-  // Hitung dari metode mana tiap nomor berasal (untuk highlight + ikon sumber di Gabungan)
+  // Hitung konfirmasi per nomor untuk Gabungan
   const confirmCount = {};
-  const methodSources = {}; // nomor -> ['P','AI',...]
+  const methodSources = {};
   if (isGabungan) {
     const methodMeta = [
-      { key:'paito',    label:'P',  color:'#4fc3f7', bg:'rgba(79,195,247,0.15)'  },
-      { key:'ai',       label:'AI', color:'#ce93d8', bg:'rgba(206,147,216,0.15)' },
-      { key:'shio',     label:'S',  color:'#81c784', bg:'rgba(129,199,132,0.15)' },
-      { key:'ekoras',   label:'E',  color:'#ffb74d', bg:'rgba(255,183,77,0.15)'  },
-      { key:'kopkep',   label:'K',  color:'#4dd0e1', bg:'rgba(77,208,225,0.15)'  },
-      { key:'math',     label:'R',  color:'#f0a500', bg:'rgba(240,165,0,0.15)'   },
-      { key:'sesicorr', label:'C',  color:'#b06aff', bg:'rgba(176,106,255,0.15)' },
+      { key:'paito',  label:'P',  color:'#4fc3f7', bg:'rgba(79,195,247,0.15)'  },
+      { key:'ai',     label:'AI', color:'#ce93d8', bg:'rgba(206,147,216,0.15)' },
+      { key:'shio',   label:'S',  color:'#81c784', bg:'rgba(129,199,132,0.15)' },
+      { key:'ekoras', label:'E',  color:'#ffb74d', bg:'rgba(255,183,77,0.15)'  },
+      { key:'kopkep', label:'K',  color:'#4dd0e1', bg:'rgba(77,208,225,0.15)'  },
+      { key:'math',   label:'R',  color:'#f0a500', bg:'rgba(240,165,0,0.15)'   },
     ];
     for (const mm of methodMeta) {
       for (const item of (data[mm.key] || [])) {
@@ -415,70 +485,56 @@ function renderPredictions(data) {
   }
 
   if (!numbers.length) {
-    const msg = isSpecial
-      ? '<div class="loading" style="color:#b06aff">⚠️ Korelasi sesi tersedia setelah hasil Sesi 1 masuk (15:15 WIB)</div>'
-      : '<div class="loading">Belum ada prediksi</div>';
-    document.getElementById('prediksiContent').innerHTML = msg;
+    document.getElementById('prediksiContent').innerHTML = '<div class="loading">Belum ada prediksi</div>';
     return;
   }
 
   const allNums = numbers.map(n => n.nomor).join('\n');
-  const badgeStyle = isSubDigit
+  const badgeColor = isSubDigit
     ? 'background:rgba(0,200,83,0.2);color:#00c853;border:1px solid rgba(0,200,83,0.4)'
-    : isSpecial
-      ? 'background:rgba(138,43,226,0.2);color:#b06aff;border:1px solid rgba(138,43,226,0.4)'
-      : 'background:rgba(240,165,0,0.2);color:var(--accent);border:1px solid var(--border)';
+    : 'background:rgba(240,165,0,0.2);color:var(--accent);border:1px solid var(--border)';
+
+  const gridClass = isSubDigit ? 'numbers-grid sub-grid' : 'numbers-grid';
 
   let html = `
   <div class="method-card">
     <div class="method-header">
-      <div>
-        <div class="method-name" style="display:flex;align-items:center;gap:6px">
+      <div style="flex:1;min-width:0">
+        <div class="method-name">
           ${info.name}
-          <span style="font-size:0.65rem;padding:2px 7px;border-radius:10px;font-weight:700;${badgeStyle}">${info.badge||''}</span>
+          <span style="font-size:0.62rem;padding:2px 7px;border-radius:10px;font-weight:700;${badgeColor}">${info.badge||''}</span>
         </div>
         <div class="method-desc">${info.desc}</div>
-        ${info.dedup ? `<div style="font-size:0.65rem;color:var(--green);margin-top:3px">✅ Nomor yang sudah ada di 5D tidak ditampilkan</div>` : ''}
+        ${isGabungan ? `<div style="font-size:0.6rem;margin-top:3px;color:var(--muted)"><span style="color:var(--accent)">★ emas</span>=3+ metode &nbsp;<span style="color:#64b4ff">◆ biru</span>=2 metode</div>` : ''}
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-        ${isGabungan ? `<button onclick="toggleGabunganSort()" style="font-size:0.65rem;padding:3px 9px;border-radius:8px;border:1px solid ${gabunganSort==='konfirmasi'?'var(--accent)':'rgba(255,255,255,0.15)'};background:${gabunganSort==='konfirmasi'?'rgba(240,165,0,0.15)':'transparent'};color:${gabunganSort==='konfirmasi'?'var(--accent)':'var(--muted)'};cursor:pointer;white-space:nowrap">⬆ ${gabunganSort==='konfirmasi'?'Konfirmasi':'Prioritas'}</button>` : ''}
-        <button class="copy-all-btn" onclick='copyAll(${JSON.stringify(allNums)})'>📋 Copy</button>
-      </div>
+      <button class="copy-all-btn" onclick='copyAll(${JSON.stringify(allNums)})'>📋 Copy</button>
     </div>
-    <div class="numbers-grid">`;
+    <div class="${gridClass}">`;
 
-  // Jika GABUNGAN dan sort aktif: urutkan nomor terbanyak konfirmasi di atas
-  const displayNumbers = (isGabungan && gabunganSort === 'konfirmasi')
-    ? [...numbers].sort((a, b) => (confirmCount[b.nomor]||0) - (confirmCount[a.nomor]||0))
-    : numbers;
-
-  displayNumbers.forEach((item, i) => {
+  numbers.forEach((item, i) => {
     const wHtml = (item.warna||'').split('').map(c=>`<span class="w-${c.toLowerCase()}">${c}</span>`).join('');
     const cnt = isGabungan ? (confirmCount[item.nomor] || 0) : 0;
     const sources = isGabungan ? (methodSources[item.nomor] || []) : [];
 
-    // Border highlight: 3+ metode = emas, 2 metode = biru
     let cardExtra = '';
-    if (cnt >= 3) {
-      cardExtra = 'style="border-color:var(--accent);box-shadow:0 0 8px rgba(240,165,0,0.3)"';
-    } else if (cnt === 2) {
-      cardExtra = 'style="border-color:rgba(100,180,255,0.5)"';
-    }
+    if (cnt >= 3) cardExtra = 'style="border-color:var(--accent);box-shadow:0 0 7px rgba(240,165,0,0.3)"';
+    else if (cnt === 2) cardExtra = 'style="border-color:rgba(100,180,255,0.5)"';
 
-    // Ikon sumber metode (P / AI / S / E / K / R / C)
     const sourcePills = sources.map(mm =>
-      `<span style="font-size:0.55rem;font-weight:800;padding:1px 4px;border-radius:5px;background:${mm.bg};color:${mm.color};border:1px solid ${mm.color}40;line-height:1.4">${mm.label}</span>`
+      `<span class="source-pill" style="background:${mm.bg};color:${mm.color};border:1px solid ${mm.color}40">${mm.label}</span>`
     ).join('');
 
+    const itemClass = isSubDigit ? 'num-item sub-item' : 'num-item';
+
     html += `
-    <div class="num-item" ${cardExtra} onclick="copyNum('${item.nomor}', this)">
+    <div class="${itemClass}" ${cardExtra} onclick="copyNum('${item.nomor}', this)">
       <span class="num-rank">#${i+1}</span>
       <span class="num-value">${item.nomor}</span>
       <div class="num-right">
         <div class="num-shio">${item.shio||''}</div>
         ${sources.length ? `<div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:flex-end">${sourcePills}</div>` : ''}
         <div class="num-warna">${wHtml}</div>
-        <span style="font-size:0.7rem;color:var(--muted)">📋</span>
+        <span style="font-size:0.65rem;color:var(--muted)">📋</span>
       </div>
     </div>`;
   });
@@ -488,7 +544,7 @@ function renderPredictions(data) {
 }
 
 function copyNum(num, el) {
-  navigator.clipboard.writeText(num).catch(()=>{
+  navigator.clipboard.writeText(num).catch(() => {
     const ta = document.createElement('textarea');
     ta.value = num; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
   });
@@ -498,7 +554,7 @@ function copyNum(num, el) {
 }
 
 function copyAll(text) {
-  navigator.clipboard.writeText(text).catch(()=>{
+  navigator.clipboard.writeText(text).catch(() => {
     const ta = document.createElement('textarea');
     ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
   });
@@ -508,7 +564,7 @@ function copyAll(text) {
 function updateDisplay(val) {
   const el = document.getElementById('numDisplay');
   if (!val) { el.textContent = '—'; return; }
-  el.textContent = String(val).padStart(5, '0').slice(-5);
+  el.textContent = String(val).padStart(4, '0').slice(-4);
 }
 
 async function submitResult() {
@@ -522,7 +578,11 @@ async function submitResult() {
   successEl.style.display = 'none';
   errorEl.style.display = 'none';
 
-  if (!tanggal || !nomor) { errorEl.textContent = 'Tanggal dan nomor harus diisi'; errorEl.style.display = 'block'; return; }
+  if (!tanggal || !nomor) {
+    errorEl.textContent = 'Tanggal dan nomor harus diisi';
+    errorEl.style.display = 'block';
+    return;
+  }
 
   try {
     const res = await fetch('/results', {
@@ -531,30 +591,61 @@ async function submitResult() {
       body: JSON.stringify({ periode, tanggal, sesi, nomor })
     });
     const data = await res.json();
-    if (res.ok && data.success) {
-      successEl.textContent = `✅ ${data.message} — Prediksi sesi ${data.next_sesi} (${data.next_tanggal}) sudah siap!`;
+    if (data.success) {
+      successEl.textContent = `✅ ${data.message}`;
       successEl.style.display = 'block';
       document.getElementById('nomorInput').value = '';
-      document.getElementById('inputPeriode').value = '';
       document.getElementById('numDisplay').textContent = '—';
+      document.getElementById('inputPeriode').value = '';
       await loadStatus();
       await loadPredictions();
-      showToast('Hasil disimpan! Prediksi diperbarui.');
-    } else { throw new Error(data.error || 'Gagal'); }
-  } catch(e) { errorEl.textContent = 'Error: ' + e.message; errorEl.style.display = 'block'; }
+    } else {
+      errorEl.textContent = data.message || 'Gagal menyimpan';
+      errorEl.style.display = 'block';
+    }
+  } catch(e) {
+    errorEl.textContent = 'Error: ' + e.message;
+    errorEl.style.display = 'block';
+  }
 }
 
-async function loadStatusForInput() {
-  await loadStatus();
-  if (!statusData) return;
-  let html = '';
-  const s1 = statusData.sesi1_done
-    ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><span>✅ Sesi 1</span><span style="font-family:monospace;font-weight:700;color:var(--accent)">${statusData.sesi1_result}</span></div>`
-    : `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--muted)">⏳ Sesi 1 — Belum ada hasil</div>`;
-  const s2 = statusData.sesi2_done
-    ? `<div style="display:flex;justify-content:space-between;padding:8px 0"><span>✅ Sesi 2</span><span style="font-family:monospace;font-weight:700;color:var(--accent)">${statusData.sesi2_result}</span></div>`
-    : `<div style="padding:8px 0;color:var(--muted)">⏳ Sesi 2 — Belum ada hasil</div>`;
-  document.getElementById('todayStatus').innerHTML = s1 + s2;
+async function submitImport() {
+  const data = document.getElementById('importData').value.trim();
+  const successEl = document.getElementById('importSuccess');
+  const errorEl = document.getElementById('importError');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  if (!data) {
+    errorEl.textContent = 'Data kosong';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch('/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data })
+    });
+    const result = await res.json();
+    if (result.success) {
+      successEl.textContent = `✅ ${result.message}`;
+      successEl.style.display = 'block';
+      if (result.errors && result.errors.length > 0) {
+        errorEl.textContent = 'Peringatan: ' + result.errors.slice(0,3).join(' | ');
+        errorEl.style.display = 'block';
+      }
+      await loadPredictions();
+      await loadStatus();
+    } else {
+      errorEl.textContent = result.message || 'Gagal import';
+      errorEl.style.display = 'block';
+    }
+  } catch(e) {
+    errorEl.textContent = 'Error: ' + e.message;
+    errorEl.style.display = 'block';
+  }
 }
 
 async function loadHistory() {
@@ -567,28 +658,35 @@ async function loadHistory() {
 }
 
 function renderHistory(history) {
-  if (!history || !history.length) {
-    document.getElementById('historyContent').innerHTML = '<div class="loading">Belum ada data</div>'; return;
+  if (!history.length) {
+    document.getElementById('historyContent').innerHTML = '<div class="loading">Belum ada data history</div>';
+    return;
   }
-  let html = '<div class="history-card"><div class="history-header">📋 Riwayat Hasil Keluaran</div>';
-  history.forEach((item, idx) => {
-    const predNums = (item.predictions||'').split(',').map(s=>s.trim()).filter(Boolean);
-    const badge = !predNums.length ? '' :
-      item.is_hit ? '<span class="badge badge-hit">EXACT HIT</span>' :
-      item.shio_hit ? '<span class="badge badge-shio">Shio Hit</span>' :
-      '<span class="badge badge-miss">Miss</span>';
 
-    const predPreview = predNums.length ? `<span class="pred-preview">${predNums.slice(0,5).join(' ')}</span>` : '';
-    const periodeLabel = item.periode ? `#${item.periode}` : '<span style="color:rgba(255,255,255,0.25)">no#</span>';
+  let html = `<div class="history-card"><div class="history-header">📋 History Keluaran (${history.length} sesi)</div>`;
+  history.forEach((item, idx) => {
+    const predNums = item.predictions ? item.predictions.split(',').map(s=>s.trim()).filter(Boolean) : [];
+    const badge = item.is_hit
+      ? `<span class="badge badge-hit">✅ 4D HIT</span>`
+      : item.hit_3d
+        ? `<span class="badge badge-hit2d">3D Hit</span>`
+        : item.hit_2d
+          ? `<span class="badge badge-hit2d">2D Hit</span>`
+          : predNums.length
+            ? `<span class="badge badge-miss">Miss</span>`
+            : '';
+
+    const predPreview = predNums.length ? `<span class="pred-preview">${predNums.slice(0,6).join(' ')}</span>` : '';
+    const periodeLabel = item.periode ? `#${item.periode}` : '<span style="color:rgba(255,255,255,0.2)">no#</span>';
     const editId = `edit-${idx}`;
 
     html += `
     <div class="history-item">
       <div class="history-row1">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <div class="history-meta">${formatDate(item.tanggal)} · Sesi ${item.sesi}</div>
-          <span class="history-periode" style="cursor:default">${periodeLabel}</span>
-          <button class="edit-btn" onclick="toggleEdit('${editId}','${item.tanggal}',${item.sesi},${item.periode||0})">✏️ edit#</button>
+          <div class="history-meta">${formatDate(item.tanggal)} · S${item.sesi} (${jadwalSesi[item.sesi-1]||''})</div>
+          <span class="history-periode">${periodeLabel}</span>
+          <button class="edit-btn" onclick="toggleEdit('${editId}','${item.tanggal}',${item.sesi},${item.periode||0})">✏️</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="history-result" onclick="copyNum('${item.nomor}',this)">${item.nomor}</span>
@@ -596,8 +694,8 @@ function renderHistory(history) {
         </div>
       </div>
       <div id="${editId}" class="edit-inline">
-        <span style="font-size:0.75rem;color:var(--muted)">No. Periode:</span>
-        <input type="number" id="inp-${editId}" placeholder="cth: 3388" value="${item.periode||''}">
+        <span style="font-size:0.72rem;color:var(--muted)">Periode:</span>
+        <input type="number" id="inp-${editId}" placeholder="cth: 4521" value="${item.periode||''}">
         <button class="save-btn" onclick="savePeriode('${editId}','${item.tanggal}',${item.sesi})">Simpan</button>
         <button class="cancel-btn" onclick="toggleEdit('${editId}')">Batal</button>
       </div>
@@ -611,7 +709,7 @@ function renderHistory(history) {
   document.getElementById('historyContent').innerHTML = html;
 }
 
-function toggleEdit(id, tanggal, sesi, periode) {
+function toggleEdit(id) {
   const el = document.getElementById(id);
   el.classList.toggle('open');
   if (el.classList.contains('open')) {
@@ -623,8 +721,7 @@ function toggleEdit(id, tanggal, sesi, periode) {
 async function savePeriode(id, tanggal, sesi) {
   const inp = document.getElementById('inp-' + id);
   const periode = parseInt(inp.value);
-  if (!periode || periode <= 0) { showToast('Masukkan nomor periode yang valid'); return; }
-
+  if (!periode || periode <= 0) { showToast('Masukkan nomor periode valid'); return; }
   try {
     const res = await fetch('/results', {
       method: 'PATCH',
@@ -636,7 +733,7 @@ async function savePeriode(id, tanggal, sesi) {
       showToast(`Periode #${periode} disimpan!`);
       document.getElementById(id).classList.remove('open');
       await loadHistory();
-    } else { showToast('Gagal menyimpan'); }
+    }
   } catch(e) { showToast('Error: ' + e.message); }
 }
 
@@ -650,22 +747,23 @@ async function loadPaito() {
 }
 
 function renderPaito(paito) {
-  if (!paito || !paito.length) { document.getElementById('paitoContent').innerHTML = '<div class="loading">Belum ada data</div>'; return; }
+  if (!paito.length) { document.getElementById('paitoContent').innerHTML = '<div class="loading">Belum ada data</div>'; return; }
   let html = `
   <div class="history-card">
     <div class="history-header">🎨 Tabel Paito (M=Merah/Ganjil · H=Hitam/Genap)</div>
     <div style="overflow-x:auto;padding:4px">
     <table class="paito-table">
-      <thead><tr><th>Tgl</th><th>S</th><th>Nomor</th><th>Warna</th><th>Shio</th></tr></thead>
+      <thead><tr><th>Tgl</th><th>S</th><th>Jam</th><th>Nomor</th><th>Warna</th><th>Shio</th></tr></thead>
       <tbody>`;
   paito.forEach(item => {
     const dots = (item.colors||'').split('').map(c=>`<div class="color-dot ${c.toLowerCase()}">${c}</div>`).join('');
     html += `<tr>
-      <td style="font-size:0.72rem;color:var(--muted)">${formatDateShort(item.tanggal)}</td>
-      <td style="color:var(--accent);font-size:0.75rem">${item.sesi}</td>
+      <td style="font-size:0.7rem;color:var(--muted)">${formatDateShort(item.tanggal)}</td>
+      <td style="color:var(--accent);font-size:0.72rem">${item.sesi}</td>
+      <td style="font-size:0.68rem;color:var(--muted)">${jadwalSesi[item.sesi-1]||''}</td>
       <td><span class="paito-num" style="color:#fff">${item.nomor}</span></td>
       <td><div class="color-dots">${dots}</div></td>
-      <td style="font-size:0.72rem;color:var(--accent)">${item.shio}</td>
+      <td style="font-size:0.7rem;color:var(--accent)">${item.shio}</td>
     </tr>`;
   });
   html += `</tbody></table></div></div>`;
@@ -680,95 +778,91 @@ async function loadWinRate() {
     const bt = await btRes.json();
     renderWinRate(wr, bt);
   } catch(e) {
-    document.getElementById('winrateContent').innerHTML = '<div class="loading">Gagal memuat data</div>';
+    document.getElementById('winrateContent').innerHTML = '<div class="loading">Gagal memuat</div>';
   }
 }
 
 function renderWinRate(wr, bt) {
-  const exactPct = wr.rate_exact ? wr.rate_exact.toFixed(1) : '0.0';
-  const shioPct  = wr.rate_shio  ? wr.rate_shio.toFixed(1)  : '0.0';
-  const exactColor = wr.rate_exact > 5 ? 'var(--green)' : wr.rate_exact > 0 ? 'var(--accent)' : 'var(--muted)';
-  const shioColor  = wr.rate_shio  > 30 ? 'var(--green)' : wr.rate_shio > 10  ? 'var(--accent)' : 'var(--muted)';
+  const r4 = (wr.rate_4d||0).toFixed(1);
+  const r3 = (wr.rate_3d||0).toFixed(1);
+  const r2 = (wr.rate_2d||0).toFixed(1);
+  const rs = (wr.rate_shio||0).toFixed(1);
 
-  // ── Back-test table ──
   let btHtml = '';
   if (bt && bt.methods && bt.methods.length) {
     const rows = bt.methods.map(m => {
-      const r2 = m.rate_2d.toFixed(1);
-      const r3 = m.rate_3d.toFixed(1);
-      const r4 = m.rate_4d.toFixed(1);
-      const r5 = m.rate_5d.toFixed(1);
-      const best = Math.max(m.rate_2d, m.rate_3d, m.rate_4d);
-      const color = best >= 30 ? 'var(--green)' : best >= 15 ? 'var(--accent)' : 'var(--muted)';
+      const r2b = m.rate_2d.toFixed(1);
+      const r3b = m.rate_3d.toFixed(1);
+      const r4b = m.rate_4d.toFixed(1);
       const isGab = m.method === 'GABUNGAN';
-      return `<tr style="${isGab ? 'background:rgba(240,165,0,0.06)' : ''}">
-        <td style="font-size:0.78rem;font-weight:${isGab?'700':'400'};color:${isGab?'var(--accent)':'var(--text)'}">${m.label}</td>
-        <td style="text-align:center;font-size:0.78rem;color:${r2>=30?'var(--green)':r2>=15?'var(--accent)':'var(--muted)'};font-weight:${r2>=15?'700':'400'}">${r2}%</td>
-        <td style="text-align:center;font-size:0.78rem;color:${r3>=10?'var(--green)':r3>=5?'var(--accent)':'var(--muted)'}">${r3}%</td>
-        <td style="text-align:center;font-size:0.78rem;color:${r4>=5?'var(--green)':r4>=2?'var(--accent)':'var(--muted)'}">${r4}%</td>
-        <td style="text-align:center;font-size:0.75rem;color:var(--muted)">${m.hit_2d}/${m.total}</td>
+      const c2 = m.rate_2d >= 30 ? 'var(--green)' : m.rate_2d >= 15 ? 'var(--accent)' : 'var(--muted)';
+      const c3 = m.rate_3d >= 10 ? 'var(--green)' : m.rate_3d >= 5 ? 'var(--accent)' : 'var(--muted)';
+      return `<tr style="${isGab ? 'background:rgba(240,165,0,0.05)' : ''}">
+        <td style="font-size:0.76rem;font-weight:${isGab?'700':'400'};color:${isGab?'var(--accent)':'var(--text)'};padding:5px 4px">${m.label}</td>
+        <td style="text-align:center;color:${c2};font-size:0.76rem;font-weight:${m.rate_2d>=15?'700':'400'}">${r2b}%</td>
+        <td style="text-align:center;color:${c3};font-size:0.76rem">${r3b}%</td>
+        <td style="text-align:center;color:var(--muted);font-size:0.74rem">${r4b}%</td>
+        <td style="text-align:center;font-size:0.7rem;color:var(--muted)">${m.hit_2d}/${m.total}</td>
       </tr>`;
     }).join('');
 
     btHtml = `
-  <div class="wr-card" style="margin-bottom:14px">
-    <div class="wr-title">🔬 Back-Test Per Metode
-      <span style="font-size:0.65rem;font-weight:400;color:var(--muted);margin-left:6px">${bt.tested} sesi diuji dari ${bt.history_len} total</span>
-    </div>
-    <div style="font-size:0.7rem;color:var(--muted);margin-bottom:10px;line-height:1.5">
-      Simulasi: untuk setiap hasil masa lalu, prediksi dijalankan menggunakan data <em>sebelumnya</em> saja — lalu dicek apakah ada digit yang cocok.
-    </div>
-    <div style="overflow-x:auto">
-    <table style="width:100%;border-collapse:collapse">
-      <thead>
-        <tr style="border-bottom:1px solid var(--border)">
-          <th style="text-align:left;padding:6px 4px;font-size:0.7rem;color:var(--muted);font-weight:600">Metode</th>
-          <th style="text-align:center;padding:6px 4px;font-size:0.7rem;color:var(--muted);font-weight:600">2D Hit</th>
-          <th style="text-align:center;padding:6px 4px;font-size:0.7rem;color:var(--muted);font-weight:600">3D Hit</th>
-          <th style="text-align:center;padding:6px 4px;font-size:0.7rem;color:var(--muted);font-weight:600">4D Hit</th>
-          <th style="text-align:center;padding:6px 4px;font-size:0.7rem;color:var(--muted);font-weight:600">2D n/n</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-    </div>
-    <div style="margin-top:10px;font-size:0.68rem;color:var(--muted);line-height:1.6">
-      <strong style="color:var(--accent)">2D Hit</strong> = minimal 1 prediksi cocok 2 digit terakhir hasil ·
-      <strong style="color:var(--accent)">3D Hit</strong> = cocok 3 digit terakhir ·
-      <strong style="color:var(--accent)">4D Hit</strong> = cocok 4 digit terakhir<br>
-      Random baseline: 2D≈4%, 3D≈0.4%, 4D≈0.04% (per prediksi tunggal)
-    </div>
-    ${bt.note ? `<div style="margin-top:8px;font-size:0.65rem;color:rgba(255,255,255,0.3)">${bt.note}</div>` : ''}
-  </div>`;
+    <div class="wr-card">
+      <div class="wr-title">🔬 Back-Test Per Metode
+        <span style="font-size:0.62rem;font-weight:400;color:var(--muted)">${bt.tested} sesi diuji</span>
+      </div>
+      <div style="font-size:0.68rem;color:var(--muted);margin-bottom:8px">Prediksi disimulasikan dari data masa lalu — dicek apakah digit cocok</div>
+      ${bt.note && bt.methods.length === 0 ? `<div style="color:var(--muted);font-size:0.8rem;text-align:center;padding:10px">${bt.note}</div>` : ''}
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr style="border-bottom:1px solid var(--border)">
+          <th style="text-align:left;padding:5px 4px;font-size:0.68rem;color:var(--muted)">Metode</th>
+          <th style="text-align:center;padding:5px 4px;font-size:0.68rem;color:var(--muted)">2D Hit</th>
+          <th style="text-align:center;padding:5px 4px;font-size:0.68rem;color:var(--muted)">3D Hit</th>
+          <th style="text-align:center;padding:5px 4px;font-size:0.68rem;color:var(--muted)">4D Hit</th>
+          <th style="text-align:center;padding:5px 4px;font-size:0.68rem;color:var(--muted)">n/n</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div>
+      <div style="margin-top:8px;font-size:0.65rem;color:var(--muted)">
+        Random baseline: 2D≈20% · 3D≈2% · 4D≈0.2% (dengan 20 prediksi)
+      </div>
+    </div>`;
   } else if (bt && bt.note) {
-    btHtml = `<div class="wr-card"><div style="font-size:0.82rem;color:var(--muted);text-align:center;padding:10px">⚠️ ${bt.note}</div></div>`;
+    btHtml = `<div class="wr-card"><div style="font-size:0.8rem;color:var(--muted);text-align:center;padding:8px">⚠️ ${bt.note}</div></div>`;
   }
 
-  let html = btHtml + `
+  const html = btHtml + `
   <div class="wr-card">
     <div class="wr-title">📊 Win Rate Live (prediksi vs hasil aktual)</div>
     <div class="wr-grid">
       <div class="wr-stat">
-        <div class="val" style="color:${exactColor}">${exactPct}%</div>
-        <div class="lbl">Exact 5D Hit</div>
-        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px">${wr.wins} dari ${wr.total}</div>
+        <div class="val" style="color:${wr.rate_4d>2?'var(--green)':wr.rate_4d>0?'var(--accent)':'var(--muted)'}">${r4}%</div>
+        <div class="lbl">4D Exact</div>
+        <div style="font-size:0.62rem;color:var(--muted);margin-top:2px">${wr.wins||0}/${wr.total||0}</div>
       </div>
       <div class="wr-stat">
-        <div class="val" style="color:${shioColor}">${shioPct}%</div>
-        <div class="lbl">Shio Hit</div>
-        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px">${wr.shio_wins} dari ${wr.total}</div>
+        <div class="val" style="color:${wr.rate_3d>5?'var(--green)':wr.rate_3d>0?'var(--accent)':'var(--muted)'}">${r3}%</div>
+        <div class="lbl">3D Hit</div>
+        <div style="font-size:0.62rem;color:var(--muted);margin-top:2px">${wr.hit_3d||0}/${wr.total||0}</div>
+      </div>
+      <div class="wr-stat">
+        <div class="val" style="color:${wr.rate_2d>20?'var(--green)':wr.rate_2d>0?'var(--accent)':'var(--muted)'}">${r2}%</div>
+        <div class="lbl">2D Hit</div>
+        <div style="font-size:0.62rem;color:var(--muted);margin-top:2px">${wr.hit_2d||0}/${wr.total||0}</div>
       </div>
     </div>
-    <div class="wr-bar-wrap" style="margin-top:8px">
-      <div class="wr-bar-label"><span>Exact 5D</span><span>${exactPct}%</span></div>
-      <div class="wr-bar"><div class="wr-bar-fill" style="width:${Math.min(wr.rate_exact||0,100)}%;background:var(--green)"></div></div>
+    <div class="wr-bar-wrap">
+      <div class="wr-bar-label"><span>2D Hit Rate</span><span>${r2}%</span></div>
+      <div class="wr-bar"><div class="wr-bar-fill" style="width:${Math.min(wr.rate_2d||0,100)}%;background:var(--green)"></div></div>
     </div>
-    <div class="wr-bar-wrap" style="margin-top:8px">
-      <div class="wr-bar-label"><span>Shio cocok</span><span>${shioPct}%</span></div>
+    <div class="wr-bar-wrap" style="margin-top:6px">
+      <div class="wr-bar-label"><span>Shio Hit</span><span>${rs}%</span></div>
       <div class="wr-bar"><div class="wr-bar-fill" style="width:${Math.min(wr.rate_shio||0,100)}%;background:var(--accent)"></div></div>
     </div>
-    <div class="wr-note" style="margin-top:12px">
-      <strong>Catatan realita:</strong> 5D exact = 1/100.000 peluang per nomor — mustahil konsisten. Yang realistis dipasang: <strong>2D (Ekor)</strong> dengan hit rate lebih tinggi dari random baseline.
+    <div class="wr-note">
+      <strong>Target realistis:</strong> 2D Hit &gt;20% (random baseline ~20% dengan 20 prediksi), 3D Hit &gt;5%, 4D Hit &gt;0.5%
     </div>
   </div>`;
 
@@ -781,7 +875,6 @@ function getShio(nomor) {
   if (!nomor || nomor.length < 2) return '';
   return shioList[parseInt(nomor.slice(-2)||'0') % 12];
 }
-
 function formatDate(d) {
   if (!d) return '';
   const p = d.split('-');
@@ -793,7 +886,6 @@ function formatDateShort(d) {
   const p = d.split('-');
   return p.length === 3 ? `${p[2]}/${p[1]}` : d;
 }
-
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
