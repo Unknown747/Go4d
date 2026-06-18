@@ -639,11 +639,11 @@ func handleRegenerate(w http.ResponseWriter, r *http.Request) {
 }
 
 func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
-        paito := predictPaito(history)
-        shioNums := predictShio(history)
-        ai := predictAI(history)
-        ekorAS := predictEkorAS(history)
-        mathNums := predictMath(history)
+        paito := filterPastResults(predictPaito(history), history)
+        shioNums := filterPastResults(predictShio(history), history)
+        ai := filterPastResults(predictAI(history), history)
+        ekorAS := filterPastResults(predictEkorAS(history), history)
+        mathNums := filterPastResults(predictMath(history), history)
 
         savePredictions(tanggal, sesi, "PAITO", paito)
         savePredictions(tanggal, sesi, "SHIO", shioNums)
@@ -651,6 +651,6 @@ func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
         savePredictions(tanggal, sesi, "EKORAS", ekorAS)
         savePredictions(tanggal, sesi, "MATH", mathNums)
 
-        gabungan := predictGabungan(history)
+        gabungan := filterPastResults(predictGabungan(history), history)
         savePredictions(tanggal, sesi, "GABUNGAN", gabungan)
 }

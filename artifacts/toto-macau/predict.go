@@ -14,6 +14,29 @@ var shioNames = []string{
         "Kuda", "Kambing", "Monyet", "Ayam", "Anjing", "Babi",
 }
 
+// filterPastResults menghapus nomor yang sudah pernah keluar dari histori
+func filterPastResults(nums []string, history []Result) []string {
+        pastSet := map[string]bool{}
+        for _, r := range history {
+                n := r.Nomor
+                for len(n) < 4 {
+                        n = "0" + n
+                }
+                pastSet[n] = true
+        }
+        var filtered []string
+        for _, n := range nums {
+                n4 := n
+                for len(n4) < 4 {
+                        n4 = "0" + n4
+                }
+                if !pastSet[n4] {
+                        filtered = append(filtered, n)
+                }
+        }
+        return filtered
+}
+
 func shioOf(nomor string) string {
         if len(nomor) < 2 {
                 return shioNames[0]
