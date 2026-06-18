@@ -32,6 +32,7 @@ func main() {
         mux.HandleFunc("/history", handleHistory)
         mux.HandleFunc("/paito", handlePaito)
         mux.HandleFunc("/winrate", handleWinRate)
+        mux.HandleFunc("/backtest", handleBacktest)
 
         log.Printf("Server berjalan di port %s", port)
         if err := http.ListenAndServe(":"+port, corsMiddleware(mux)); err != nil {
@@ -355,6 +356,12 @@ func handlePaito(w http.ResponseWriter, r *http.Request) {
 func handleWinRate(w http.ResponseWriter, r *http.Request) {
         wr := calculateWinRate()
         jsonResponse(w, wr)
+}
+
+// GET /backtest
+func handleBacktest(w http.ResponseWriter, r *http.Request) {
+        report := runBacktest()
+        jsonResponse(w, report)
 }
 
 func generateAndSavePredictions(tanggal string, sesi int, history []Result) {

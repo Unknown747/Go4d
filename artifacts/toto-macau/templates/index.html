@@ -675,61 +675,100 @@ function renderPaito(paito) {
 async function loadWinRate() {
   document.getElementById('winrateContent').innerHTML = '<div class="loading"><div class="spinner"></div>Menghitung...</div>';
   try {
-    const res = await fetch('/winrate');
-    const wr = await res.json();
-    renderWinRate(wr);
-  } catch(e) {}
+    const [wrRes, btRes] = await Promise.all([fetch('/winrate'), fetch('/backtest')]);
+    const wr = await wrRes.json();
+    const bt = await btRes.json();
+    renderWinRate(wr, bt);
+  } catch(e) {
+    document.getElementById('winrateContent').innerHTML = '<div class="loading">Gagal memuat data</div>';
+  }
 }
 
-function renderWinRate(wr) {
-  const exactPct = wr.rate_exact ? wr.rate_exact.toFixed(2) : '0.00';
-  const shioPct = wr.rate_shio ? wr.rate_shio.toFixed(2) : '0.00';
+function renderWinRate(wr, bt) {
+  const exactPct = wr.rate_exact ? wr.rate_exact.toFixed(1) : '0.0';
+  const shioPct  = wr.rate_shio  ? wr.rate_shio.toFixed(1)  : '0.0';
   const exactColor = wr.rate_exact > 5 ? 'var(--green)' : wr.rate_exact > 0 ? 'var(--accent)' : 'var(--muted)';
-  const shioColor = wr.rate_shio > 30 ? 'var(--green)' : wr.rate_shio > 10 ? 'var(--accent)' : 'var(--muted)';
+  const shioColor  = wr.rate_shio  > 30 ? 'var(--green)' : wr.rate_shio > 10  ? 'var(--accent)' : 'var(--muted)';
 
-  let html = `
+  // ── Back-test table ──
+  let btHtml = '';
+  if (bt && bt.methods && bt.methods.length) {
+    const rows = bt.methods.map(m => {
+      const r2 = m.rate_2d.toFixed(1);
+      const r3 = m.rate_3d.toFixed(1);
+      const r4 = m.rate_4d.toFixed(1);
+      const r5 = m.rate_5d.toFixed(1);
+      const best = Math.max(m.rate_2d, m.rate_3d, m.rate_4d);
+      const color = best >= 30 ? 'var(--green)' : best >= 15 ? 'var(--accent)' : 'var(--muted)';
+      const isGab = m.method === 'GABUNGAN';
+      return `<tr style="${isGab ? 'background:rgba(240,165,0,0.06)' : ''}">
+        <td style="font-size:0.78rem;font-weight:${isGab?'700':'400'};color:${isGab?'var(--accent)':'var(--text)'}">${m.label}</td>
+        <td style="text-align:center;font-size:0.78rem;color:${r2>=30?'var(--green)':r2>=15?'var(--accent)':'var(--muted)'};font-weight:${r2>=15?'700':'400'}">${r2}%</td>
+        <td style="text-align:center;font-size:0.78rem;color:${r3>=10?'var(--green)':r3>=5?'var(--accent)':'var(--muted)'}">${r3}%</td>
+        <td style="text-align:center;font-size:0.78rem;color:${r4>=5?'var(--green)':r4>=2?'var(--accent)':'var(--muted)'}">${r4}%</td>
+        <td style="text-align:center;font-size:0.75rem;color:var(--muted)">${m.hit_2d}/${m.total}</td>
+      </tr>`;
+    }).join('');
+
+    btHtml = `
+  <div class="wr-card" style="margin-bottom:14px">
+    <div class="wr-title">🔬 Back-Test Per Metode
+      <span style="font-size:0.65rem;font-weight:400;color:var(--muted);margin-left:6px">${bt.tested} sesi diuji dari ${bt.history_len} total</span>
+    </div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-bottom:10px;line-height:1.5">
+      Simulasi: untuk setiap hasil masa lalu, prediksi dijalankan menggunakan data <em>sebelumnya</em> saja — lalu dicek apakah ada digit yang cocok.
+    </div>
+    <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border)">
+          <th style="text-align:left;padding:6px 4px;font-size:0.7rem;color:var(--muted);font-weight:600">Metode</th>
+          <th style="text-align:center;padding:6px 4px;font-size:0.7rem;color:var(--muted);font-weight:600">2D Hit</th>
+          <th style="text-align:center;padding:6px 4px;font-size:0.7rem;color:var(--muted);font-weight:600">3D Hit</th>
+          <th style="text-align:center;padding:6px 4px;font-size:0.7rem;color:var(--muted);font-weight:600">4D Hit</th>
+          <th style="text-align:center;padding:6px 4px;font-size:0.7rem;color:var(--muted);font-weight:600">2D n/n</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    </div>
+    <div style="margin-top:10px;font-size:0.68rem;color:var(--muted);line-height:1.6">
+      <strong style="color:var(--accent)">2D Hit</strong> = minimal 1 prediksi cocok 2 digit terakhir hasil ·
+      <strong style="color:var(--accent)">3D Hit</strong> = cocok 3 digit terakhir ·
+      <strong style="color:var(--accent)">4D Hit</strong> = cocok 4 digit terakhir<br>
+      Random baseline: 2D≈4%, 3D≈0.4%, 4D≈0.04% (per prediksi tunggal)
+    </div>
+    ${bt.note ? `<div style="margin-top:8px;font-size:0.65rem;color:rgba(255,255,255,0.3)">${bt.note}</div>` : ''}
+  </div>`;
+  } else if (bt && bt.note) {
+    btHtml = `<div class="wr-card"><div style="font-size:0.82rem;color:var(--muted);text-align:center;padding:10px">⚠️ ${bt.note}</div></div>`;
+  }
+
+  let html = btHtml + `
   <div class="wr-card">
-    <div class="wr-title">📊 Win Rate Prediksi GABUNGAN</div>
+    <div class="wr-title">📊 Win Rate Live (prediksi vs hasil aktual)</div>
     <div class="wr-grid">
       <div class="wr-stat">
         <div class="val" style="color:${exactColor}">${exactPct}%</div>
-        <div class="lbl">Exact Hit Rate</div>
+        <div class="lbl">Exact 5D Hit</div>
         <div style="font-size:0.68rem;color:var(--muted);margin-top:2px">${wr.wins} dari ${wr.total}</div>
       </div>
       <div class="wr-stat">
         <div class="val" style="color:${shioColor}">${shioPct}%</div>
-        <div class="lbl">Shio Hit Rate</div>
+        <div class="lbl">Shio Hit</div>
         <div style="font-size:0.68rem;color:var(--muted);margin-top:2px">${wr.shio_wins} dari ${wr.total}</div>
       </div>
     </div>
-
-    <div class="wr-bar-wrap">
-      <div class="wr-bar-label"><span>Exact (5D tepat)</span><span>${exactPct}%</span></div>
+    <div class="wr-bar-wrap" style="margin-top:8px">
+      <div class="wr-bar-label"><span>Exact 5D</span><span>${exactPct}%</span></div>
       <div class="wr-bar"><div class="wr-bar-fill" style="width:${Math.min(wr.rate_exact||0,100)}%;background:var(--green)"></div></div>
     </div>
     <div class="wr-bar-wrap" style="margin-top:8px">
-      <div class="wr-bar-label"><span>Shio (zodiak cocok)</span><span>${shioPct}%</span></div>
+      <div class="wr-bar-label"><span>Shio cocok</span><span>${shioPct}%</span></div>
       <div class="wr-bar"><div class="wr-bar-fill" style="width:${Math.min(wr.rate_shio||0,100)}%;background:var(--accent)"></div></div>
     </div>
-
-    <div class="wr-note">
-      <strong>Cara hitung Win Rate:</strong><br>
-      • <strong>Exact Hit</strong> = nomor hasil keluaran ada persis di 10 prediksi GABUNGAN<br>
-      • <strong>Shio Hit</strong> = shio hasil cocok dengan salah satu shio dalam prediksi<br>
-      • Total sesi dihitung hanya yang punya prediksi (${wr.total} sesi)<br><br>
-      <strong>Catatan:</strong> Exact hit 5D murni probabilistik (10/100.000 = 0.01%). Shio hit (10 dari 12 shio mungkin cocok) lebih realistis sebagai ukuran kualitas.
-    </div>
-  </div>
-
-  <div class="wr-card">
-    <div class="wr-title">📈 Penjelasan Metode Prediksi</div>
-    <div style="font-size:0.8rem;line-height:1.7;color:var(--muted)">
-      <p><strong style="color:var(--accent)">Paito</strong> — Pola warna M (ganjil) / H (genap) per posisi. Streak ≥3 → prediksi reversal. Boost 3 draw terbaru untuk akurasi.</p>
-      <p style="margin-top:8px"><strong style="color:var(--accent)">Shio</strong> — 12 zodiak Tionghoa dari 2 digit terakhir. Cari shio "due" (jarang muncul) lalu generate nomor sesuai.</p>
-      <p style="margin-top:8px"><strong style="color:var(--accent)">AI</strong> — Frekuensi + gap analysis + tren + <em>transisi digit</em> (digit apa yang biasa muncul setelah digit tertentu) + <em>pair analysis</em> (korelasi digit antar posisi bersebelahan).</p>
-      <p style="margin-top:8px"><strong style="color:var(--accent)">AS/Ekor</strong> — Fokus digit pertama (AS) dan terakhir (Ekor) menggunakan blended hot+cold score. Middle digit pakai frekuensi umum.</p>
-      <p style="margin-top:8px"><strong style="color:var(--accent)">Gabungan</strong> — Paito + AI + Shio + AS/Ekor digabung (10 nomor). Slot kosong diisi <em>cold numbers</em> (digit yang belum muncul lama) — <strong>bukan random</strong>.</p>
-      <p style="margin-top:8px"><strong style="color:#00c853">4D / 3D / 2D</strong> — Analisis khusus pada digit terakhir 4/3/2. <strong>Otomatis deduplikasi</strong>: jika suffix-nya sudah ada di 5D, tidak ditampilkan ulang.</p>
+    <div class="wr-note" style="margin-top:12px">
+      <strong>Catatan realita:</strong> 5D exact = 1/100.000 peluang per nomor — mustahil konsisten. Yang realistis dipasang: <strong>2D (Ekor)</strong> dengan hit rate lebih tinggi dari random baseline.
     </div>
   </div>`;
 
