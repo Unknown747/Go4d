@@ -374,7 +374,7 @@ function renderPredictions(data) {
   const numbers = data[method] || [];
 
   const labels = {
-    gabungan: { name: 'GABUNGAN 5D',       desc: 'Semua nomor unik dari: Paito · AI · Kop·Kep · Rumus · Shio · AS/Ekor — diurutkan prioritas<br><span style="font-size:0.62rem;opacity:0.8"><span style="color:var(--accent)">★ emas</span> = 3+ metode &nbsp;·&nbsp; <span style="color:#64b4ff">◆ biru</span> = 2 metode</span><br><span style="font-size:0.6rem;opacity:0.75;display:inline-flex;flex-wrap:wrap;gap:4px;margin-top:3px"><span style="background:rgba(79,195,247,0.15);color:#4fc3f7;border:1px solid #4fc3f740;padding:0 4px;border-radius:4px;font-weight:800">P</span>=Paito &nbsp;<span style="background:rgba(206,147,216,0.15);color:#ce93d8;border:1px solid #ce93d840;padding:0 4px;border-radius:4px;font-weight:800">AI</span>=AI &nbsp;<span style="background:rgba(129,199,132,0.15);color:#81c784;border:1px solid #81c78440;padding:0 4px;border-radius:4px;font-weight:800">S</span>=Shio &nbsp;<span style="background:rgba(255,183,77,0.15);color:#ffb74d;border:1px solid #ffb74d40;padding:0 4px;border-radius:4px;font-weight:800">E</span>=AS/Ekor &nbsp;<span style="background:rgba(77,208,225,0.15);color:#4dd0e1;border:1px solid #4dd0e140;padding:0 4px;border-radius:4px;font-weight:800">K</span>=Kop·Kep &nbsp;<span style="background:rgba(240,165,0,0.15);color:#f0a500;border:1px solid #f0a50040;padding:0 4px;border-radius:4px;font-weight:800">R</span>=Rumus &nbsp;<span style="background:rgba(176,106,255,0.15);color:#b06aff;border:1px solid #b06aff40;padding:0 4px;border-radius:4px;font-weight:800">C</span>=Korelasi</span>', badge: '5D' },
+    gabungan: { name: 'GABUNGAN 5D',       desc: 'Max 20 nomor terbaik — diranking dari jumlah metode yang mengkonfirmasi<br><span style="font-size:0.62rem;opacity:0.8"><span style="color:var(--accent)">★ emas</span> = 3+ metode &nbsp;·&nbsp; <span style="color:#64b4ff">◆ biru</span> = 2 metode</span><br><span style="font-size:0.6rem;opacity:0.75;display:inline-flex;flex-wrap:wrap;gap:4px;margin-top:3px"><span style="background:rgba(79,195,247,0.15);color:#4fc3f7;border:1px solid #4fc3f740;padding:0 4px;border-radius:4px;font-weight:800">P</span>=Paito &nbsp;<span style="background:rgba(206,147,216,0.15);color:#ce93d8;border:1px solid #ce93d840;padding:0 4px;border-radius:4px;font-weight:800">AI</span>=AI &nbsp;<span style="background:rgba(129,199,132,0.15);color:#81c784;border:1px solid #81c78440;padding:0 4px;border-radius:4px;font-weight:800">S</span>=Shio &nbsp;<span style="background:rgba(255,183,77,0.15);color:#ffb74d;border:1px solid #ffb74d40;padding:0 4px;border-radius:4px;font-weight:800">E</span>=AS/Ekor &nbsp;<span style="background:rgba(77,208,225,0.15);color:#4dd0e1;border:1px solid #4dd0e140;padding:0 4px;border-radius:4px;font-weight:800">K</span>=Kop·Kep &nbsp;<span style="background:rgba(240,165,0,0.15);color:#f0a500;border:1px solid #f0a50040;padding:0 4px;border-radius:4px;font-weight:800">R</span>=Rumus &nbsp;<span style="background:rgba(176,106,255,0.15);color:#b06aff;border:1px solid #b06aff40;padding:0 4px;border-radius:4px;font-weight:800">C</span>=Korelasi</span>', badge: '≤20' },
     paito:    { name: 'PAITO 5D',           desc: 'Pola warna M/H per posisi + streak detection', badge: '5D' },
     shio:     { name: 'SHIO 5D',            desc: 'Siklus 12 zodiak Tionghoa — due score + frekuensi', badge: '5D' },
     ai:       { name: 'AI 5D',              desc: 'Frekuensi + gap + tren + transisi + pair analysis', badge: '5D' },
@@ -382,9 +382,9 @@ function renderPredictions(data) {
     kopkep:   { name: 'KOP · KEPALA 5D',    desc: 'Fokus posisi 2 (Kop) & 4 (Kepala) — frekuensi + gap due · bobot 2.5× lebih kuat', badge: '5D' },
     math:     { name: 'RUMUS MATEMATIK 5D', desc: 'Cermin · Jumlah digit · Delta ±1/5 · Cross AS↔Ekor — diranking frekuensi', badge: '5D' },
     sesicorr: { name: 'KORELASI SESI 5D',   desc: 'Pola hasil Sesi 1 → Sesi 2 dari data historis harian', badge: 'S2', special: true },
-    '4d':     { name: 'TAMBAHAN 4D',        desc: 'Nomor 4D yang <b>belum tercakup</b> oleh prediksi 5D — pasang 5D saja sudah otomatis cover 4D-nya', badge: '4D', dedup: true },
-    '3d':     { name: 'TAMBAHAN 3D',        desc: 'Nomor 3D yang <b>belum tercakup</b> oleh prediksi 5D & 4D — kolom ini kosong jika semua sudah tercakup', badge: '3D', dedup: true },
-    '2d':     { name: 'TAMBAHAN 2D',        desc: 'Nomor 2D yang <b>belum tercakup</b> oleh prediksi 5D, 4D & 3D — kolom ini kosong jika semua sudah tercakup', badge: '2D', dedup: true },
+    '4d':     { name: 'PECAHAN 4D',         desc: '4 digit terakhir dari setiap nomor 5D (otomatis) + prediksi 4D tambahan — tanpa duplikat', badge: '4D', dedup: false },
+    '3d':     { name: 'PECAHAN 3D',         desc: '3 digit terakhir dari setiap nomor 5D (otomatis) + prediksi 3D tambahan — tanpa duplikat', badge: '3D', dedup: false },
+    '2d':     { name: 'PECAHAN 2D',         desc: '2 digit terakhir dari setiap nomor 5D (otomatis) + prediksi 2D tambahan — tanpa duplikat', badge: '2D', dedup: false },
   };
 
   const info = labels[method] || { name: method.toUpperCase(), desc: '' };
@@ -415,11 +415,9 @@ function renderPredictions(data) {
   }
 
   if (!numbers.length) {
-    const msg = isSubDigit
-      ? '<div class="loading" style="color:var(--green)">✅ Semua nomor sudah tercakup dalam prediksi 5D — tidak ada tambahan</div>'
-      : isSpecial
-        ? '<div class="loading" style="color:#b06aff">⚠️ Korelasi sesi tersedia setelah hasil Sesi 1 masuk (15:15 WIB)</div>'
-        : '<div class="loading">Belum ada prediksi</div>';
+    const msg = isSpecial
+      ? '<div class="loading" style="color:#b06aff">⚠️ Korelasi sesi tersedia setelah hasil Sesi 1 masuk (15:15 WIB)</div>'
+      : '<div class="loading">Belum ada prediksi</div>';
     document.getElementById('prediksiContent').innerHTML = msg;
     return;
   }

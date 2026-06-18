@@ -7,6 +7,7 @@ import (
         "log"
         "net/http"
         "os"
+        "sort"
         "strconv"
         "strings"
 )
@@ -124,77 +125,106 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
                 }
         }
 
-        // === GABUNGAN 5D: union sejati dari semua metode individual ===
-        // Urutan prioritas: Paito > AI > Kop·Kep > Rumus > Shio > AS/Ekor > Korelasi
-        seen5D := map[string]bool{}
-        var gabungan5D []string
-        for _, key := range []string{"paito", "ai", "kopkep", "math", "shio", "ekoras", "sesicorr"} {
+        // === GABUNGAN 5D: max 20 nomor, diranking dari jumlah metode yang mengkonfirmasi ===
+        // Makin banyak metode yang prediksi nomor tersebut → makin tinggi prioritasnya
+        type numScore struct {
+                nomor    string
+                count    int
+                priority int
+        }
+        confirmCount5D := map[string]int{}
+        firstSeen5D := map[string]int{}
+        prioCounter := 0
+        priorityKeys := []string{"paito", "ai", "kopkep", "math", "shio", "ekoras", "sesicorr"}
+        for _, key := range priorityKeys {
                 for _, n := range methodNums[key] {
-                        if !seen5D[n] {
-                                seen5D[n] = true
-                                gabungan5D = append(gabungan5D, n)
+                        confirmCount5D[n]++
+                        if _, exists := firstSeen5D[n]; !exists {
+                                firstSeen5D[n] = prioCounter
+                                prioCounter++
                         }
                 }
         }
-        methodNums["gabungan"] = gabungan5D
-
-        // === GABUNGAN 4D: hanya nomor ekstra yang TIDAK tercakup sebagai suffix dari 5D ===
-        seen4D := map[string]bool{}
-        for _, n := range gabungan5D {
-                if len(n) >= 4 {
-                        seen4D[n[len(n)-4:]] = true
+        seenAll5D := map[string]bool{}
+        var scoredList []numScore
+        for _, key := range priorityKeys {
+                for _, n := range methodNums[key] {
+                        if !seenAll5D[n] {
+                                seenAll5D[n] = true
+                                scoredList = append(scoredList, numScore{n, confirmCount5D[n], firstSeen5D[n]})
+                        }
                 }
         }
+        // Sort: konfirmasi terbanyak dulu, lalu urutan prioritas metode
+        sort.Slice(scoredList, func(i, j int) bool {
+                if scoredList[i].count != scoredList[j].count {
+                        return scoredList[i].count > scoredList[j].count
+                }
+                return scoredList[i].priority < scoredList[j].priority
+        })
+        var gabungan5D []string
+        for i, s := range scoredList {
+                if i >= 20 {
+                        break
+                }
+                gabungan5D = append(gabungan5D, s.nomor)
+        }
+        methodNums["gabungan"] = gabungan5D
+
+        // === 4D: pecah dari tiap nomor 5D (suffix 4 digit), lalu tambah prediksi 4D khusus ===
+        seen4D := map[string]bool{}
         var gabungan4D []string
+        for _, n := range gabungan5D {
+                if len(n) >= 4 {
+                        sub := n[len(n)-4:]
+                        if !seen4D[sub] {
+                                seen4D[sub] = true
+                                gabungan4D = append(gabungan4D, sub)
+                        }
+                }
+        }
         for _, n := range methodNums["4d"] {
-                if !seen4D[n] {
+                if len(n) == 4 && !seen4D[n] {
                         seen4D[n] = true
                         gabungan4D = append(gabungan4D, n)
                 }
         }
         methodNums["4d"] = gabungan4D
 
-        // === GABUNGAN 3D: hanya nomor ekstra yang TIDAK tercakup oleh 5D atau 4D ===
+        // === 3D: pecah dari tiap nomor 5D (suffix 3 digit), lalu tambah prediksi 3D khusus ===
         seen3D := map[string]bool{}
+        var gabungan3D []string
         for _, n := range gabungan5D {
                 if len(n) >= 3 {
-                        seen3D[n[len(n)-3:]] = true
+                        sub := n[len(n)-3:]
+                        if !seen3D[sub] {
+                                seen3D[sub] = true
+                                gabungan3D = append(gabungan3D, sub)
+                        }
                 }
         }
-        for _, n := range gabungan4D {
-                if len(n) >= 3 {
-                        seen3D[n[len(n)-3:]] = true
-                }
-        }
-        var gabungan3D []string
         for _, n := range methodNums["3d"] {
-                if !seen3D[n] {
+                if len(n) == 3 && !seen3D[n] {
                         seen3D[n] = true
                         gabungan3D = append(gabungan3D, n)
                 }
         }
         methodNums["3d"] = gabungan3D
 
-        // === GABUNGAN 2D: hanya nomor ekstra yang TIDAK tercakup oleh 5D, 4D, atau 3D ===
+        // === 2D: pecah dari tiap nomor 5D (suffix 2 digit), lalu tambah prediksi 2D khusus ===
         seen2D := map[string]bool{}
+        var gabungan2D []string
         for _, n := range gabungan5D {
                 if len(n) >= 2 {
-                        seen2D[n[len(n)-2:]] = true
+                        sub := n[len(n)-2:]
+                        if !seen2D[sub] {
+                                seen2D[sub] = true
+                                gabungan2D = append(gabungan2D, sub)
+                        }
                 }
         }
-        for _, n := range gabungan4D {
-                if len(n) >= 2 {
-                        seen2D[n[len(n)-2:]] = true
-                }
-        }
-        for _, n := range gabungan3D {
-                if len(n) >= 2 {
-                        seen2D[n[len(n)-2:]] = true
-                }
-        }
-        var gabungan2D []string
         for _, n := range methodNums["2d"] {
-                if !seen2D[n] {
+                if len(n) == 2 && !seen2D[n] {
                         seen2D[n] = true
                         gabungan2D = append(gabungan2D, n)
                 }
