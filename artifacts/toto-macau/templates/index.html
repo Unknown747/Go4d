@@ -145,28 +145,36 @@
   /* History */
   .history-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
   .history-header { padding: 11px 13px; background: rgba(240,165,0,0.06); border-bottom: 1px solid var(--border); font-weight: 700; font-size: 0.82rem; color: var(--accent); }
-  .history-item { padding: 10px 13px; border-bottom: 1px solid rgba(255,255,255,0.04); }
-  .history-item:last-child { border-bottom: none; }
-  .history-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-  .history-meta { font-size: 0.68rem; color: var(--muted); }
-  .history-periode { font-size: 0.68rem; color: rgba(240,165,0,0.6); }
-  .history-result { font-size: 1.2rem; font-weight: 800; font-family: 'Courier New', monospace; color: #fff; letter-spacing: 2px; cursor: pointer; }
-  .history-result:hover { color: var(--accent); }
+  .history-date-group { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 10px 10px; }
+  .history-date-group:last-child { border-bottom: none; }
+  .history-date-label { font-size: 0.72rem; font-weight: 700; color: var(--accent); margin-bottom: 7px; padding-left: 2px; }
+  .history-sesi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
+  .sesi-cell { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px 5px; cursor: pointer; transition: all 0.15s; min-width: 0; }
+  .sesi-cell:hover { border-color: rgba(240,165,0,0.4); background: rgba(240,165,0,0.07); }
+  .sesi-cell.copied { border-color: var(--green); background: rgba(0,200,83,0.1); }
+  .sesi-cell.empty { cursor: default; opacity: 0.4; }
+  .sesi-cell.hit4d { border-color: rgba(0,200,83,0.5); background: rgba(0,200,83,0.08); }
+  .sesi-cell.hit3d { border-color: rgba(0,200,83,0.25); background: rgba(0,200,83,0.04); }
+  .sesi-cell.hit2d { border-color: rgba(100,180,255,0.3); background: rgba(100,180,255,0.04); }
+  .sesi-cell-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+  .sesi-num { font-size: 0.6rem; font-weight: 700; color: var(--accent); }
+  .sesi-jam { font-size: 0.52rem; color: var(--muted); }
+  .sesi-nomor { font-size: 0.88rem; font-weight: 800; font-family: 'Courier New', monospace; color: #fff; letter-spacing: 1px; text-align: center; margin: 2px 0; }
+  .sesi-cell-bot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1px; margin-top: 2px; }
+  .sesi-shio { font-size: 0.55rem; color: rgba(240,165,0,0.7); }
+  .sesi-periode { font-size: 0.52rem; color: rgba(255,255,255,0.35); }
+  .edit-btn { background: none; border: 1px solid rgba(255,255,255,0.12); color: var(--muted); font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; cursor: pointer; }
+  .edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .edit-inline { display: none; margin-top: 6px; padding: 7px; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid var(--border); }
+  .edit-inline.open { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .edit-inline input { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 0.82rem; outline: none; }
+  .edit-inline input:focus { border-color: var(--accent); }
+  .save-btn { background: var(--accent); color: #000; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+  .cancel-btn { background: none; border: 1px solid rgba(255,255,255,0.15); color: var(--muted); padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; }
   .badge { font-size: 0.6rem; border-radius: 4px; padding: 2px 6px; font-weight: 700; }
   .badge-hit { background: rgba(0,200,83,0.2); color: var(--green); border: 1px solid rgba(0,200,83,0.3); }
   .badge-hit2d { background: rgba(0,200,83,0.1); color: #69e090; border: 1px solid rgba(0,200,83,0.2); }
   .badge-miss { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
-  .history-row2 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .history-shio-txt { font-size: 0.65rem; color: var(--accent); }
-  .pred-preview { font-size: 0.62rem; color: var(--muted); font-family: 'Courier New', monospace; }
-  .edit-btn { background: none; border: 1px solid rgba(255,255,255,0.12); color: var(--muted); font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; cursor: pointer; }
-  .edit-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .edit-inline { display: none; margin-top: 7px; padding: 9px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border); }
-  .edit-inline.open { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-  .edit-inline input { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 5px 9px; border-radius: 6px; font-size: 0.85rem; width: 110px; outline: none; }
-  .edit-inline input:focus { border-color: var(--accent); }
-  .save-btn { background: var(--accent); color: #000; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
-  .cancel-btn { background: none; border: 1px solid rgba(255,255,255,0.15); color: var(--muted); padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; }
 
   /* Paito */
   .paito-table { width: 100%; border-collapse: collapse; }
@@ -266,24 +274,24 @@
         <div class="form-row">
           <label>Sesi (1–6)</label>
           <select id="inputSesi">
-            <option value="1">Sesi 1 — 13:00</option>
-            <option value="2">Sesi 2 — 16:00</option>
-            <option value="3">Sesi 3 — 18:30</option>
-            <option value="4">Sesi 4 — 20:00</option>
-            <option value="5">Sesi 5 — 21:30</option>
+            <option value="1">Sesi 1 — 00:01</option>
+            <option value="2">Sesi 2 — 13:00</option>
+            <option value="3">Sesi 3 — 16:00</option>
+            <option value="4">Sesi 4 — 19:00</option>
+            <option value="5">Sesi 5 — 22:00</option>
             <option value="6">Sesi 6 — 23:00</option>
           </select>
         </div>
-      </div>
-      <div class="form-row">
-        <label>No. Periode (opsional)</label>
-        <input type="number" id="inputPeriode" placeholder="cth: 4521">
       </div>
       <div class="form-row">
         <label>Nomor Hasil (4 digit)</label>
         <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="nomorInput" placeholder="0000"
                oninput="updateDisplay(this.value)">
         <div class="num-input-display" id="numDisplay">—</div>
+      </div>
+      <div class="form-row">
+        <label style="display:flex;align-items:center;gap:6px">No. Periode <span style="font-size:0.65rem;background:rgba(255,255,255,0.07);padding:1px 7px;border-radius:10px;color:var(--muted)">opsional</span></label>
+        <input type="number" id="inputPeriode" placeholder="cth: 4521" style="font-size:0.88rem">
       </div>
       <button class="submit-btn" onclick="submitResult()">💾 Simpan Hasil</button>
       <div class="success-msg" id="successMsg"></div>
@@ -663,48 +671,57 @@ function renderHistory(history) {
     return;
   }
 
-  let html = `<div class="history-card"><div class="history-header">📋 History Keluaran (${history.length} sesi)</div>`;
+  // Group by date
+  const byDate = {};
+  const dateOrder = [];
   history.forEach((item, idx) => {
-    const predNums = item.predictions ? item.predictions.split(',').map(s=>s.trim()).filter(Boolean) : [];
-    const badge = item.is_hit
-      ? `<span class="badge badge-hit">✅ 4D HIT</span>`
-      : item.hit_3d
-        ? `<span class="badge badge-hit2d">3D Hit</span>`
-        : item.hit_2d
-          ? `<span class="badge badge-hit2d">2D Hit</span>`
-          : predNums.length
-            ? `<span class="badge badge-miss">Miss</span>`
-            : '';
-
-    const predPreview = predNums.length ? `<span class="pred-preview">${predNums.slice(0,6).join(' ')}</span>` : '';
-    const periodeLabel = item.periode ? `#${item.periode}` : '<span style="color:rgba(255,255,255,0.2)">no#</span>';
-    const editId = `edit-${idx}`;
-
-    html += `
-    <div class="history-item">
-      <div class="history-row1">
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <div class="history-meta">${formatDate(item.tanggal)} · S${item.sesi} (${jadwalSesi[item.sesi-1]||''})</div>
-          <span class="history-periode">${periodeLabel}</span>
-          <button class="edit-btn" onclick="toggleEdit('${editId}','${item.tanggal}',${item.sesi},${item.periode||0})">✏️</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="history-result" onclick="copyNum('${item.nomor}',this)">${item.nomor}</span>
-          ${badge}
-        </div>
-      </div>
-      <div id="${editId}" class="edit-inline">
-        <span style="font-size:0.72rem;color:var(--muted)">Periode:</span>
-        <input type="number" id="inp-${editId}" placeholder="cth: 4521" value="${item.periode||''}">
-        <button class="save-btn" onclick="savePeriode('${editId}','${item.tanggal}',${item.sesi})">Simpan</button>
-        <button class="cancel-btn" onclick="toggleEdit('${editId}')">Batal</button>
-      </div>
-      <div class="history-row2">
-        <span class="history-shio-txt">${getShio(item.nomor)}</span>
-        ${predPreview}
-      </div>
-    </div>`;
+    if (!byDate[item.tanggal]) { byDate[item.tanggal] = []; dateOrder.push(item.tanggal); }
+    byDate[item.tanggal].push({ ...item, _idx: idx });
   });
+
+  let html = `<div class="history-card"><div class="history-header">📋 History Keluaran — ${dateOrder.length} hari · ${history.length} sesi</div>`;
+
+  dateOrder.forEach(tgl => {
+    const items = byDate[tgl];
+    html += `<div class="history-date-group">
+      <div class="history-date-label">${formatDate(tgl)}</div>
+      <div class="history-sesi-row">`;
+
+    for (let s = 1; s <= 6; s++) {
+      const item = items.find(i => i.sesi === s);
+      const jam = jadwalSesi[s-1] || '';
+      if (!item) {
+        html += `<div class="sesi-cell empty">
+          <div class="sesi-cell-top"><span class="sesi-num">S${s}</span><span class="sesi-jam">${jam}</span></div>
+          <div class="sesi-nomor" style="color:rgba(255,255,255,0.15)">——</div>
+        </div>`;
+      } else {
+        const predNums = item.predictions ? item.predictions.split(',').map(s=>s.trim()).filter(Boolean) : [];
+        const hitClass = item.is_hit ? 'hit4d' : item.hit_3d ? 'hit3d' : item.hit_2d ? 'hit2d' : predNums.length ? 'miss' : '';
+        const periodeLabel = item.periode ? `<span class="sesi-periode">#${item.periode}</span>` : '';
+        const editId = `edit-${item._idx}`;
+        html += `<div class="sesi-cell ${hitClass}" onclick="copyNum('${item.nomor}',this)">
+          <div class="sesi-cell-top">
+            <span class="sesi-num">S${s}</span>
+            <span class="sesi-jam">${jam}</span>
+          </div>
+          <div class="sesi-nomor">${item.nomor}</div>
+          <div class="sesi-cell-bot">
+            <span class="sesi-shio">${getShio(item.nomor)}</span>
+            ${periodeLabel}
+            <button class="edit-btn" style="padding:1px 5px;font-size:0.55rem" onclick="event.stopPropagation();toggleEdit('${editId}','${item.tanggal}',${item.sesi},${item.periode||0})">✏️</button>
+          </div>
+          <div id="${editId}" class="edit-inline" onclick="event.stopPropagation()">
+            <input type="number" id="inp-${editId}" placeholder="Periode" value="${item.periode||''}" style="width:90px">
+            <button class="save-btn" style="font-size:0.68rem;padding:3px 9px" onclick="savePeriode('${editId}','${item.tanggal}',${item.sesi})">✓</button>
+            <button class="cancel-btn" style="font-size:0.68rem;padding:3px 7px" onclick="toggleEdit('${editId}')">✕</button>
+          </div>
+        </div>`;
+      }
+    }
+    html += `</div></div>`;
+  });
+
   html += '</div>';
   document.getElementById('historyContent').innerHTML = html;
 }

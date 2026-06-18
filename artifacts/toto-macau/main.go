@@ -386,7 +386,7 @@ func handleImport(w http.ResponseWriter, r *http.Request) {
 
 // GET /history
 func handleHistory(w http.ResponseWriter, r *http.Request) {
-        history := getAllHistory(100)
+        history := getAllHistory(300)
         wr := calculateWinRate()
         jsonResponse(w, map[string]interface{}{
                 "history":  history,
