@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "web", "go-1.21", "bash"]
+modules = ["nodejs-20", "go-1.21", "web", "bash"]
 
 [deployment]
 router = "application"
