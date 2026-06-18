@@ -101,7 +101,7 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
         }
 
         preds := getLatestPredictions(tanggal, sesi)
-        if len(preds) < 9 {
+        if len(preds) < 10 {
                 history := getRecentResults(50)
                 generateAndSavePredictions(tanggal, sesi, history)
                 preds = getLatestPredictions(tanggal, sesi)
@@ -232,6 +232,7 @@ func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
         shioNums := predictShio(history)
         ai := predictAI(history)
         ekorAS := predictEkorAS(history)
+        kopKep := predictKopKepala(history)
         mathNums := predictMath(history)
         gabungan := predictGabungan(history)
 
@@ -251,6 +252,7 @@ func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
         savePredictions(tanggal, sesi, "SHIO", shioNums)
         savePredictions(tanggal, sesi, "AI", ai)
         savePredictions(tanggal, sesi, "EKORAS", ekorAS)
+        savePredictions(tanggal, sesi, "KOPKEP", kopKep)
         savePredictions(tanggal, sesi, "MATH", mathNums)
         savePredictions(tanggal, sesi, "GABUNGAN", gabungan)
         savePredictions(tanggal, sesi, "4D", deduped4D)

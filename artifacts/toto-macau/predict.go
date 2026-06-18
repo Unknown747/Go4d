@@ -540,7 +540,91 @@ func predictColdNumbers(history []Result, count int) []string {
 }
 
 // ============================================================
-// Method 5 (NEW): MATH — rumus matematika klasik
+// Method 5 (NEW): KOP·KEPALA — fokus digit posisi 1 (Kop) & 3 (Kepala)
+// Melengkapi AS/Ekor: dua digit "tengah" yang sering diabaikan
+// ============================================================
+
+func predictKopKepala(history []Result) []string {
+        if len(history) < 3 {
+                return generateRandom(4, 7777)
+        }
+
+        n := len(history)
+        if n > 40 {
+                n = 40
+        }
+        recent := history[:n]
+
+        // Skor frekuensi per posisi, bobot recency
+        posFreq := [5][10]float64{}
+        for k, r := range recent {
+                d := parse5D(r.Nomor)
+                w := math.Exp(-float64(k) * 0.08)
+                for pos := 0; pos < 5; pos++ {
+                        posFreq[pos][d[pos]] += w
+                }
+        }
+
+        // Skor gap (due): digit lama tidak muncul → kandidat kuat
+        lastSeen := [5][10]int{}
+        for pos := 0; pos < 5; pos++ {
+                for d := 0; d < 10; d++ {
+                        lastSeen[pos][d] = 999
+                }
+        }
+        for k, r := range recent {
+                d := parse5D(r.Nomor)
+                for pos := 0; pos < 5; pos++ {
+                        if lastSeen[pos][d[pos]] == 999 {
+                                lastSeen[pos][d[pos]] = k
+                        }
+                }
+        }
+        gapScore := [5][10]float64{}
+        for pos := 0; pos < 5; pos++ {
+                for d := 0; d < 10; d++ {
+                        gap := lastSeen[pos][d]
+                        if gap > 3 && gap < 999 {
+                                gapScore[pos][d] = float64(gap) * 0.18
+                        } else if gap == 999 {
+                                gapScore[pos][d] = 3.0 // belum pernah muncul → prioritas tinggi
+                        }
+                }
+        }
+
+        // Gabungkan: Kop (pos 1) & Kepala (pos 3) diberi bobot 2.5×
+        finalScore := [5][10]float64{}
+        for pos := 0; pos < 5; pos++ {
+                focusWeight := 1.0
+                if pos == 1 || pos == 3 {
+                        focusWeight = 2.5
+                }
+                for d := 0; d < 10; d++ {
+                        finalScore[pos][d] = posFreq[pos][d]*focusWeight + gapScore[pos][d]*focusWeight
+                }
+        }
+
+        candidateDigits := [5][]int{}
+        for pos := 0; pos < 5; pos++ {
+                type ds struct {
+                        d int
+                        s float64
+                }
+                var ranked []ds
+                for d := 0; d < 10; d++ {
+                        ranked = append(ranked, ds{d, finalScore[pos][d]})
+                }
+                sort.Slice(ranked, func(i, j int) bool { return ranked[i].s > ranked[j].s })
+                for i := 0; i < 3; i++ {
+                        candidateDigits[pos] = append(candidateDigits[pos], ranked[i].d)
+                }
+        }
+
+        return combinePositions(candidateDigits, 4)
+}
+
+// ============================================================
+// Method 6 (NEW): MATH — rumus matematika klasik
 // Cermin, jumlah digit, delta ±, cross formula
 // ============================================================
 
@@ -709,12 +793,13 @@ func predictGabungan(history []Result) []string {
         ai := predictAI(history)
         ekorAS := predictEkorAS(history)
         mathNums := predictMath(history)
+        kopKep := predictKopKepala(history)
 
         seen := map[string]bool{}
         var all []string
 
-        // Priority: paito > ai > math > shio > ekoras
-        for _, nums := range [][]string{paito, ai, mathNums, shio, ekorAS} {
+        // Priority: paito > ai > kopkep > math > shio > ekoras
+        for _, nums := range [][]string{paito, ai, kopKep, mathNums, shio, ekorAS} {
                 for _, n := range nums {
                         if !seen[n] {
                                 seen[n] = true

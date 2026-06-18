@@ -222,6 +222,7 @@
       <button class="method-tab" onclick="showMethod('shio')">Shio</button>
       <button class="method-tab" onclick="showMethod('ai')">AI</button>
       <button class="method-tab" onclick="showMethod('ekoras')">AS/Ekor</button>
+      <button class="method-tab" onclick="showMethod('kopkep')">Kop·Kep</button>
       <button class="method-tab" onclick="showMethod('math')">Rumus</button>
       <div id="sesicorrTab" style="display:none">
         <button class="method-tab" onclick="showMethod('sesicorr')" style="background:rgba(138,43,226,0.1);border-color:rgba(138,43,226,0.4);color:#b06aff">Korls2</button>
@@ -376,11 +377,12 @@ function renderPredictions(data) {
   const numbers = data[method] || [];
 
   const labels = {
-    gabungan: { name: 'GABUNGAN 5D',       desc: 'Paito + AI + Rumus + Shio + AS/Ekor — 10 nomor terkuat', badge: '5D' },
+    gabungan: { name: 'GABUNGAN 5D',       desc: 'Paito + AI + Kop·Kep + Rumus + Shio + AS/Ekor — 10 nomor terkuat', badge: '5D' },
     paito:    { name: 'PAITO 5D',           desc: 'Pola warna M/H per posisi + streak detection', badge: '5D' },
     shio:     { name: 'SHIO 5D',            desc: 'Siklus 12 zodiak Tionghoa — due score + frekuensi', badge: '5D' },
     ai:       { name: 'AI 5D',              desc: 'Frekuensi + gap + tren + transisi + pair analysis', badge: '5D' },
     ekoras:   { name: 'AS / EKOR 5D',       desc: 'Fokus digit pertama (AS) & terakhir (Ekor) — hot+cold blend', badge: '5D' },
+    kopkep:   { name: 'KOP · KEPALA 5D',    desc: 'Fokus posisi 2 (Kop) & 4 (Kepala) — frekuensi + gap due · bobot 2.5× lebih kuat', badge: '5D' },
     math:     { name: 'RUMUS MATEMATIK 5D', desc: 'Cermin · Jumlah digit · Delta ±1/5 · Cross AS↔Ekor — diranking frekuensi', badge: '5D' },
     sesicorr: { name: 'KORELASI SESI 5D',   desc: 'Pola hasil Sesi 1 → Sesi 2 dari data historis harian', badge: 'S2', special: true },
     '4d':     { name: 'PREDIKSI 4D',        desc: 'Analisis 4 digit terakhir — sudah deduplikasi dari 5D', badge: '4D', dedup: true },
