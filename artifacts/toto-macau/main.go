@@ -133,18 +133,14 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
         }
         methodNums["gabungan"] = gabungan5D
 
-        // === GABUNGAN 4D: suffix 4 digit dari semua 5D + ekstra yang belum tercakup ===
+        // === GABUNGAN 4D: hanya nomor ekstra yang TIDAK tercakup sebagai suffix dari 5D ===
         seen4D := map[string]bool{}
-        var gabungan4D []string
         for _, n := range gabungan5D {
                 if len(n) >= 4 {
-                        s := n[len(n)-4:]
-                        if !seen4D[s] {
-                                seen4D[s] = true
-                                gabungan4D = append(gabungan4D, s)
-                        }
+                        seen4D[n[len(n)-4:]] = true
                 }
         }
+        var gabungan4D []string
         for _, n := range methodNums["4d"] {
                 if !seen4D[n] {
                         seen4D[n] = true
@@ -153,27 +149,19 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
         }
         methodNums["4d"] = gabungan4D
 
-        // === GABUNGAN 3D: suffix 3 digit dari 5D+4D gabungan + ekstra belum tercakup ===
+        // === GABUNGAN 3D: hanya nomor ekstra yang TIDAK tercakup oleh 5D atau 4D ===
         seen3D := map[string]bool{}
-        var gabungan3D []string
         for _, n := range gabungan5D {
                 if len(n) >= 3 {
-                        s := n[len(n)-3:]
-                        if !seen3D[s] {
-                                seen3D[s] = true
-                                gabungan3D = append(gabungan3D, s)
-                        }
+                        seen3D[n[len(n)-3:]] = true
                 }
         }
         for _, n := range gabungan4D {
                 if len(n) >= 3 {
-                        s := n[len(n)-3:]
-                        if !seen3D[s] {
-                                seen3D[s] = true
-                                gabungan3D = append(gabungan3D, s)
-                        }
+                        seen3D[n[len(n)-3:]] = true
                 }
         }
+        var gabungan3D []string
         for _, n := range methodNums["3d"] {
                 if !seen3D[n] {
                         seen3D[n] = true
@@ -182,36 +170,24 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
         }
         methodNums["3d"] = gabungan3D
 
-        // === GABUNGAN 2D: suffix 2 digit dari 5D+4D+3D gabungan + ekstra belum tercakup ===
+        // === GABUNGAN 2D: hanya nomor ekstra yang TIDAK tercakup oleh 5D, 4D, atau 3D ===
         seen2D := map[string]bool{}
-        var gabungan2D []string
         for _, n := range gabungan5D {
                 if len(n) >= 2 {
-                        s := n[len(n)-2:]
-                        if !seen2D[s] {
-                                seen2D[s] = true
-                                gabungan2D = append(gabungan2D, s)
-                        }
+                        seen2D[n[len(n)-2:]] = true
                 }
         }
         for _, n := range gabungan4D {
                 if len(n) >= 2 {
-                        s := n[len(n)-2:]
-                        if !seen2D[s] {
-                                seen2D[s] = true
-                                gabungan2D = append(gabungan2D, s)
-                        }
+                        seen2D[n[len(n)-2:]] = true
                 }
         }
         for _, n := range gabungan3D {
                 if len(n) >= 2 {
-                        s := n[len(n)-2:]
-                        if !seen2D[s] {
-                                seen2D[s] = true
-                                gabungan2D = append(gabungan2D, s)
-                        }
+                        seen2D[n[len(n)-2:]] = true
                 }
         }
+        var gabungan2D []string
         for _, n := range methodNums["2d"] {
                 if !seen2D[n] {
                         seen2D[n] = true
