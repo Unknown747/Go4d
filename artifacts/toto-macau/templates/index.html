@@ -376,9 +376,9 @@ function renderPredictions(data) {
     kopkep:   { name: 'KOP · KEPALA 5D',    desc: 'Fokus posisi 2 (Kop) & 4 (Kepala) — frekuensi + gap due · bobot 2.5× lebih kuat', badge: '5D' },
     math:     { name: 'RUMUS MATEMATIK 5D', desc: 'Cermin · Jumlah digit · Delta ±1/5 · Cross AS↔Ekor — diranking frekuensi', badge: '5D' },
     sesicorr: { name: 'KORELASI SESI 5D',   desc: 'Pola hasil Sesi 1 → Sesi 2 dari data historis harian', badge: 'S2', special: true },
-    '4d':     { name: 'PREDIKSI 4D',        desc: 'Analisis 4 digit terakhir — sudah deduplikasi dari 5D', badge: '4D', dedup: true },
-    '3d':     { name: 'PREDIKSI 3D',        desc: 'Analisis 3 digit terakhir — sudah deduplikasi dari 5D & 4D', badge: '3D', dedup: true },
-    '2d':     { name: 'PREDIKSI 2D',        desc: 'Analisis 2 digit terakhir — sudah deduplikasi dari 5D, 4D & 3D', badge: '2D', dedup: true },
+    '4d':     { name: 'GABUNGAN 4D',        desc: 'Suffix 4 digit dari semua nomor 5D + ekstra nomor 4D yang belum tercakup', badge: '4D', dedup: true },
+    '3d':     { name: 'GABUNGAN 3D',        desc: 'Suffix 3 digit dari semua nomor 5D & 4D + ekstra nomor 3D yang belum tercakup', badge: '3D', dedup: true },
+    '2d':     { name: 'GABUNGAN 2D',        desc: 'Suffix 2 digit dari semua nomor 5D, 4D & 3D + ekstra nomor 2D yang belum tercakup', badge: '2D', dedup: true },
   };
 
   const info = labels[method] || { name: method.toUpperCase(), desc: '' };

@@ -107,26 +107,134 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
                 preds = getLatestPredictions(tanggal, sesi)
         }
 
+        // Bangun map nomor per metode dari DB
+        methodNums := map[string][]string{}
+        for _, p := range preds {
+                key := strings.ToLower(p.Metode)
+                for _, n := range strings.Split(p.NomorList, ",") {
+                        n = strings.TrimSpace(n)
+                        if n != "" {
+                                methodNums[key] = append(methodNums[key], n)
+                        }
+                }
+        }
+
+        // === GABUNGAN 5D: union sejati dari semua metode individual ===
+        // Urutan prioritas: Paito > AI > Kop·Kep > Rumus > Shio > AS/Ekor > Korelasi
+        seen5D := map[string]bool{}
+        var gabungan5D []string
+        for _, key := range []string{"paito", "ai", "kopkep", "math", "shio", "ekoras", "sesicorr"} {
+                for _, n := range methodNums[key] {
+                        if !seen5D[n] {
+                                seen5D[n] = true
+                                gabungan5D = append(gabungan5D, n)
+                        }
+                }
+        }
+        methodNums["gabungan"] = gabungan5D
+
+        // === GABUNGAN 4D: suffix 4 digit dari semua 5D + ekstra yang belum tercakup ===
+        seen4D := map[string]bool{}
+        var gabungan4D []string
+        for _, n := range gabungan5D {
+                if len(n) >= 4 {
+                        s := n[len(n)-4:]
+                        if !seen4D[s] {
+                                seen4D[s] = true
+                                gabungan4D = append(gabungan4D, s)
+                        }
+                }
+        }
+        for _, n := range methodNums["4d"] {
+                if !seen4D[n] {
+                        seen4D[n] = true
+                        gabungan4D = append(gabungan4D, n)
+                }
+        }
+        methodNums["4d"] = gabungan4D
+
+        // === GABUNGAN 3D: suffix 3 digit dari 5D+4D gabungan + ekstra belum tercakup ===
+        seen3D := map[string]bool{}
+        var gabungan3D []string
+        for _, n := range gabungan5D {
+                if len(n) >= 3 {
+                        s := n[len(n)-3:]
+                        if !seen3D[s] {
+                                seen3D[s] = true
+                                gabungan3D = append(gabungan3D, s)
+                        }
+                }
+        }
+        for _, n := range gabungan4D {
+                if len(n) >= 3 {
+                        s := n[len(n)-3:]
+                        if !seen3D[s] {
+                                seen3D[s] = true
+                                gabungan3D = append(gabungan3D, s)
+                        }
+                }
+        }
+        for _, n := range methodNums["3d"] {
+                if !seen3D[n] {
+                        seen3D[n] = true
+                        gabungan3D = append(gabungan3D, n)
+                }
+        }
+        methodNums["3d"] = gabungan3D
+
+        // === GABUNGAN 2D: suffix 2 digit dari 5D+4D+3D gabungan + ekstra belum tercakup ===
+        seen2D := map[string]bool{}
+        var gabungan2D []string
+        for _, n := range gabungan5D {
+                if len(n) >= 2 {
+                        s := n[len(n)-2:]
+                        if !seen2D[s] {
+                                seen2D[s] = true
+                                gabungan2D = append(gabungan2D, s)
+                        }
+                }
+        }
+        for _, n := range gabungan4D {
+                if len(n) >= 2 {
+                        s := n[len(n)-2:]
+                        if !seen2D[s] {
+                                seen2D[s] = true
+                                gabungan2D = append(gabungan2D, s)
+                        }
+                }
+        }
+        for _, n := range gabungan3D {
+                if len(n) >= 2 {
+                        s := n[len(n)-2:]
+                        if !seen2D[s] {
+                                seen2D[s] = true
+                                gabungan2D = append(gabungan2D, s)
+                        }
+                }
+        }
+        for _, n := range methodNums["2d"] {
+                if !seen2D[n] {
+                        seen2D[n] = true
+                        gabungan2D = append(gabungan2D, n)
+                }
+        }
+        methodNums["2d"] = gabungan2D
+
+        // Bangun response JSON dengan shio + warna per nomor
         result := map[string]interface{}{
                 "tanggal": tanggal,
                 "sesi":    sesi,
         }
-
-        for _, p := range preds {
-                numbers := strings.Split(p.NomorList, ",")
+        for key, numbers := range methodNums {
                 var withShio []map[string]string
                 for _, n := range numbers {
-                        n = strings.TrimSpace(n)
-                        if n == "" {
-                                continue
-                        }
                         withShio = append(withShio, map[string]string{
                                 "nomor": n,
                                 "shio":  shioOf(n),
                                 "warna": colorCode(n),
                         })
                 }
-                result[strings.ToLower(p.Metode)] = withShio
+                result[key] = withShio
         }
 
         jsonResponse(w, result)
