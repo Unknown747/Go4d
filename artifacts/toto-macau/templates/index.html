@@ -224,9 +224,7 @@
       <button class="method-tab" onclick="showMethod('ekoras')">AS/Ekor</button>
       <button class="method-tab" onclick="showMethod('kopkep')">Kop·Kep</button>
       <button class="method-tab" onclick="showMethod('math')">Rumus</button>
-      <div id="sesicorrTab" style="display:none">
-        <button class="method-tab" onclick="showMethod('sesicorr')" style="background:rgba(138,43,226,0.1);border-color:rgba(138,43,226,0.4);color:#b06aff">Korls2</button>
-      </div>
+      <button id="sesicorrTab" class="method-tab" onclick="showMethod('sesicorr')" style="display:none;background:rgba(138,43,226,0.1);border-color:rgba(138,43,226,0.4);color:#b06aff">Korls2</button>
     </div>
     <div class="method-tabs" style="margin-top:-6px">
       <button class="method-tab" onclick="showMethod('4d')" style="background:rgba(0,200,83,0.08);border-color:rgba(0,200,83,0.3);color:#00c853">4D</button>
@@ -327,13 +325,6 @@ function switchTab(name) {
   if (name === 'winrate') loadWinRate();
   if (name === 'input') loadStatusForInput();
 }
-
-// Map onclick argument → method key used in data
-const METHOD_KEYS = {
-  gabungan: 'gabungan', paito: 'paito', shio: 'shio', ai: 'ai',
-  ekoras: 'ekoras', math: 'math', sesicorr: 'sesicorr',
-  '4d': '4d', '3d': '3d', '2d': '2d'
-};
 
 function showMethod(method) {
   currentMethod = method;

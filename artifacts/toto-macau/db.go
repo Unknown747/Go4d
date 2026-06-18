@@ -100,10 +100,9 @@ func updatePeriode(tanggal string, sesi int, periode int) error {
 
 // savePredictions uses INSERT OR IGNORE so predictions are written only once per session/method
 func savePredictions(tanggal string, sesi int, metode string, nomorList []string) error {
-        joined := joinStrings(nomorList, ",")
         _, err := db.Exec(
                 `INSERT OR IGNORE INTO predictions (tanggal, sesi, metode, nomor_list) VALUES (?, ?, ?, ?)`,
-                tanggal, sesi, metode, joined,
+                tanggal, sesi, metode, strings.Join(nomorList, ","),
         )
         return err
 }
@@ -315,13 +314,3 @@ func getDayPairs(limit int) []DayPair {
         return pairs
 }
 
-func joinStrings(ss []string, sep string) string {
-        result := ""
-        for i, s := range ss {
-                if i > 0 {
-                        result += sep
-                }
-                result += s
-        }
-        return result
-}

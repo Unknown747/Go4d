@@ -540,7 +540,7 @@ func predictColdNumbers(history []Result, count int) []string {
 }
 
 // ============================================================
-// Method 5 (NEW): KOP·KEPALA — fokus digit posisi 1 (Kop) & 3 (Kepala)
+// Method 5: KOP·KEPALA — fokus digit posisi 1 (Kop) & 3 (Kepala)
 // Melengkapi AS/Ekor: dua digit "tengah" yang sering diabaikan
 // ============================================================
 
@@ -624,7 +624,7 @@ func predictKopKepala(history []Result) []string {
 }
 
 // ============================================================
-// Method 6 (NEW): MATH — rumus matematika klasik
+// Method 6: MATH — rumus matematika klasik
 // Cermin, jumlah digit, delta ±, cross formula
 // ============================================================
 
@@ -731,7 +731,7 @@ func predictMath(history []Result) []string {
 }
 
 // ============================================================
-// Method 6 (NEW): SESICORR — korelasi hasil sesi 1 → sesi 2
+// Method 7: SESICORR — korelasi hasil sesi 1 → sesi 2
 // Hanya relevan saat prediksi sesi 2 — sesi 1 sudah ada hasilnya
 // ============================================================
 
@@ -1016,6 +1016,13 @@ func dedupBySuffix(higherD []string, candidates []string) []string {
 // ============================================================
 
 func combinePositions(candidates [5][]int, limit int) []string {
+        // Guard: ensure no position has empty candidates (prevents div-by-zero)
+        for pos := 0; pos < 5; pos++ {
+                if len(candidates[pos]) == 0 {
+                        candidates[pos] = []int{0}
+                }
+        }
+
         seen := map[string]bool{}
         var results []string
 
@@ -1068,13 +1075,6 @@ func generateRandom(count, seed int) []string {
                 }
         }
         return results
-}
-
-func min(a, b int) int {
-        if a < b {
-                return a
-        }
-        return b
 }
 
 // AnalyzePaito returns paito color analysis for display
