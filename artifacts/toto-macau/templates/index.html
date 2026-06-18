@@ -324,6 +324,7 @@
 
   <!-- INPUT TAB -->
   <div class="section" id="tab-input">
+    <div id="missingReminder" style="display:none;background:rgba(233,69,96,0.1);border:1px solid rgba(233,69,96,0.35);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:0.8rem;color:var(--text)"></div>
     <div class="form-card">
       <div class="form-title">Input Hasil Keluaran</div>
       <div class="form-row-2">
@@ -505,6 +506,86 @@ async function loadStatusForInput() {
   if (statusData.next_sesi) {
     document.getElementById('inputSesi').value = statusData.next_sesi;
   }
+
+  // Cek sesi yang belum diisi hari ini & kemarin
+  await checkMissingSessions();
+}
+
+async function checkMissingSessions() {
+  try {
+    const res = await fetch('/history');
+    const data = await res.json();
+    const history = data.history || [];
+
+    // Hitung hari ini & kemarin dalam WIB (UTC+7)
+    const wibNow = new Date(Date.now() + 7 * 3600 * 1000);
+    const todayStr = wibNow.toISOString().slice(0, 10);
+    const yestStr = new Date(wibNow.getTime() - 86400000).toISOString().slice(0, 10);
+
+    const sesiJam = {1:'00:01', 2:'13:00', 3:'16:00', 4:'19:00', 5:'22:00', 6:'23:00'};
+
+    // Kumpulkan sesi yang sudah diisi per tanggal
+    const filled = {};
+    history.forEach(h => {
+      if (!filled[h.tanggal]) filled[h.tanggal] = new Set();
+      filled[h.tanggal].add(h.sesi);
+    });
+
+    const todayFilled = filled[todayStr] || new Set();
+    const yestFilled  = filled[yestStr]  || new Set();
+
+    const missingToday = [];
+    const missingYest  = [];
+    for (let i = 1; i <= 6; i++) {
+      if (!todayFilled.has(i)) missingToday.push(i);
+      if (!yestFilled.has(i))  missingYest.push(i);
+    }
+
+    const reminder = document.getElementById('missingReminder');
+
+    // Jika hari ini semua kosong & kemarin juga semua kosong → belum ada data sama sekali, skip
+    const hasAnyData = history.length > 0;
+    const showToday = hasAnyData && missingToday.length > 0 && missingToday.length < 6;
+    const showYest  = missingYest.length > 0;
+
+    if (!showToday && !showYest) {
+      reminder.style.display = 'none';
+      return;
+    }
+
+    let html = `<div style="font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;font-size:0.82rem">⚠️ Ada sesi yang belum diinput</div>`;
+
+    const renderMissing = (label, tanggal, list) => {
+      if (list.length === 0) return '';
+      let s = `<div style="font-size:0.72rem;color:var(--muted);margin-bottom:5px">${label} — ${tanggal}</div>`;
+      list.forEach(sesi => {
+        s += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span>Sesi ${sesi} &nbsp;<span style="color:var(--muted)">(${sesiJam[sesi]})</span></span>
+          <button onclick="quickFill('${tanggal}',${sesi})"
+            style="background:rgba(233,69,96,0.2);border:1px solid rgba(233,69,96,0.45);color:#ff6b81;
+                   padding:3px 10px;border-radius:10px;font-size:0.7rem;cursor:pointer">
+            ✏️ Input
+          </button>
+        </div>`;
+      });
+      return s;
+    };
+
+    if (showYest)  html += renderMissing('Kemarin', yestStr,  missingYest);
+    if (showToday) html += renderMissing('Hari ini', todayStr, missingToday);
+
+    reminder.innerHTML = html;
+    reminder.style.display = 'block';
+  } catch(e) {
+    console.error('checkMissingSessions:', e);
+  }
+}
+
+function quickFill(tanggal, sesi) {
+  document.getElementById('inputTanggal').value = tanggal;
+  document.getElementById('inputSesi').value = sesi;
+  document.getElementById('nomorInput').focus();
+  document.getElementById('nomorInput').scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 async function loadPredictions() {
