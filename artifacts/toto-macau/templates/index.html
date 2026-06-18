@@ -207,6 +207,38 @@
   .loading { text-align: center; padding: 36px 20px; color: var(--muted); font-size: 0.82rem; }
   .spinner { width: 26px; height: 26px; border: 3px solid rgba(240,165,0,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* BB Campuran */
+  .bb-header-card { background: linear-gradient(135deg,var(--card2),var(--card)); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+  .bb-title { font-size:0.88rem; font-weight:700; color:var(--accent); margin-bottom:6px; }
+  .bb-desc { font-size:0.68rem; color:var(--muted); line-height:1.5; margin-bottom:10px; }
+  .bb-set-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+  .bb-digit { width:34px; height:34px; border-radius:8px; background:rgba(240,165,0,0.15); border:2px solid var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:800; color:var(--accent); }
+  .bb-digit-freq { font-size:0.6rem; color:var(--muted); text-align:center; margin-top:1px; }
+  .bb-controls { display:flex; align-items:center; gap:8px; margin-top:6px; }
+  .bb-n-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--text); padding:4px 10px; border-radius:16px; font-size:0.72rem; cursor:pointer; }
+  .bb-n-btn.active { background:rgba(240,165,0,0.2); border-color:var(--accent); color:var(--accent); font-weight:700; }
+  .bb-section { background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:10px; overflow:hidden; }
+  .bb-section-head { display:flex; align-items:center; justify-content:space-between; padding:9px 12px; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; }
+  .bb-section-label { font-size:0.8rem; font-weight:700; color:var(--text); }
+  .bb-section-meta { font-size:0.65rem; color:var(--muted); }
+  .bb-grid-4d { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; padding:10px; }
+  .bb-grid-3d { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; padding:10px; }
+  .bb-grid-2d { display:flex; flex-wrap:wrap; gap:5px; padding:10px; }
+  .bb-item { background:var(--card2); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:7px 5px; text-align:center; cursor:pointer; transition:all 0.15s; }
+  .bb-item:active { transform:scale(0.94); }
+  .bb-item.copied { border-color:var(--green); background:rgba(0,200,83,0.1); }
+  .bb-item.hot { border-color:rgba(240,165,0,0.5); }
+  .bb-item.fire { border-color:var(--accent); box-shadow:0 0 6px rgba(240,165,0,0.25); background:rgba(240,165,0,0.08); }
+  .bb-num { font-size:0.9rem; font-weight:700; color:#fff; display:block; }
+  .bb-num-3d { font-size:0.85rem; font-weight:700; color:#fff; display:block; }
+  .bb-num-2d { font-size:0.95rem; font-weight:800; color:#fff; display:block; }
+  .bb-shio { font-size:0.58rem; color:var(--muted); margin-top:1px; }
+  .bb-star { font-size:0.6rem; color:var(--accent); }
+  .bb-item-2d { background:var(--card2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:5px 8px; text-align:center; cursor:pointer; transition:all 0.15s; min-width:36px; }
+  .bb-item-2d:active { transform:scale(0.94); }
+  .bb-item-2d.copied { border-color:var(--green); }
+  .bb-item-2d.fire { border-color:var(--accent); background:rgba(240,165,0,0.1); }
 </style>
 </head>
 <body>
@@ -226,6 +258,7 @@
   <div class="tab" onclick="switchTab('history')">History</div>
   <div class="tab" onclick="switchTab('paito')">Paito</div>
   <div class="tab" onclick="switchTab('winrate')">Akurasi</div>
+  <div class="tab" onclick="switchTab('bbcamp')">BB Camp.</div>
 </div>
 
 <div class="content">
@@ -350,6 +383,13 @@
     </div>
   </div>
 
+  <!-- BB CAMPURAN TAB -->
+  <div class="section" id="tab-bbcamp">
+    <div id="bbcampContent">
+      <div class="loading"><div class="spinner"></div>Memuat BB Campuran...</div>
+    </div>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -372,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function switchTab(name) {
   currentTab = name;
-  const tabNames = ['prediksi','input','import','history','paito','winrate'];
+  const tabNames = ['prediksi','input','import','history','paito','winrate','bbcamp'];
   document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', tabNames[i] === name));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
@@ -380,6 +420,7 @@ function switchTab(name) {
   if (name === 'paito') loadPaito();
   if (name === 'winrate') loadWinRate();
   if (name === 'input') loadStatusForInput();
+  if (name === 'bbcamp') loadBBCamp();
 }
 
 function showMethod(method) {
@@ -881,6 +922,145 @@ function renderWinRate(wr, bt) {
   </div>`;
 
   document.getElementById('winrateContent').innerHTML = html;
+}
+
+// ─── BB CAMPURAN ────────────────────────────────────────────
+let bbcampN = 6;
+
+async function loadBBCamp(n) {
+  if (n) bbcampN = n;
+  document.getElementById('bbcampContent').innerHTML = '<div class="loading"><div class="spinner"></div>Menganalisis digit...</div>';
+  try {
+    const res = await fetch('/bbfs?n=' + bbcampN);
+    const data = await res.json();
+    renderBBCamp(data);
+  } catch(e) {
+    document.getElementById('bbcampContent').innerHTML = '<div class="loading">Gagal memuat BB Campuran</div>';
+  }
+}
+
+function renderBBCamp(data) {
+  const bbDigits = data.bb_digits || [];
+  const digitFreq = data.digit_freq || [];
+  const top4D = data.top_4d || [];
+  const top3D = data.top_3d || [];
+  const all2D = data.all_2d || [];
+  const n = data.n_digits || 6;
+
+  // Header dengan digit set
+  const digitSetHtml = bbDigits.map((d, i) => `
+    <div style="text-align:center">
+      <div class="bb-digit">${d}</div>
+      <div class="bb-digit-freq">${digitFreq[d]||0}×</div>
+    </div>`).join('');
+
+  const nBtns = [4,5,6,7].map(x =>
+    `<button class="bb-n-btn ${x===n?'active':''}" onclick="loadBBCamp(${x})">${x} digit</button>`
+  ).join('');
+
+  // Keterangan jumlah kombinasi
+  const totalInfo = `4D: ${data.total_4d} komb · 3D: ${data.total_3d} komb · 2D: ${data.total_2d} komb`;
+
+  // 4D grid
+  const allNums4D = top4D.map(x=>x.nomor).join('\n');
+  const grid4D = top4D.map((item, i) => {
+    const wHtml = (item.warna||'').split('').map(c=>`<span class="w-${c.toLowerCase()}">${c}</span>`).join('');
+    const stars = item.conf_a >= 3 ? '⭐⭐⭐' : item.conf_a === 2 ? '⭐⭐' : item.conf_a === 1 ? '⭐' : '';
+    const cls = item.conf_a >= 2 ? 'bb-item fire' : item.conf_a === 1 ? 'bb-item hot' : 'bb-item';
+    return `<div class="${cls}" onclick="bbCopy('${item.nomor}',this)">
+      <span class="num-rank" style="font-size:0.58rem;color:var(--muted)">#${i+1}</span>
+      <span class="bb-num">${item.nomor}</span>
+      <div class="bb-star">${stars}</div>
+      <div class="bb-shio">${item.shio||''}</div>
+      <div style="font-size:0.6rem">${wHtml}</div>
+    </div>`;
+  }).join('');
+
+  // 3D grid
+  const allNums3D = top3D.map(x=>x.nomor).join('\n');
+  const grid3D = top3D.map((item, i) => {
+    const stars = item.conf_a >= 2 ? '⭐⭐' : item.conf_a === 1 ? '⭐' : '';
+    const cls = item.conf_a >= 1 ? 'bb-item fire' : 'bb-item';
+    return `<div class="${cls}" onclick="bbCopy('${item.nomor}',this)">
+      <span class="bb-num-3d">${item.nomor}</span>
+      <div class="bb-star">${stars}</div>
+    </div>`;
+  }).join('');
+
+  // 2D grid
+  const allNums2D = all2D.map(x=>x.nomor).join('\n');
+  const grid2D = all2D.map((item, i) => {
+    const cls = item.conf_a >= 2 ? 'bb-item-2d fire' : 'bb-item-2d';
+    return `<div class="${cls}" onclick="bbCopy('${item.nomor}',this)">
+      <span class="bb-num-2d">${item.nomor}</span>
+    </div>`;
+  }).join('');
+
+  const html = `
+  <div class="bb-header-card">
+    <div class="bb-title">🔢 BB CAMPURAN</div>
+    <div class="bb-desc">Digit terbaik dari semua metode → generate semua kombinasi BBFS → saring yang paling layak.<br>
+      ⭐ = dikonfirmasi langsung oleh prediksi metode · 🔥 = digit paling dominan</div>
+    <div class="bb-set-row">${digitSetHtml}</div>
+    <div style="font-size:0.65rem;color:var(--muted);margin-bottom:8px">${totalInfo}</div>
+    <div class="bb-controls">${nBtns}</div>
+  </div>
+
+  <div class="bb-section">
+    <div class="bb-section-head" onclick="bbToggle('bb4d')">
+      <div>
+        <span class="bb-section-label">4D Terbaik</span>
+        <span class="bb-section-meta"> — Top ${top4D.length} dari ${data.total_4d} kombinasi</span>
+      </div>
+      <button onclick="event.stopPropagation();copyAll('${allNums4D.replace(/'/g,"\\'")}');showToast('4D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
+    </div>
+    <div id="bb4d">
+      <div class="bb-grid-4d">${grid4D}</div>
+    </div>
+  </div>
+
+  <div class="bb-section">
+    <div class="bb-section-head" onclick="bbToggle('bb3d')">
+      <div>
+        <span class="bb-section-label">3D Terbaik</span>
+        <span class="bb-section-meta"> — Top ${top3D.length} dari ${data.total_3d} kombinasi</span>
+      </div>
+      <button onclick="event.stopPropagation();copyAll('${allNums3D.replace(/'/g,"\\'")}');showToast('3D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
+    </div>
+    <div id="bb3d">
+      <div class="bb-grid-3d">${grid3D}</div>
+    </div>
+  </div>
+
+  <div class="bb-section">
+    <div class="bb-section-head" onclick="bbToggle('bb2d')">
+      <div>
+        <span class="bb-section-label">2D Semua</span>
+        <span class="bb-section-meta"> — ${all2D.length} ekor dari set BB</span>
+      </div>
+      <button onclick="event.stopPropagation();copyAll('${allNums2D.replace(/'/g,"\\'")}');showToast('2D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
+    </div>
+    <div id="bb2d">
+      <div class="bb-grid-2d">${grid2D}</div>
+    </div>
+  </div>`;
+
+  document.getElementById('bbcampContent').innerHTML = html;
+}
+
+function bbToggle(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? '' : 'none';
+}
+
+function bbCopy(num, el) {
+  navigator.clipboard.writeText(num).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = num; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+  });
+  el.classList.add('copied');
+  setTimeout(() => el.classList.remove('copied'), 1500);
+  showToast(num + ' disalin!');
 }
 
 // Helpers

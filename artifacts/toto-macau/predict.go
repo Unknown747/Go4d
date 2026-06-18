@@ -783,6 +783,263 @@ func min(a, b int) int {
         return b
 }
 
+// ============================================================
+// BB CAMPURAN — BBFS dari digit terbaik semua metode
+// ============================================================
+
+type BBFSNumber struct {
+        Nomor string  `json:"nomor"`
+        Score float64 `json:"score"`
+        Shio  string  `json:"shio"`
+        Warna string  `json:"warna"`
+        ConfA int     `json:"conf_a"`
+}
+
+type BBFSResult struct {
+        BBDigits  []int        `json:"bb_digits"`
+        DigitFreq [10]int      `json:"digit_freq"`
+        Total4D   int          `json:"total_4d"`
+        Total3D   int          `json:"total_3d"`
+        Total2D   int          `json:"total_2d"`
+        Top4D     []BBFSNumber `json:"top_4d"`
+        Top3D     []BBFSNumber `json:"top_3d"`
+        All2D     []BBFSNumber `json:"all_2d"`
+        NDigits   int          `json:"n_digits"`
+}
+
+func predictBBFS(history []Result, nDigits int) BBFSResult {
+        if nDigits < 4 {
+                nDigits = 4
+        }
+        if nDigits > 7 {
+                nDigits = 7
+        }
+        if len(history) == 0 {
+                return BBFSResult{NDigits: nDigits}
+        }
+
+        // Step 1: Kumpulkan semua prediksi dari semua metode
+        paito := predictPaito(history)
+        shio := predictShio(history)
+        ai := predictAI(history)
+        ekorAS := predictEkorAS(history)
+        mathNums := predictMath(history)
+
+        allPreds := []string{}
+        for _, s := range [][]string{paito, shio, ai, ekorAS, mathNums} {
+                allPreds = append(allPreds, s...)
+        }
+
+        // Step 2: Hitung frekuensi setiap digit (25 nomor × 4 digit = 100 digit)
+        var digitFreq [10]int
+        for _, n := range allPreds {
+                d := parse4D(n)
+                for _, dig := range d {
+                        digitFreq[dig]++
+                }
+        }
+
+        // Step 3: Pilih top nDigits berdasarkan frekuensi
+        type digF struct {
+                d, f int
+        }
+        var ranked []digF
+        for d := 0; d < 10; d++ {
+                ranked = append(ranked, digF{d, digitFreq[d]})
+        }
+        sort.Slice(ranked, func(i, j int) bool {
+                if ranked[i].f != ranked[j].f {
+                        return ranked[i].f > ranked[j].f
+                }
+                return ranked[i].d < ranked[j].d
+        })
+        bbDigits := make([]int, nDigits)
+        for i := 0; i < nDigits; i++ {
+                bbDigits[i] = ranked[i].d
+        }
+
+        // Build lookup: exact pred count per nomor/3D/2D
+        exactPred4D := map[string]int{}
+        pred3DCount := map[string]int{}
+        pred2DCount := map[string]int{}
+        for _, n := range allPreds {
+                p := n
+                for len(p) < 4 {
+                        p = "0" + p
+                }
+                exactPred4D[p]++
+                pred3DCount[p[1:]]++
+                pred2DCount[p[2:]]++
+        }
+
+        // ── 4D PERMUTATIONS: P(nDigits, 4) ──────────────────────
+        type scored struct {
+                n     string
+                score float64
+                confA int
+        }
+        var perms4D []scored
+
+        for i := 0; i < nDigits; i++ {
+                for j := 0; j < nDigits; j++ {
+                        if j == i {
+                                continue
+                        }
+                        for k := 0; k < nDigits; k++ {
+                                if k == i || k == j {
+                                        continue
+                                }
+                                for l := 0; l < nDigits; l++ {
+                                        if l == i || l == j || l == k {
+                                                continue
+                                        }
+                                        n := fmt.Sprintf("%d%d%d%d", bbDigits[i], bbDigits[j], bbDigits[k], bbDigits[l])
+                                        d := parse4D(n)
+
+                                        // Faktor A: nomor persis sama dengan prediksi metode (+3 per metode)
+                                        confA := exactPred4D[n]
+                                        scoreA := float64(confA) * 3.0
+
+                                        // Faktor B: digit di posisi yang sama dengan prediksi (+0.5 per posisi cocok)
+                                        scoreB := 0.0
+                                        for _, pred := range allPreds {
+                                                pd := parse4D(pred)
+                                                for pos := 0; pos < 4; pos++ {
+                                                        if d[pos] == pd[pos] {
+                                                                scoreB += 0.5
+                                                        }
+                                                }
+                                        }
+
+                                        // Faktor C: digit frequency bonus
+                                        scoreC := 0.0
+                                        for _, dig := range d {
+                                                scoreC += float64(digitFreq[dig]) * 0.2
+                                        }
+
+                                        perms4D = append(perms4D, scored{n, scoreA + scoreB + scoreC, confA})
+                                }
+                        }
+                }
+        }
+
+        sort.Slice(perms4D, func(i, j int) bool {
+                if perms4D[i].score != perms4D[j].score {
+                        return perms4D[i].score > perms4D[j].score
+                }
+                return perms4D[i].n < perms4D[j].n
+        })
+
+        top4Dlen := 20
+        if len(perms4D) < top4Dlen {
+                top4Dlen = len(perms4D)
+        }
+        top4D := make([]BBFSNumber, top4Dlen)
+        for i := 0; i < top4Dlen; i++ {
+                s := perms4D[i]
+                top4D[i] = BBFSNumber{
+                        Nomor: s.n,
+                        Score: math.Round(s.score*10) / 10,
+                        Shio:  shioOf(s.n),
+                        Warna: colorCode4D(s.n),
+                        ConfA: s.confA,
+                }
+        }
+
+        // ── 3D PERMUTATIONS: P(nDigits, 3) ──────────────────────
+        type s3d struct {
+                n     string
+                score float64
+                confA int
+        }
+        seen3D := map[string]bool{}
+        var perms3D []s3d
+
+        for i := 0; i < nDigits; i++ {
+                for j := 0; j < nDigits; j++ {
+                        if j == i {
+                                continue
+                        }
+                        for k := 0; k < nDigits; k++ {
+                                if k == i || k == j {
+                                        continue
+                                }
+                                n3 := fmt.Sprintf("%d%d%d", bbDigits[i], bbDigits[j], bbDigits[k])
+                                if seen3D[n3] {
+                                        continue
+                                }
+                                seen3D[n3] = true
+
+                                confA := pred3DCount[n3]
+                                score := float64(confA) * 3.0
+                                score += float64(pred2DCount[n3[1:]]) * 1.5
+                                for _, c := range n3 {
+                                        dig := int(c - '0')
+                                        score += float64(digitFreq[dig]) * 0.15
+                                }
+                                perms3D = append(perms3D, s3d{n3, score, confA})
+                        }
+                }
+        }
+        sort.Slice(perms3D, func(i, j int) bool { return perms3D[i].score > perms3D[j].score })
+
+        top3Dlen := 15
+        if len(perms3D) < top3Dlen {
+                top3Dlen = len(perms3D)
+        }
+        top3D := make([]BBFSNumber, top3Dlen)
+        for i := 0; i < top3Dlen; i++ {
+                top3D[i] = BBFSNumber{Nomor: perms3D[i].n, Score: math.Round(perms3D[i].score*10) / 10, ConfA: perms3D[i].confA}
+        }
+
+        // ── 2D PERMUTATIONS: P(nDigits, 2) ──────────────────────
+        type s2d struct {
+                n     string
+                score float64
+                confA int
+        }
+        seen2D := map[string]bool{}
+        var perms2D []s2d
+
+        for i := 0; i < nDigits; i++ {
+                for j := 0; j < nDigits; j++ {
+                        if j == i {
+                                continue
+                        }
+                        n2 := fmt.Sprintf("%d%d", bbDigits[i], bbDigits[j])
+                        if seen2D[n2] {
+                                continue
+                        }
+                        seen2D[n2] = true
+
+                        confA := pred2DCount[n2]
+                        score := float64(confA) * 3.0
+                        d1 := int(n2[0] - '0')
+                        d2 := int(n2[1] - '0')
+                        score += float64(digitFreq[d1]+digitFreq[d2]) * 0.2
+                        perms2D = append(perms2D, s2d{n2, score, confA})
+                }
+        }
+        sort.Slice(perms2D, func(i, j int) bool { return perms2D[i].score > perms2D[j].score })
+
+        all2D := make([]BBFSNumber, len(perms2D))
+        for i, s := range perms2D {
+                all2D[i] = BBFSNumber{Nomor: s.n, Score: math.Round(s.score*10) / 10, ConfA: s.confA}
+        }
+
+        return BBFSResult{
+                BBDigits:  bbDigits,
+                DigitFreq: digitFreq,
+                Total4D:   len(perms4D),
+                Total3D:   len(perms3D),
+                Total2D:   len(perms2D),
+                Top4D:     top4D,
+                Top3D:     top3D,
+                All2D:     all2D,
+                NDigits:   nDigits,
+        }
+}
+
 // AnalyzePaito untuk tab Paito
 func AnalyzePaito(history []Result, limit int) []map[string]interface{} {
         var result []map[string]interface{}
