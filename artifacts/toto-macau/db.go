@@ -124,6 +124,10 @@ func savePredictions(tanggal string, sesi int, metode string, nomorList []string
         return err
 }
 
+func deletePredictions(tanggal string, sesi int) {
+        db.Exec(`DELETE FROM predictions WHERE tanggal = ? AND sesi = ?`, tanggal, sesi)
+}
+
 func getRecentResults(limit int) []Result {
         rows, err := db.Query(
                 `SELECT id, COALESCE(periode,0), tanggal, sesi, nomor, created_at

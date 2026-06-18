@@ -68,7 +68,36 @@ func colorCode4D(nomor string) string {
 }
 
 // ============================================================
+// diversifyPredictions: reorder candidates to maximise unique 2D ekor
+// coverage while keeping higher-scored items first.
+// ============================================================
+func diversifyPredictions(nums []string, limit int) []string {
+        seenEkor := map[string]bool{}
+        var primary, secondary []string
+        for _, n := range nums {
+                n4 := n
+                for len(n4) < 4 {
+                        n4 = "0" + n4
+                }
+                ekor := n4[2:]
+                if !seenEkor[ekor] {
+                        seenEkor[ekor] = true
+                        primary = append(primary, n)
+                } else {
+                        secondary = append(secondary, n)
+                }
+        }
+        result := append(primary, secondary...)
+        if len(result) > limit {
+                result = result[:limit]
+        }
+        return result
+}
+
+// ============================================================
 // Method 1: PAITO — warna dominan per posisi + frekuensi terbaru
+// FIX: 5 kandidat per posisi (bukan 3), boost warna lebih lunak,
+//      generate 40 kombinasi lalu pilih 5 dengan ekor beragam.
 // ============================================================
 func predictPaito(history []Result) []string {
         if len(history) == 0 {
@@ -83,7 +112,6 @@ func predictPaito(history []Result) []string {
 
         candidateDigits := [4][]int{}
         for pos := 0; pos < 4; pos++ {
-                // Hitung warna dominan berdasarkan 10 draw terakhir
                 checkN := 10
                 if checkN > n {
                         checkN = n
@@ -98,7 +126,7 @@ func predictPaito(history []Result) []string {
                         }
                 }
 
-                // Deteksi streak — jika 4+ draw berturut warna sama, prediksi balik
+                // Streak detection — jika 4+ draw berturut warna sama, prediksi balik
                 checkStreak := 6
                 if checkStreak > n {
                         checkStreak = n
@@ -126,7 +154,6 @@ func predictPaito(history []Result) []string {
                         targetColor = "M"
                 }
                 if streakCount >= 4 {
-                        // Streak panjang → antisipasi balik arah
                         if lastColor == "M" {
                                 targetColor = "H"
                         } else {
@@ -134,11 +161,11 @@ func predictPaito(history []Result) []string {
                         }
                 }
 
-                // Skor tiap digit berdasarkan frekuensi terbaru + boost warna target
+                // Skor digit: frekuensi berbobot eksponensial + boost warna target (lebih lunak)
                 freq := [10]float64{}
                 for k, r := range recent {
                         d := parse4D(r.Nomor)
-                        w := math.Exp(-float64(k) * 0.08)
+                        w := math.Exp(-float64(k) * 0.07)
                         freq[d[pos]] += w
                 }
 
@@ -154,16 +181,18 @@ func predictPaito(history []Result) []string {
                         }
                         s := freq[d]
                         if warna == targetColor {
-                                s *= 2.2 // boost digit warna target
+                                s *= 1.4 // boost lebih lunak (sebelumnya 2.2)
                         }
                         ranked = append(ranked, ds{d, s})
                 }
                 sort.Slice(ranked, func(i, j int) bool { return ranked[i].s > ranked[j].s })
-                for i := 0; i < 3; i++ {
+                // 5 kandidat per posisi (sebelumnya 3) → lebih banyak variasi ekor
+                for i := 0; i < 5; i++ {
                         candidateDigits[pos] = append(candidateDigits[pos], ranked[i].d)
                 }
         }
-        return combinePositions4D(candidateDigits, 5)
+        pool := combinePositions4D(candidateDigits, 40)
+        return diversifyPredictions(pool, 5)
 }
 
 // ============================================================
@@ -291,6 +320,7 @@ func predictShio(history []Result) []string {
 
 // ============================================================
 // Method 3: HOT·COLD — blend digit sering keluar & lama tidak muncul
+// FIX: 3 hot + 2 cold per posisi (bukan 2+1), generate 40, diversify.
 // ============================================================
 func predictAI(history []Result) []string {
         if len(history) == 0 {
@@ -303,16 +333,16 @@ func predictAI(history []Result) []string {
         }
         recent := history[:n]
 
-        hotN := 12
+        hotN := 15
         if hotN > n {
                 hotN = n
         }
 
-        // Hot: frekuensi dalam hotN draw terakhir (bobot eksponensial)
+        // Hot: frekuensi berbobot eksponensial
         hotFreq := [4][10]float64{}
         for k, r := range recent[:hotN] {
                 d := parse4D(r.Nomor)
-                w := math.Exp(-float64(k) * 0.12)
+                w := math.Exp(-float64(k) * 0.10)
                 for pos := 0; pos < 4; pos++ {
                         hotFreq[pos][d[pos]] += w
                 }
@@ -349,24 +379,32 @@ func predictAI(history []Result) []string {
                 sort.Slice(coldR, func(i, j int) bool { return coldR[i].score > coldR[j].score })
 
                 seen := map[int]bool{}
-                // 2 digit hot (paling sering keluar)
-                for i := 0; i < 2 && i < len(hotR); i++ {
+                // 3 digit hot (paling sering keluar)
+                for i := 0; i < 3 && i < len(hotR); i++ {
                         candidateDigits[pos] = append(candidateDigits[pos], hotR[i].d)
                         seen[hotR[i].d] = true
                 }
-                // 1 digit cold (paling lama tidak muncul, bukan hot)
+                // 2 digit cold (paling lama tidak muncul)
+                coldPicked := 0
                 for _, cd := range coldR {
                         if !seen[cd.d] {
                                 candidateDigits[pos] = append(candidateDigits[pos], cd.d)
-                                break
+                                seen[cd.d] = true
+                                coldPicked++
+                                if coldPicked >= 2 {
+                                        break
+                                }
                         }
                 }
         }
-        return combinePositions4D(candidateDigits, 5)
+        pool := combinePositions4D(candidateDigits, 40)
+        return diversifyPredictions(pool, 5)
 }
 
 // ============================================================
 // Method 4: AS/EKOR — fokus digit AS (pos 0) & Ekor (pos 3)
+// FIX: 4 kandidat AS, 5 kandidat ekor (termasuk overdue), 3 mid
+//      → generate 40, diversify ekor, pilih 5.
 // ============================================================
 func predictEkorAS(history []Result) []string {
         if len(history) == 0 {
@@ -374,11 +412,12 @@ func predictEkorAS(history []Result) []string {
         }
 
         n := len(history)
-        if n > 40 {
-                n = 40
+        if n > 50 {
+                n = 50
         }
         recent := history[:n]
 
+        // Hitung frekuensi + last-seen untuk AS dan Ekor
         asFreq := [10]float64{}
         ekorFreq := [10]float64{}
         asLastSeen := [10]int{}
@@ -387,7 +426,6 @@ func predictEkorAS(history []Result) []string {
                 asLastSeen[i] = n + 5
                 ekorLastSeen[i] = n + 5
         }
-
         for k, r := range recent {
                 d := parse4D(r.Nomor)
                 w := math.Exp(-float64(k) * 0.08)
@@ -405,63 +443,43 @@ func predictEkorAS(history []Result) []string {
                 d     int
                 score float64
         }
+
+        // AS score: blend frekuensi + overdue
         asScores := make([]digScore, 10)
-        ekorScores := make([]digScore, 10)
         for d := 0; d < 10; d++ {
                 asGap := float64(asLastSeen[d]) / float64(n+5)
-                ekorGap := float64(ekorLastSeen[d]) / float64(n+5)
-                asScores[d] = digScore{d, asFreq[d]*0.55 + asGap*0.45}
-                ekorScores[d] = digScore{d, ekorFreq[d]*0.55 + ekorGap*0.45}
+                asScores[d] = digScore{d, asFreq[d]*0.6 + asGap*0.4}
         }
         sort.Slice(asScores, func(i, j int) bool { return asScores[i].score > asScores[j].score })
-        sort.Slice(ekorScores, func(i, j int) bool { return ekorScores[i].score > ekorScores[j].score })
 
-        // Boost ekor yang overdue: 2D terakhir yang lama tidak muncul
-        ekor2DLast := [100]int{}
-        for i := range ekor2DLast {
-                ekor2DLast[i] = len(recent) + 1
-        }
-        for k, r := range recent {
-                for len(r.Nomor) < 4 {
-                        r.Nomor = "0" + r.Nomor
-                }
-                last2 := (int(r.Nomor[2]-'0') * 10) + int(r.Nomor[3]-'0')
-                if ekor2DLast[last2] == len(recent)+1 {
-                        ekor2DLast[last2] = k
-                }
-        }
-        // Digit ekor yang paling overdue → boost ekorScore
+        // Ekor score: blend frekuensi + overdue per-digit ekor
+        ekorScores := make([]digScore, 10)
         for d := 0; d < 10; d++ {
-                maxGap := 0
-                for t := d; t < 100; t += 10 {
-                        if ekor2DLast[t] > maxGap {
-                                maxGap = ekor2DLast[t]
-                        }
-                }
-                if maxGap > 8 {
-                        for idx, es := range ekorScores {
-                                if es.d == d {
-                                        ekorScores[idx].score += float64(maxGap) * 0.15
-                                }
-                        }
-                }
+                ekorGap := float64(ekorLastSeen[d]) / float64(n+5)
+                ekorScores[d] = digScore{d, ekorFreq[d]*0.5 + ekorGap*0.5}
         }
         sort.Slice(ekorScores, func(i, j int) bool { return ekorScores[i].score > ekorScores[j].score })
 
+        // Mid posisi 1 & 2
         midFreq := [2][10]float64{}
         for k, r := range recent {
                 d := parse4D(r.Nomor)
-                w := math.Exp(-float64(k) * 0.1)
+                w := math.Exp(-float64(k) * 0.09)
                 for pos := 1; pos <= 2; pos++ {
                         midFreq[pos-1][d[pos]] += w
                 }
         }
 
         candidateDigits := [4][]int{}
-        for i := 0; i < 3; i++ {
+        // 4 kandidat AS
+        for i := 0; i < 4; i++ {
                 candidateDigits[0] = append(candidateDigits[0], asScores[i].d)
+        }
+        // 5 kandidat ekor untuk variasi 2D lebih luas
+        for i := 0; i < 5; i++ {
                 candidateDigits[3] = append(candidateDigits[3], ekorScores[i].d)
         }
+        // 3 kandidat mid
         for pos := 1; pos <= 2; pos++ {
                 type ds struct {
                         d int
@@ -477,12 +495,15 @@ func predictEkorAS(history []Result) []string {
                 }
         }
 
-        return combinePositions4D(candidateDigits, 5)
+        pool := combinePositions4D(candidateDigits, 40)
+        return diversifyPredictions(pool, 5)
 }
 
 
 // ============================================================
-// Method 6: MATH — rumus matematika dari angka terakhir
+// Method 6: MATH — rumus matematika dari angka terakhir & kedua
+// FIX: tambah rumus dari hasil ke-2, skor berdasarkan frekuensi,
+//      diversify ekor di akhir.
 // ============================================================
 func predictMath(history []Result) []string {
         if len(history) == 0 {
@@ -501,9 +522,10 @@ func predictMath(history []Result) []string {
                 }
         }
 
-        // 1. Cermin
+        // ── Rumus dari hasil terakhir ──
+        // 1. Cermin penuh
         add([4]int{last[3], last[2], last[1], last[0]})
-        // 2. Jumlah digit → ekor baru
+        // 2. Jumlah semua digit → ekor baru
         sum := 0
         for _, d := range last {
                 sum += d
@@ -517,22 +539,47 @@ func predictMath(history []Result) []string {
         add([4]int{(last[0] + 1) % 10, (last[1] + 1) % 10, (last[2] + 1) % 10, (last[3] + 1) % 10})
         // 5. Delta -1
         add([4]int{(last[0] + 9) % 10, (last[1] + 9) % 10, (last[2] + 9) % 10, (last[3] + 9) % 10})
-        // 6. Flip +5
+        // 6. Flip +5 (pasangan tengkorak)
         add([4]int{(last[0] + 5) % 10, (last[1] + 5) % 10, (last[2] + 5) % 10, (last[3] + 5) % 10})
-        // 7. AS+Ekor sum
-        asEkorSum := (last[0] + last[3]) % 10
-        add([4]int{asEkorSum, last[1], last[2], asEkorSum})
+        // 7. Delta +2 / -2
+        add([4]int{(last[0] + 2) % 10, (last[1] + 2) % 10, (last[2] + 2) % 10, (last[3] + 2) % 10})
+        add([4]int{(last[0] + 8) % 10, (last[1] + 8) % 10, (last[2] + 8) % 10, (last[3] + 8) % 10})
+        // 8. AS-Ekor swap cermin
+        add([4]int{last[3], last[2], last[1], last[0]})
+        // 9. Komplemen 9 (9-digit)
+        add([4]int{(9 - last[0]) % 10, (9 - last[1]) % 10, (9 - last[2]) % 10, (9 - last[3]) % 10})
 
-        // Rank by historical frequency
+        // ── Rumus dari hasil kedua (jika ada) ──
+        if len(history) >= 2 {
+                prev := parse4D(history[1].Nomor)
+                // 10. Rata-rata digit per posisi (dibulatkan ke bawah)
+                add([4]int{(last[0] + prev[0]) / 2, (last[1] + prev[1]) / 2, (last[2] + prev[2]) / 2, (last[3] + prev[3]) / 2})
+                // 11. Selisih absolut
+                abs := func(a, b int) int {
+                        if a > b {
+                                return a - b
+                        }
+                        return b - a
+                }
+                add([4]int{abs(last[0], prev[0]), abs(last[1], prev[1]), abs(last[2], prev[2]), abs(last[3], prev[3])})
+                // 12. Last ekor + prev AS sebagai ekor baru
+                add([4]int{last[0], last[1], last[2], (last[3] + prev[0]) % 10})
+                // 13. Cross: last[0..1] + prev[2..3]
+                add([4]int{last[0], last[1], prev[2], prev[3]})
+                // 14. Cross: prev[0..1] + last[2..3]
+                add([4]int{prev[0], prev[1], last[2], last[3]})
+        }
+
+        // Skor berdasarkan frekuensi historis per posisi
         hn := len(history)
-        if hn > 20 {
-                hn = 20
+        if hn > 30 {
+                hn = 30
         }
         recent := history[:hn]
         freqScore := [4][10]float64{}
         for k, r := range recent {
                 d := parse4D(r.Nomor)
-                w := math.Exp(-float64(k) * 0.1)
+                w := math.Exp(-float64(k) * 0.09)
                 for pos := 0; pos < 4; pos++ {
                         freqScore[pos][d[pos]] += w
                 }
@@ -553,22 +600,19 @@ func predictMath(history []Result) []string {
         }
         sort.Slice(ranked, func(i, j int) bool { return ranked[i].score > ranked[j].score })
 
-        var results []string
-        seen2 := map[string]bool{}
-        for i := 0; i < 5 && i < len(ranked); i++ {
-                if !seen2[ranked[i].s] {
-                        seen2[ranked[i].s] = true
-                        results = append(results, ranked[i].s)
+        var pool []string
+        for _, r := range ranked {
+                pool = append(pool, r.s)
+        }
+        // Tambah padding jika kurang dari 5
+        for len(pool) < 10 {
+                rnd := generateRandom(1, 8888+len(pool))
+                if !seen[rnd[0]] {
+                        seen[rnd[0]] = true
+                        pool = append(pool, rnd[0])
                 }
         }
-        for len(results) < 5 {
-                rnd := generateRandom(1, 8888+len(results))
-                if !seen2[rnd[0]] {
-                        seen2[rnd[0]] = true
-                        results = append(results, rnd[0])
-                }
-        }
-        return results[:5]
+        return diversifyPredictions(pool, 5)
 }
 
 // ============================================================

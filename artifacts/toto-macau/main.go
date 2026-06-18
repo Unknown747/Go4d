@@ -35,6 +35,7 @@ func main() {
         mux.HandleFunc("/backtest", handleBacktest)
         mux.HandleFunc("/bbfs", handleBBFS)
         mux.HandleFunc("/bbbacktest", handleBBBacktest)
+        mux.HandleFunc("/regenerate", handleRegenerate)
 
         log.Printf("Server Macau 4D berjalan di port %s", port)
         if err := http.ListenAndServe(":"+port, corsMiddleware(mux)); err != nil {
@@ -426,6 +427,50 @@ func handleBBFS(w http.ResponseWriter, r *http.Request) {
 func handleBBBacktest(w http.ResponseWriter, r *http.Request) {
         report := runBBBacktest()
         jsonResponse(w, report)
+}
+
+// POST /regenerate — hapus cache dan generate ulang prediksi sesi berikutnya
+func handleRegenerate(w http.ResponseWriter, r *http.Request) {
+        if r.Method != "POST" {
+                http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                return
+        }
+        tanggal, sesi := nextSessionInfo()
+        deletePredictions(tanggal, sesi)
+        history := getRecentResults(100)
+        generateAndSavePredictions(tanggal, sesi, history)
+        preds := getLatestPredictions(tanggal, sesi)
+
+        methodNums := map[string][]string{}
+        for _, p := range preds {
+                key := strings.ToLower(p.Metode)
+                for _, n := range strings.Split(p.NomorList, ",") {
+                        n = strings.TrimSpace(n)
+                        if n != "" {
+                                methodNums[key] = append(methodNums[key], n)
+                        }
+                }
+        }
+
+        ekorCheck := map[string]int{}
+        for method, nums := range methodNums {
+                seen := map[string]bool{}
+                for _, n := range nums {
+                        for len(n) < 4 {
+                                n = "0" + n
+                        }
+                        seen[n[2:]] = true
+                }
+                ekorCheck[method] = len(seen)
+        }
+
+        jsonResponse(w, map[string]interface{}{
+                "ok":          true,
+                "tanggal":     tanggal,
+                "sesi":        sesi,
+                "message":     "Prediksi berhasil di-generate ulang",
+                "unique_ekor": ekorCheck,
+        })
 }
 
 func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
