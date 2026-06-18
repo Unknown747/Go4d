@@ -35,6 +35,7 @@ func main() {
         mux.HandleFunc("/backtest", handleBacktest)
         mux.HandleFunc("/bbfs", handleBBFS)
         mux.HandleFunc("/bbbacktest", handleBBBacktest)
+        mux.HandleFunc("/rekomendasi", handleRekomendasi)
         mux.HandleFunc("/regenerate", handleRegenerate)
 
         log.Printf("Server Macau 4D berjalan di port %s", port)
@@ -421,6 +422,170 @@ func handleBBFS(w http.ResponseWriter, r *http.Request) {
         history := getRecentResults(100)
         result := predictBBFS(history, 6)
         jsonResponse(w, result)
+}
+
+// GET /rekomendasi — irisan BB digit + semua prediksi metode
+// Menghasilkan nomor yang dikonfirmasi DUA sumber: algoritma + BB digit set
+func handleRekomendasi(w http.ResponseWriter, r *http.Request) {
+        history := getRecentResults(100)
+        bbResult := predictBBFS(history, 6)
+        bbSet := map[int]bool{}
+        for _, d := range bbResult.BBDigits {
+                bbSet[d] = true
+        }
+
+        // Kumpulkan prediksi semua metode
+        paito := predictPaito(history)
+        shio := predictShio(history)
+        ai := predictAI(history)
+        ekoras := predictEkorAS(history)
+        math := predictMath(history)
+        gabungan := predictGabungan(history)
+
+        // Hitung berapa metode yang mengkonfirmasi tiap nomor
+        confirmMap := map[string][]string{}
+        for _, n := range paito {
+                confirmMap[n] = append(confirmMap[n], "Paito")
+        }
+        for _, n := range shio {
+                confirmMap[n] = append(confirmMap[n], "Shio")
+        }
+        for _, n := range ai {
+                confirmMap[n] = append(confirmMap[n], "Hot·Cold")
+        }
+        for _, n := range ekoras {
+                confirmMap[n] = append(confirmMap[n], "AS/Ekor")
+        }
+        for _, n := range math {
+                confirmMap[n] = append(confirmMap[n], "Math")
+        }
+
+        // Cek apakah semua digit nomor ada dalam BB set
+        allInBB := func(nomor string) bool {
+                for len(nomor) < 4 {
+                        nomor = "0" + nomor
+                }
+                for _, ch := range nomor {
+                        d := int(ch - '0')
+                        if !bbSet[d] {
+                                return false
+                        }
+                }
+                return true
+        }
+        last3InBB := func(nomor string) bool {
+                for len(nomor) < 4 {
+                        nomor = "0" + nomor
+                }
+                for _, ch := range nomor[1:] {
+                        d := int(ch - '0')
+                        if !bbSet[d] {
+                                return false
+                        }
+                }
+                return true
+        }
+        last2InBB := func(nomor string) bool {
+                for len(nomor) < 4 {
+                        nomor = "0" + nomor
+                }
+                for _, ch := range nomor[2:] {
+                        d := int(ch - '0')
+                        if !bbSet[d] {
+                                return false
+                        }
+                }
+                return true
+        }
+
+        type RekItem struct {
+                Nomor    string   `json:"nomor"`
+                Methods  []string `json:"methods"`
+                Count    int      `json:"count"`
+                Shio     string   `json:"shio"`
+                Warna    string   `json:"warna"`
+                InBB4D   bool     `json:"in_bb_4d"`
+                InBB3D   bool     `json:"in_bb_3d"`
+        }
+
+        seen := map[string]bool{}
+        var focus4D, focus3D []RekItem
+
+        for _, n := range gabungan {
+                if seen[n] {
+                        continue
+                }
+                seen[n] = true
+                n4 := n
+                for len(n4) < 4 {
+                        n4 = "0" + n4
+                }
+                methods := confirmMap[n]
+                item := RekItem{
+                        Nomor:   n4,
+                        Methods: methods,
+                        Count:   len(methods),
+                        Shio:    shioOf(n4),
+                        Warna:   colorCode4D(n4),
+                        InBB4D:  allInBB(n4),
+                        InBB3D:  last3InBB(n4),
+                }
+                if item.InBB4D {
+                        focus4D = append(focus4D, item)
+                } else if item.InBB3D {
+                        focus3D = append(focus3D, item)
+                }
+        }
+
+        // Sort by confirmation count descending
+        sort.Slice(focus4D, func(i, j int) bool { return focus4D[i].Count > focus4D[j].Count })
+        sort.Slice(focus3D, func(i, j int) bool { return focus3D[i].Count > focus3D[j].Count })
+
+        // 2D Fokus: ekor dari semua prediksi yang kedua digitnya ada di BB set
+        seen2D := map[string]bool{}
+        type Rek2D struct {
+                Nomor   string   `json:"nomor"`
+                Methods []string `json:"methods"`
+                Count   int      `json:"count"`
+        }
+        var focus2D []Rek2D
+        allPreds := append(append(append(append(append(paito, shio...), ai...), ekoras...), math...), gabungan...)
+        for _, n := range allPreds {
+                for len(n) < 4 {
+                        n = "0" + n
+                }
+                ekor := n[2:]
+                if seen2D[ekor] {
+                        continue
+                }
+                if last2InBB(n) {
+                        seen2D[ekor] = true
+                        focus2D = append(focus2D, Rek2D{
+                                Nomor: ekor,
+                                Count: len(confirmMap[n]),
+                        })
+                }
+        }
+        // Sort 2D by frequency in predictions
+        ekorFreq := map[string]int{}
+        for _, n := range allPreds {
+                for len(n) < 4 {
+                        n = "0" + n
+                }
+                ekorFreq[n[2:]]++
+        }
+        sort.Slice(focus2D, func(i, j int) bool {
+                return ekorFreq[focus2D[i].Nomor] > ekorFreq[focus2D[j].Nomor]
+        })
+
+        jsonResponse(w, map[string]interface{}{
+                "bb_digits":      bbResult.BBDigits,
+                "focus_4d":       focus4D,
+                "focus_3d":       focus3D,
+                "focus_2d":       focus2D,
+                "gabungan_total": len(gabungan),
+                "strategy":       "Nomor dikonfirmasi ganda: algoritma prediksi + digit BB",
+        })
 }
 
 // GET /bbbacktest
