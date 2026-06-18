@@ -43,6 +43,7 @@ func createTables() {
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )`,
                 `CREATE UNIQUE INDEX IF NOT EXISTS idx_pred_once ON predictions(tanggal, sesi, metode)`,
+                `CREATE INDEX IF NOT EXISTS idx_results_tanggal ON results(tanggal)`,
         }
         for _, q := range queries {
                 if _, err := db.Exec(q); err != nil {
@@ -51,9 +52,29 @@ func createTables() {
         }
 }
 
-// migrateDB adds columns that may not exist in older schema
+// migrateDB adds columns that may not exist in older schema.
+// SQLite has no ALTER TABLE … ADD COLUMN IF NOT EXISTS, so we check PRAGMA first.
 func migrateDB() {
-        db.Exec(`ALTER TABLE results ADD COLUMN periode INTEGER`)
+        rows, err := db.Query(`PRAGMA table_info(results)`)
+        if err != nil {
+                log.Printf("migrateDB: cannot read table_info: %v", err)
+                return
+        }
+        hasPeriode := false
+        for rows.Next() {
+                var cid, notNull, pk int
+                var name, colType string
+                var dflt interface{}
+                if err := rows.Scan(&cid, &name, &colType, &notNull, &dflt, &pk); err == nil && name == "periode" {
+                        hasPeriode = true
+                }
+        }
+        rows.Close()
+        if !hasPeriode {
+                if _, err := db.Exec(`ALTER TABLE results ADD COLUMN periode INTEGER`); err != nil {
+                        log.Printf("migrateDB: failed to add periode column: %v", err)
+                }
+        }
 }
 
 type Result struct {
@@ -113,6 +134,7 @@ func getRecentResults(limit int) []Result {
                 limit,
         )
         if err != nil {
+                log.Printf("getRecentResults: query error: %v", err)
                 return nil
         }
         defer rows.Close()
@@ -120,7 +142,10 @@ func getRecentResults(limit int) []Result {
         var results []Result
         for rows.Next() {
                 var r Result
-                rows.Scan(&r.ID, &r.Periode, &r.Tanggal, &r.Sesi, &r.Nomor, &r.CreatedAt)
+                if err := rows.Scan(&r.ID, &r.Periode, &r.Tanggal, &r.Sesi, &r.Nomor, &r.CreatedAt); err != nil {
+                        log.Printf("getRecentResults: scan error: %v", err)
+                        continue
+                }
                 results = append(results, r)
         }
         return results
@@ -140,7 +165,10 @@ func getLatestPredictions(tanggal string, sesi int) []Prediction {
         seen := map[string]bool{}
         for rows.Next() {
                 var p Prediction
-                rows.Scan(&p.ID, &p.Tanggal, &p.Sesi, &p.Metode, &p.NomorList, &p.CreatedAt)
+                if err := rows.Scan(&p.ID, &p.Tanggal, &p.Sesi, &p.Metode, &p.NomorList, &p.CreatedAt); err != nil {
+                        log.Printf("getLatestPredictions: scan error: %v", err)
+                        continue
+                }
                 key := fmt.Sprintf("%s_%d_%s", p.Tanggal, p.Sesi, p.Metode)
                 if !seen[key] {
                         seen[key] = true

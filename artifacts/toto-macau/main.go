@@ -97,7 +97,12 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
         if tanggal == "" || sesiStr == "" {
                 tanggal, sesi = nextSessionInfo()
         } else {
-                sesi, _ = strconv.Atoi(sesiStr)
+                var err error
+                sesi, err = strconv.Atoi(sesiStr)
+                if err != nil || sesi < 1 || sesi > 2 {
+                        http.Error(w, "Parameter sesi tidak valid (harus 1 atau 2)", http.StatusBadRequest)
+                        return
+                }
         }
 
         preds := getLatestPredictions(tanggal, sesi)
@@ -254,6 +259,16 @@ func handleResults(w http.ResponseWriter, r *http.Request) {
         }
 
         nomor := strings.TrimSpace(body.Nomor)
+        for _, c := range nomor {
+                if c < '0' || c > '9' {
+                        http.Error(w, "Nomor hanya boleh berisi angka 0-9", http.StatusBadRequest)
+                        return
+                }
+        }
+        if nomor == "" {
+                http.Error(w, "Nomor tidak boleh kosong", http.StatusBadRequest)
+                return
+        }
         for len(nomor) < 5 {
                 nomor = "0" + nomor
         }
@@ -264,8 +279,9 @@ func handleResults(w http.ResponseWriter, r *http.Request) {
         if body.Tanggal == "" {
                 body.Tanggal = todayStr()
         }
-        if body.Sesi == 0 {
-                body.Sesi = 1
+        if body.Sesi != 1 && body.Sesi != 2 {
+                http.Error(w, "Sesi harus 1 atau 2", http.StatusBadRequest)
+                return
         }
 
         if err := saveResult(body.Periode, body.Tanggal, body.Sesi, nomor); err != nil {
