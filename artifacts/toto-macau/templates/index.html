@@ -377,7 +377,7 @@ function renderPredictions(data) {
   const numbers = data[method] || [];
 
   const labels = {
-    gabungan: { name: 'GABUNGAN 5D',       desc: 'Paito + AI + Kop·Kep + Rumus + Shio + AS/Ekor — 10 nomor terkuat', badge: '5D' },
+    gabungan: { name: 'GABUNGAN 5D',       desc: 'Paito + AI + Kop·Kep + Rumus + Shio + AS/Ekor — 10 nomor terkuat<br><span style="font-size:0.62rem;opacity:0.8"><span style="color:var(--accent)">★ emas</span> = 3+ metode setuju &nbsp;·&nbsp; <span style="color:#64b4ff">◆ biru</span> = 2 metode setuju</span>', badge: '5D' },
     paito:    { name: 'PAITO 5D',           desc: 'Pola warna M/H per posisi + streak detection', badge: '5D' },
     shio:     { name: 'SHIO 5D',            desc: 'Siklus 12 zodiak Tionghoa — due score + frekuensi', badge: '5D' },
     ai:       { name: 'AI 5D',              desc: 'Frekuensi + gap + tren + transisi + pair analysis', badge: '5D' },
@@ -393,6 +393,18 @@ function renderPredictions(data) {
   const info = labels[method] || { name: method.toUpperCase(), desc: '' };
   const isSubDigit = ['4d','3d','2d'].includes(method);
   const isSpecial  = method === 'sesicorr';
+  const isGabungan = method === 'gabungan';
+
+  // Hitung berapa metode menghasilkan tiap nomor (untuk highlight di Gabungan)
+  const confirmCount = {};
+  if (isGabungan) {
+    const methodKeys = ['paito','ai','shio','ekoras','kopkep','math','sesicorr'];
+    for (const mk of methodKeys) {
+      for (const item of (data[mk] || [])) {
+        confirmCount[item.nomor] = (confirmCount[item.nomor] || 0) + 1;
+      }
+    }
+  }
 
   if (!numbers.length) {
     const msg = isSubDigit
@@ -428,12 +440,24 @@ function renderPredictions(data) {
 
   numbers.forEach((item, i) => {
     const wHtml = (item.warna||'').split('').map(c=>`<span class="w-${c.toLowerCase()}">${c}</span>`).join('');
+    const cnt = isGabungan ? (confirmCount[item.nomor] || 0) : 0;
+    // Level: 3+ metode = KUAT (emas), 2 metode = BAGUS (biru muda), 1 = biasa
+    let cardExtra = '';
+    let confirmBadge = '';
+    if (cnt >= 3) {
+      cardExtra = 'style="border-color:var(--accent);box-shadow:0 0 8px rgba(240,165,0,0.3)"';
+      confirmBadge = `<span style="font-size:0.6rem;font-weight:700;padding:1px 5px;border-radius:8px;background:rgba(240,165,0,0.25);color:var(--accent);border:1px solid rgba(240,165,0,0.5)">★ ${cnt} metode</span>`;
+    } else if (cnt === 2) {
+      cardExtra = 'style="border-color:rgba(100,180,255,0.5)"';
+      confirmBadge = `<span style="font-size:0.6rem;font-weight:700;padding:1px 5px;border-radius:8px;background:rgba(100,180,255,0.1);color:#64b4ff;border:1px solid rgba(100,180,255,0.3)">◆ 2 metode</span>`;
+    }
     html += `
-    <div class="num-item" onclick="copyNum('${item.nomor}', this)">
+    <div class="num-item" ${cardExtra} onclick="copyNum('${item.nomor}', this)">
       <span class="num-rank">#${i+1}</span>
       <span class="num-value">${item.nomor}</span>
       <div class="num-right">
         <div class="num-shio">${item.shio||''}</div>
+        ${confirmBadge}
         <div class="num-warna">${wHtml}</div>
         <span style="font-size:0.7rem;color:var(--muted)">📋</span>
       </div>
