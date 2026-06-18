@@ -1152,7 +1152,7 @@ function renderBBCamp(data, bt, rek) {
           <span>${r4}% <span style="color:var(--muted)">(baseline: ${b4}%)</span></span>
         </div>
         <div class="wr-bar">
-          <div class="wr-bar-fill" style="width:${Math.min(bt.rate_4d||0,100)*5}%;background:rgba(240,165,0,0.6)"></div>
+          <div class="wr-bar-fill" style="width:${Math.min(bt.rate_4d||0,100)}%;background:rgba(240,165,0,0.6)"></div>
         </div>
       </div>
       <div class="wr-note" style="margin-top:8px">
@@ -1164,6 +1164,11 @@ function renderBBCamp(data, bt, rek) {
   } else if (bt && bt.note) {
     btHtml = `<div class="wr-card" style="margin-bottom:10px"><div style="font-size:0.8rem;color:var(--muted);text-align:center;padding:8px">⚠️ ${bt.note}</div></div>`;
   }
+
+  // Simpan data copy di global var untuk hindari masalah quote di onclick
+  window._bb4D = top4D.map(x=>x.nomor).join('\n');
+  window._bb3D = top3D.map(x=>x.nomor).join('\n');
+  window._bb2D = all2D.map(x=>x.nomor).join('\n');
 
   // 4D grid
   const allNums4D = top4D.map(x=>x.nomor).join('\n');
@@ -1300,7 +1305,7 @@ function renderBBCamp(data, bt, rek) {
         <span class="bb-section-label">4D Terbaik</span>
         <span class="bb-section-meta"> — Top ${top4D.length} dari ${data.total_4d} kombinasi</span>
       </div>
-      <button onclick="event.stopPropagation();copyAll(${JSON.stringify(allNums4D)});showToast('4D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
+      <button onclick="event.stopPropagation();copyAll(window._bb4D);showToast('4D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
     </div>
     <div id="bb4d">
       <div class="bb-grid-4d">${grid4D}</div>
@@ -1313,7 +1318,7 @@ function renderBBCamp(data, bt, rek) {
         <span class="bb-section-label">3D Terbaik</span>
         <span class="bb-section-meta"> — Top ${top3D.length} dari ${data.total_3d} kombinasi</span>
       </div>
-      <button onclick="event.stopPropagation();copyAll(${JSON.stringify(allNums3D)});showToast('3D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
+      <button onclick="event.stopPropagation();copyAll(window._bb3D);showToast('3D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
     </div>
     <div id="bb3d">
       <div class="bb-grid-3d">${grid3D}</div>
@@ -1326,7 +1331,7 @@ function renderBBCamp(data, bt, rek) {
         <span class="bb-section-label">2D Semua</span>
         <span class="bb-section-meta"> — ${all2D.length} ekor dari set BB</span>
       </div>
-      <button onclick="event.stopPropagation();copyAll(${JSON.stringify(allNums2D)});showToast('2D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
+      <button onclick="event.stopPropagation();copyAll(window._bb2D);showToast('2D disalin!')" style="background:rgba(240,165,0,0.1);border:1px solid var(--border);color:var(--accent);padding:3px 9px;border-radius:10px;font-size:0.65rem;cursor:pointer">📋 Copy</button>
     </div>
     <div id="bb2d">
       <div class="bb-grid-2d">${grid2D}</div>
