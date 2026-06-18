@@ -6,7 +6,7 @@ Sistem prediksi otomatis Toto Macau 5D dengan 3 metode prediksi (Paito, Shio, AI
 
 - `cd artifacts/toto-macau && go run .` — jalankan server Go (port dari PORT env var)
 - Required env: `PORT` — port yang digunakan server (default 8080)
-- Database: `artifacts/toto-macau/toto.db` — SQLite, auto-created saat pertama jalan
+- Database: Replit PostgreSQL — koneksi via `DATABASE_URL` env var (auto-provisioned)
 
 ## Stack
 
