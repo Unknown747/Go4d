@@ -141,7 +141,7 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
         confirmCount := map[string]int{}
         firstSeen := map[string]int{}
         prioCounter := 0
-        priorityKeys := []string{"paito", "ai", "kopkep", "math", "shio", "ekoras"}
+        priorityKeys := []string{"paito", "ai", "math", "shio", "ekoras"}
         for _, key := range priorityKeys {
                 for _, n := range methodNums[key] {
                         confirmCount[n]++
@@ -418,14 +418,12 @@ func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
         shioNums := predictShio(history)
         ai := predictAI(history)
         ekorAS := predictEkorAS(history)
-        kopKep := predictKopKepala(history)
         mathNums := predictMath(history)
 
         savePredictions(tanggal, sesi, "PAITO", paito)
         savePredictions(tanggal, sesi, "SHIO", shioNums)
         savePredictions(tanggal, sesi, "AI", ai)
         savePredictions(tanggal, sesi, "EKORAS", ekorAS)
-        savePredictions(tanggal, sesi, "KOPKEP", kopKep)
         savePredictions(tanggal, sesi, "MATH", mathNums)
 
         gabungan := predictGabungan(history)

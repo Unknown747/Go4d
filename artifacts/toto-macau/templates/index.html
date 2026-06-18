@@ -247,9 +247,8 @@
       <button class="method-tab active" onclick="showMethod('gabungan')">Gabungan</button>
       <button class="method-tab" onclick="showMethod('paito')">Paito</button>
       <button class="method-tab" onclick="showMethod('shio')">Shio</button>
-      <button class="method-tab" onclick="showMethod('ai')">AI</button>
+      <button class="method-tab" onclick="showMethod('ai')">Hot·Cold</button>
       <button class="method-tab" onclick="showMethod('ekoras')">AS/Ekor</button>
-      <button class="method-tab" onclick="showMethod('kopkep')">Kop·Kep</button>
       <button class="method-tab" onclick="showMethod('math')">Rumus</button>
     </div>
     <div class="method-tabs" style="margin-top:-4px">
@@ -458,12 +457,11 @@ function renderPredictions(data) {
   const isGabungan = method === 'gabungan';
 
   const labels = {
-    gabungan: { name: 'GABUNGAN 4D', desc: 'Max 20 nomor terbaik — diranking dari jumlah metode yang mengkonfirmasi', badge: '≤20' },
-    paito:    { name: 'PAITO 4D',    desc: 'Pola warna M/H per posisi + streak detection', badge: '4D' },
-    shio:     { name: 'SHIO 4D',     desc: 'Siklus 12 zodiak — shio due score + frekuensi', badge: '4D' },
-    ai:       { name: 'AI 4D',       desc: 'Frekuensi + gap + tren + transisi + pair analysis', badge: '4D' },
-    ekoras:   { name: 'AS / EKOR 4D',desc: 'Fokus digit pertama (AS) & terakhir (Ekor) — hot+cold blend', badge: '4D' },
-    kopkep:   { name: 'KOP · KPL 4D',desc: 'Fokus posisi tengah (pos 2 & 3) — frekuensi + gap due', badge: '4D' },
+    gabungan: { name: 'GABUNGAN 4D', desc: 'Spread coverage — konfirmasi ≥2 metode + keragaman 2D ekor maksimal', badge: '≤20' },
+    paito:    { name: 'PAITO 4D',    desc: 'Digit overdue per posisi — cari angka yang paling lama tidak muncul', badge: '4D' },
+    shio:     { name: 'SHIO 4D',     desc: 'Siklus 12 zodiak — shio due score + boost shio sangat jarang (15+ draw)', badge: '4D' },
+    ai:       { name: 'HOT · COLD 4D', desc: 'Blend: 2 digit paling sering (Hot) + 1 digit paling lama tidak muncul (Cold)', badge: '4D' },
+    ekoras:   { name: 'AS / EKOR 4D',desc: 'Fokus digit AS & Ekor — hot+cold blend + boost ekor 2D yang overdue', badge: '4D' },
     math:     { name: 'RUMUS 4D',    desc: 'Cermin · Jumlah digit · Delta ±1/5 · Cross AS↔Ekor', badge: '4D' },
     '3d':     { name: 'PECAHAN 3D',  desc: '3 digit terakhir dari setiap prediksi 4D — tanpa duplikat', badge: '3D' },
     '2d':     { name: 'PECAHAN 2D',  desc: '2 digit terakhir (Ekor) dari setiap prediksi 4D — tanpa duplikat', badge: '2D' },
@@ -477,10 +475,9 @@ function renderPredictions(data) {
   if (isGabungan) {
     const methodMeta = [
       { key:'paito',  label:'P',  color:'#4fc3f7', bg:'rgba(79,195,247,0.15)'  },
-      { key:'ai',     label:'AI', color:'#ce93d8', bg:'rgba(206,147,216,0.15)' },
+      { key:'ai',     label:'HC', color:'#ce93d8', bg:'rgba(206,147,216,0.15)' },
       { key:'shio',   label:'S',  color:'#81c784', bg:'rgba(129,199,132,0.15)' },
       { key:'ekoras', label:'E',  color:'#ffb74d', bg:'rgba(255,183,77,0.15)'  },
-      { key:'kopkep', label:'K',  color:'#4dd0e1', bg:'rgba(77,208,225,0.15)'  },
       { key:'math',   label:'R',  color:'#f0a500', bg:'rgba(240,165,0,0.15)'   },
     ];
     for (const mm of methodMeta) {
