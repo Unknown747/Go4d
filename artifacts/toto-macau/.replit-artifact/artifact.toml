@@ -1,21 +1,22 @@
 kind = "web"
-previewPath = "/"
-title = "Prediksi Toto Macau 5D"
-version = "1.0.0"
-id = "artifacts/toto-macau"
-router = "path"
+  previewPath = "/"
+  title = "Prediksi Toto Macau 5D"
+  version = "1.0.0"
+  id = "artifacts/toto-macau"
+  router = "path"
 
-[[integratedSkills]]
-name = "react-vite"
-version = "1.0.0"
+  [[integratedSkills]]
+  name = "react-vite"
+  version = "1.0.0"
 
-[[services]]
-name = "web"
-paths = ["/"]
-localPort = 23007
+  [[services]]
+  name = "web"
+  paths = ["/"]
+  localPort = 5000
 
-[services.development]
-run = "cd /home/runner/workspace/artifacts/toto-macau && go run ."
+  [services.development]
+  run = "cd /home/runner/workspace/artifacts/toto-macau && PORT=5000 go run ."
 
-[services.env]
-PORT = "23007"
+  [services.env]
+  PORT = "5000"
+  
