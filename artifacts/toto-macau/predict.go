@@ -135,62 +135,176 @@ func diversifyPredictions(nums []string, limit int) []string {
 }
 
 // ============================================================
-// Method 1: PAITO — frekuensi jangka menengah (30 sesi) per posisi
-// Tidak terlalu "hot-biased": gunakan window panjang, 6 kandidat
-// per posisi agar lebih tersebar, lalu diversify ekor.
+// Method 1: PAITO — Multi-Lag Transition + Delta Pattern
+//
+// Berbeda dari Matrix (lag-1 per posisi independen), Paito baru:
+//   A) Multi-lag transition: lag-1, lag-2, lag-3 dengan bobot
+//      berbeda → menangkap pola siklus 2-3 sesi
+//   B) Digit delta pattern: hitung pergeseran digit seluruh nomor
+//      antar sesi → menangkap korelasi implisit antar posisi
+//   C) Gap/overdue sebagai fallback jika transisi sparse
 // ============================================================
 func predictPaito(history []Result) []string {
         if len(history) == 0 {
                 return generateRandom(4, 0)
         }
 
-        n := len(history)
-        if n > 60 {
-                n = 60
+        wSize := len(history)
+        if wSize > 80 {
+                wSize = 80
         }
-        recent := history[:n]
+        recent := history[:wSize]
 
-        candidateDigits := [4][]int{}
-        for pos := 0; pos < 4; pos++ {
-                // Frekuensi dengan decay sangat lemah → semua sesi hampir sama bobotnya
-                freq := [10]float64{}
-                for k, r := range recent {
-                        d := parse4D(r.Nomor)
-                        w := math.Exp(-float64(k) * 0.03) // decay sangat lemah
-                        freq[d[pos]] += w
-                }
+        // ── A. Multi-lag transition per posisi ───────────────────
+        // transLag[lag][pos][fromDigit][toDigit]
+        // lag=0 → 1 langkah (t-1→t), lag=1 → 2 langkah (t-2→t), lag=2 → 3 langkah (t-3→t)
+        lagWeights := [3]float64{1.0, 0.6, 0.3}
+        var transLag [3][4][10][10]float64
 
-                // Gap: berapa lama digit tidak muncul di posisi ini
-                lastSeen := [10]int{}
-                for i := range lastSeen {
-                        lastSeen[i] = n + 1
-                }
-                for k, r := range recent {
-                        d := parse4D(r.Nomor)
-                        if lastSeen[d[pos]] == n+1 {
-                                lastSeen[d[pos]] = k
+        for lag := 0; lag < 3; lag++ {
+                for i := 0; i+lag+1 < len(recent); i++ {
+                        curr := parse4D(recent[i].Nomor)          // lebih baru
+                        prev := parse4D(recent[i+lag+1].Nomor)    // lebih lama (lag+1 sesi sebelum curr)
+                        recency := math.Exp(-float64(i) * 0.04)   // bobot recency
+                        for pos := 0; pos < 4; pos++ {
+                                transLag[lag][pos][prev[pos]][curr[pos]] += recency
                         }
                 }
+        }
 
-                // Skor kombinasi: frekuensi 60% + overdue 40%
+        // Skor per digit per posisi dari multi-lag
+        // "from" untuk prediksi berikutnya: recent[lag] (lag sesi sebelum "next")
+        candidateDigits := [4][]int{}
+        for pos := 0; pos < 4; pos++ {
                 type ds struct {
                         d     int
                         score float64
                 }
                 var ranked []ds
                 for d := 0; d < 10; d++ {
-                        gapScore := float64(lastSeen[d]) / float64(n+1)
-                        score := freq[d]*0.6 + gapScore*0.4*5.0
+                        score := 0.0
+                        for lag := 0; lag < 3; lag++ {
+                                if lag >= len(recent) {
+                                        break
+                                }
+                                fromDigit := parse4D(recent[lag].Nomor)[pos]
+                                total := 0.0
+                                for dd := 0; dd < 10; dd++ {
+                                        total += transLag[lag][pos][fromDigit][dd]
+                                }
+                                if total > 0 {
+                                        score += lagWeights[lag] * transLag[lag][pos][fromDigit][d] / total
+                                }
+                        }
                         ranked = append(ranked, ds{d, score})
                 }
                 sort.Slice(ranked, func(i, j int) bool { return ranked[i].score > ranked[j].score })
-                // 6 kandidat per posisi → lebih tersebar
-                for i := 0; i < 6 && i < len(ranked); i++ {
+
+                // Ambil top-5 dari multi-lag
+                for i := 0; i < 5 && i < len(ranked); i++ {
                         candidateDigits[pos] = append(candidateDigits[pos], ranked[i].d)
                 }
+
+                // Fallback gap/overdue: tambahkan 2 digit paling overdue jika belum masuk
+                lastSeen := [10]int{}
+                for i := range lastSeen {
+                        lastSeen[i] = wSize + 1
+                }
+                for k, r := range recent {
+                        dp := parse4D(r.Nomor)
+                        if lastSeen[dp[pos]] == wSize+1 {
+                                lastSeen[dp[pos]] = k
+                        }
+                }
+                type gs struct{ d, gap int }
+                var gapped []gs
+                for d := 0; d < 10; d++ {
+                        gapped = append(gapped, gs{d, lastSeen[d]})
+                }
+                sort.Slice(gapped, func(i, j int) bool { return gapped[i].gap > gapped[j].gap })
+                added := 0
+                for _, g := range gapped {
+                        if added >= 2 {
+                                break
+                        }
+                        alreadyIn := false
+                        for _, cd := range candidateDigits[pos] {
+                                if cd == g.d {
+                                        alreadyIn = true
+                                        break
+                                }
+                        }
+                        if !alreadyIn {
+                                candidateDigits[pos] = append(candidateDigits[pos], g.d)
+                                added++
+                        }
+                }
         }
-        pool := combinePositions4D(candidateDigits, 50)
-        return diversifyPredictions(pool, 5)
+
+        multiLagPool := combinePositions4D(candidateDigits, 40)
+
+        // ── B. Digit delta pattern antar sesi ────────────────────
+        // delta[pos] = (curr[pos] - prev[pos] + 10) % 10
+        // Cari pola delta yang paling sering muncul, terapkan ke hasil terbaru
+        type deltaKey [4]int
+        deltaFreq := map[deltaKey]float64{}
+
+        for i := 0; i+1 < len(recent); i++ {
+                curr := parse4D(recent[i].Nomor)
+                prev := parse4D(recent[i+1].Nomor)
+                var dk deltaKey
+                for pos := 0; pos < 4; pos++ {
+                        dk[pos] = (curr[pos] - prev[pos] + 10) % 10
+                }
+                // Bobot recency: pola delta terbaru lebih dipercaya
+                deltaFreq[dk] += math.Exp(-float64(i) * 0.05)
+        }
+
+        type dfEntry struct {
+                key  deltaKey
+                freq float64
+        }
+        var deltaList []dfEntry
+        for k, f := range deltaFreq {
+                deltaList = append(deltaList, dfEntry{k, f})
+        }
+        sort.Slice(deltaList, func(i, j int) bool { return deltaList[i].freq > deltaList[j].freq })
+
+        // Terapkan top delta ke hasil terbaru (recent[0])
+        last := parse4D(recent[0].Nomor)
+        var deltaPool []string
+        seenDelta := map[string]bool{}
+        for _, entry := range deltaList {
+                if len(deltaPool) >= 15 {
+                        break
+                }
+                var digits [4]int
+                for pos := 0; pos < 4; pos++ {
+                        digits[pos] = (last[pos] + entry.key[pos]) % 10
+                }
+                s := fmt.Sprintf("%d%d%d%d", digits[0], digits[1], digits[2], digits[3])
+                if !seenDelta[s] {
+                        seenDelta[s] = true
+                        deltaPool = append(deltaPool, s)
+                }
+        }
+
+        // ── Gabungkan kedua pool → diversify → 5 nomor ───────────
+        combined := append(multiLagPool, deltaPool...)
+        seenAll := map[string]bool{}
+        var unique []string
+        for _, num := range combined {
+                p := num
+                for len(p) < 4 {
+                        p = "0" + p
+                }
+                if !seenAll[p] {
+                        seenAll[p] = true
+                        unique = append(unique, p)
+                }
+        }
+
+        return diversifyPredictions(unique, 5)
 }
 
 // ============================================================

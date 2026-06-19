@@ -708,7 +708,7 @@ function renderPredictions(data) {
     },
     paito: {
       name: 'PAITO 4D',
-      desc: 'Frekuensi digit per posisi (window 60 sesi, decay lemah) blend 60% frekuensi + 40% overdue — 6 kandidat per posisi',
+      desc: 'Multi-lag transition (lag-1+2+3, bobot 1.0/0.6/0.3) + Delta Pattern antar sesi — menangkap pola siklus 2-3 sesi & korelasi implisit antar posisi',
       badge: '5 nomor',
       perf: { text: '3.1% hit 2D · 38% Shio', color: 'var(--accent)' }
     },
