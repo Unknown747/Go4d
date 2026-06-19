@@ -420,16 +420,28 @@ func handleBacktest(w http.ResponseWriter, r *http.Request) {
 
 // GET /bbfs — always uses 6 digits
 func handleBBFS(w http.ResponseWriter, r *http.Request) {
+        size := 6
+        if s := r.URL.Query().Get("size"); s != "" {
+                if n, err := strconv.Atoi(s); err == nil && n >= 4 && n <= 7 {
+                        size = n
+                }
+        }
         history := getRecentResults(100)
-        result := predictBBFS(history, 6)
+        result := predictBBFS(history, size)
         jsonResponse(w, result)
 }
 
 // GET /rekomendasi — irisan BB digit + semua prediksi metode
 // Menghasilkan nomor yang dikonfirmasi DUA sumber: algoritma + BB digit set
 func handleRekomendasi(w http.ResponseWriter, r *http.Request) {
+        size := 6
+        if s := r.URL.Query().Get("size"); s != "" {
+                if n, err := strconv.Atoi(s); err == nil && n >= 4 && n <= 7 {
+                        size = n
+                }
+        }
         history := getRecentResults(100)
-        bbResult := predictBBFS(history, 6)
+        bbResult := predictBBFS(history, size)
         bbSet := map[int]bool{}
         for _, d := range bbResult.BBDigits {
                 bbSet[d] = true

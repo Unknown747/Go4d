@@ -477,6 +477,21 @@
 
   <!-- BB CAMPURAN TAB -->
   <div class="section" id="tab-bbcamp">
+    <div style="padding:10px 12px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:0.72rem;color:var(--muted);font-weight:600">Jumlah Digit BB:</span>
+      <div style="display:flex;gap:4px">
+        <button id="bb-sz-4" onclick="setBBSize(4)" class="bb-sz-btn" style="padding:4px 12px;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted)">4</button>
+        <button id="bb-sz-5" onclick="setBBSize(5)" class="bb-sz-btn" style="padding:4px 12px;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted)">5</button>
+        <button id="bb-sz-6" onclick="setBBSize(6)" class="bb-sz-btn active-sz" style="padding:4px 12px;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;border:1px solid rgba(0,200,83,0.5);background:rgba(0,200,83,0.12);color:#00c853">6</button>
+      </div>
+      <div id="bbCostRow" style="margin-left:auto;display:flex;align-items:center;gap:6px">
+        <span style="font-size:0.68rem;color:var(--muted)">Harga/nomor Rp</span>
+        <input id="bbPrice" type="number" value="1000" min="100" step="500"
+          onchange="updateBBCost()"
+          style="width:72px;padding:3px 6px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:0.72rem;text-align:right">
+      </div>
+    </div>
+    <div id="bbCostBar" style="padding:6px 12px 0"></div>
     <div id="bbcampContent">
       <div class="loading"><div class="spinner"></div>Memuat BB Campuran...</div>
     </div>
@@ -1322,13 +1337,68 @@ function renderWinRate(wr, bt) {
 
 // ─── BB CAMPURAN ────────────────────────────────────────────
 
+let bbSize = 6;
+let _bbTotalData = null;
+
+function setBBSize(n) {
+  bbSize = n;
+  document.querySelectorAll('.bb-sz-btn').forEach(b => {
+    const isActive = b.id === `bb-sz-${n}`;
+    b.style.border = isActive ? '1px solid rgba(0,200,83,0.5)' : '1px solid var(--border)';
+    b.style.background = isActive ? 'rgba(0,200,83,0.12)' : 'var(--card)';
+    b.style.color = isActive ? '#00c853' : 'var(--muted)';
+  });
+  loadBBCamp();
+}
+
+function updateBBCost() {
+  if (_bbTotalData) renderBBCostBar(_bbTotalData);
+}
+
+function renderBBCostBar(data) {
+  _bbTotalData = data;
+  const box = document.getElementById('bbCostBar');
+  if (!box) return;
+  const price = parseInt(document.getElementById('bbPrice').value) || 1000;
+  const t4 = data.total_4d || 0;
+  const t3 = data.total_3d || 0;
+  const t2 = data.total_2d || 0;
+  const fmt = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const costColor = t4 <= 24 ? '#00c853' : t4 <= 120 ? '#f0a500' : '#e94560';
+  box.innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div style="flex:1;min-width:100px;background:rgba(${t4<=24?'0,200,83':t4<=120?'240,165,0':'233,69,96'},0.1);border:1px solid rgba(${t4<=24?'0,200,83':t4<=120?'240,165,0':'233,69,96'},0.3);border-radius:8px;padding:7px 10px">
+        <div style="font-size:0.6rem;color:var(--muted)">4D — ${t4} nomor</div>
+        <div style="font-size:0.9rem;font-weight:800;color:${costColor}">Rp ${fmt(t4*price)}</div>
+        <div style="font-size:0.58rem;color:var(--muted)">@ Rp ${fmt(price)}/nomor</div>
+      </div>
+      <div style="flex:1;min-width:100px;background:rgba(0,100,255,0.07);border:1px solid rgba(100,149,237,0.25);border-radius:8px;padding:7px 10px">
+        <div style="font-size:0.6rem;color:var(--muted)">3D — ${t3} nomor</div>
+        <div style="font-size:0.9rem;font-weight:800;color:#6495ed">Rp ${fmt(t3*price)}</div>
+        <div style="font-size:0.58rem;color:var(--muted)">@ Rp ${fmt(price)}/nomor</div>
+      </div>
+      <div style="flex:1;min-width:100px;background:rgba(240,165,0,0.07);border:1px solid rgba(240,165,0,0.25);border-radius:8px;padding:7px 10px">
+        <div style="font-size:0.6rem;color:var(--muted)">2D — ${t2} nomor</div>
+        <div style="font-size:0.9rem;font-weight:800;color:var(--accent)">Rp ${fmt(t2*price)}</div>
+        <div style="font-size:0.58rem;color:var(--muted)">@ Rp ${fmt(price)}/nomor</div>
+      </div>
+    </div>`;
+}
+
 async function loadBBCamp() {
   document.getElementById('bbcampContent').innerHTML = '<div class="loading"><div class="spinner"></div>Menganalisis digit...</div>';
+  document.getElementById('bbCostBar').innerHTML = '';
   try {
-    const [bbRes, btRes, rekRes] = await Promise.all([fetch('/bbfs'), fetch('/bbbacktest'), fetch('/rekomendasi')]);
+    const sz = bbSize;
+    const [bbRes, btRes, rekRes] = await Promise.all([
+      fetch(`/bbfs?size=${sz}`),
+      fetch('/bbbacktest'),
+      fetch(`/rekomendasi?size=${sz}`)
+    ]);
     const data = await bbRes.json();
     const bt = await btRes.json();
     const rek = await rekRes.json();
+    renderBBCostBar(data);
     renderBBCamp(data, bt, rek);
   } catch(e) {
     document.getElementById('bbcampContent').innerHTML = '<div class="loading">Gagal memuat BB Campuran</div>';
@@ -1547,10 +1617,13 @@ function renderBBCamp(data, bt, rek) {
     </div>`;
   }
 
+  const n = data.n_digits || bbDigits.length || 6;
+  const perms4D = [0,0,0,0,24,120,360,840][n] || data.total_4d;
+  const tipModal = n <= 4 ? '🟢 Modal kecil' : n === 5 ? '🟡 Modal sedang' : '🔴 Modal besar';
   const html = `
   <div class="bb-header-card">
-    <div class="bb-title">🔢 BB CAMPURAN — 6 Digit</div>
-    <div class="bb-desc">Digit terbaik dari semua metode → 360 kombinasi BBFS 4D → saring yang paling layak.<br>
+    <div class="bb-title">🔢 BB CAMPURAN — ${n} Digit &nbsp;<span style="font-size:0.65rem;font-weight:400;color:var(--muted)">${tipModal}</span></div>
+    <div class="bb-desc">Digit terbaik dari semua metode → <strong>${data.total_4d}</strong> kombinasi BBFS 4D → saring yang paling layak.<br>
       ⭐ = dikonfirmasi langsung oleh prediksi metode &nbsp;|&nbsp; 🔥 = digit dominan</div>
     <div class="bb-set-row">${digitSetHtml}</div>
     <div style="font-size:0.65rem;color:var(--muted)">${totalInfo}</div>
