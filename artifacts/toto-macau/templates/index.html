@@ -1109,15 +1109,38 @@ function renderWinRate(wr, bt) {
 
   let btHtml = '';
   if (bt && bt.methods && bt.methods.length) {
+    // Cari rate Paito baru vs lama untuk badge perbandingan
+    const paitoNew = bt.methods.find(m => m.method === 'PAITO');
+    const paitoOld = bt.methods.find(m => m.method === 'PAITO_LAMA');
+    const paitoDiff = (paitoNew && paitoOld) ? (paitoNew.rate_2d - paitoOld.rate_2d) : null;
+
     const rows = bt.methods.map(m => {
       const r2b = m.rate_2d.toFixed(1);
       const r3b = m.rate_3d.toFixed(1);
       const r4b = m.rate_4d.toFixed(1);
       const isGab = m.method === 'GABUNGAN';
+      const isPaitoNew = m.method === 'PAITO';
+      const isPaitoOld = m.method === 'PAITO_LAMA';
       const c2 = m.rate_2d >= 30 ? 'var(--green)' : m.rate_2d >= 15 ? 'var(--accent)' : 'var(--muted)';
       const c3 = m.rate_3d >= 10 ? 'var(--green)' : m.rate_3d >= 5 ? 'var(--accent)' : 'var(--muted)';
-      return `<tr style="${isGab ? 'background:rgba(240,165,0,0.05)' : ''}">
-        <td style="font-size:0.76rem;font-weight:${isGab?'700':'400'};color:${isGab?'var(--accent)':'var(--text)'};padding:5px 4px">${m.label}</td>
+
+      let rowBg = '';
+      if (isGab) rowBg = 'background:rgba(240,165,0,0.05)';
+      else if (isPaitoNew) rowBg = 'background:rgba(0,200,83,0.05)';
+      else if (isPaitoOld) rowBg = 'background:rgba(255,255,255,0.02)';
+
+      let labelSuffix = '';
+      if (isPaitoNew && paitoDiff !== null) {
+        const sign = paitoDiff >= 0 ? '+' : '';
+        const col = paitoDiff >= 0 ? '#00c853' : '#e94560';
+        labelSuffix = ` <span style="font-size:0.55rem;font-weight:700;color:${col};background:${col}20;padding:1px 4px;border-radius:3px">${sign}${paitoDiff.toFixed(1)}%</span>`;
+      }
+      if (isPaitoOld) {
+        labelSuffix = ` <span style="font-size:0.55rem;color:var(--muted);font-style:italic">(lama)</span>`;
+      }
+
+      return `<tr style="${rowBg}">
+        <td style="font-size:0.72rem;font-weight:${isGab||isPaitoNew?'700':'400'};color:${isGab?'var(--accent)':isPaitoNew?'#00c853':isPaitoOld?'var(--muted)':'var(--text)'};padding:5px 4px">${m.label}${labelSuffix}</td>
         <td style="text-align:center;color:${c2};font-size:0.76rem;font-weight:${m.rate_2d>=15?'700':'400'}">${r2b}%</td>
         <td style="text-align:center;color:${c3};font-size:0.76rem">${r3b}%</td>
         <td style="text-align:center;color:var(--muted);font-size:0.74rem">${r4b}%</td>

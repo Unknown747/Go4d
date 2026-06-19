@@ -308,6 +308,56 @@ func predictPaito(history []Result) []string {
 }
 
 // ============================================================
+// PAITO LEGACY — algoritma lama (frekuensi + overdue per posisi independen)
+// Hanya digunakan untuk backtest perbandingan, bukan untuk prediksi aktif.
+// ============================================================
+func predictPaitoLegacy(history []Result) []string {
+        if len(history) == 0 {
+                return generateRandom(4, 0)
+        }
+        n := len(history)
+        if n > 60 {
+                n = 60
+        }
+        recent := history[:n]
+        candidateDigits := [4][]int{}
+        for pos := 0; pos < 4; pos++ {
+                freq := [10]float64{}
+                for k, r := range recent {
+                        d := parse4D(r.Nomor)
+                        w := math.Exp(-float64(k) * 0.03)
+                        freq[d[pos]] += w
+                }
+                lastSeen := [10]int{}
+                for i := range lastSeen {
+                        lastSeen[i] = n + 1
+                }
+                for k, r := range recent {
+                        d := parse4D(r.Nomor)
+                        if lastSeen[d[pos]] == n+1 {
+                                lastSeen[d[pos]] = k
+                        }
+                }
+                type ds struct {
+                        d     int
+                        score float64
+                }
+                var ranked []ds
+                for d := 0; d < 10; d++ {
+                        gapScore := float64(lastSeen[d]) / float64(n+1)
+                        score := freq[d]*0.6 + gapScore*0.4*5.0
+                        ranked = append(ranked, ds{d, score})
+                }
+                sort.Slice(ranked, func(i, j int) bool { return ranked[i].score > ranked[j].score })
+                for i := 0; i < 6 && i < len(ranked); i++ {
+                        candidateDigits[pos] = append(candidateDigits[pos], ranked[i].d)
+                }
+        }
+        pool := combinePositions4D(candidateDigits, 50)
+        return diversifyPredictions(pool, 5)
+}
+
+// ============================================================
 // Method 2: SHIO — pilih 3 shio overdue, pasang dengan 3 kandidat
 // digit AS dari frekuensi jangka menengah → 5 nomor beragam.
 // ============================================================
