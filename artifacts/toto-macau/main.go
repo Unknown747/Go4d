@@ -37,6 +37,7 @@ func main() {
         mux.HandleFunc("/bbbacktest", handleBBBacktest)
         mux.HandleFunc("/rekomendasi", handleRekomendasi)
         mux.HandleFunc("/regenerate", handleRegenerate)
+        mux.HandleFunc("/statistik", handleStatistik)
 
         log.Printf("Server Macau 4D berjalan di port %s", port)
         if err := http.ListenAndServe(":"+port, corsMiddleware(mux)); err != nil {
@@ -635,6 +636,196 @@ func handleRegenerate(w http.ResponseWriter, r *http.Request) {
                 "sesi":        sesi,
                 "message":     "Prediksi berhasil di-generate ulang",
                 "unique_ekor": ekorCheck,
+        })
+}
+
+func handleStatistik(w http.ResponseWriter, r *http.Request) {
+        all := getRecentResults(300)
+        if len(all) == 0 {
+                jsonResponse(w, map[string]interface{}{"total": 0})
+                return
+        }
+        total := len(all)
+        lastDate := all[0].Tanggal
+        firstDate := all[total-1].Tanggal
+
+        // Reverse ke oldest-first untuk urutan mingguan
+        for i, j := 0, total-1; i < j; i, j = i+1, j-1 {
+                all[i], all[j] = all[j], all[i]
+        }
+
+        var posFreq [4][10]int
+        var posMax [4]int
+        ekor2DFreq := map[string]int{}
+        var digitAll [10]int
+        type colorPos struct {
+                Merah int `json:"merah"`
+                Hitam int `json:"hitam"`
+        }
+        var colorPerPos [4]colorPos
+
+        for _, res := range all {
+                n := res.Nomor
+                for len(n) < 4 {
+                        n = "0" + n
+                }
+                for pos := 0; pos < 4; pos++ {
+                        d := int(n[pos] - '0')
+                        posFreq[pos][d]++
+                        if posFreq[pos][d] > posMax[pos] {
+                                posMax[pos] = posFreq[pos][d]
+                        }
+                        digitAll[d]++
+                        if d%2 == 1 {
+                                colorPerPos[pos].Merah++
+                        } else {
+                                colorPerPos[pos].Hitam++
+                        }
+                }
+                ekor2DFreq[n[2:]]++
+        }
+
+        type ekor2DItem struct {
+                Ekor  string `json:"ekor"`
+                Count int    `json:"count"`
+        }
+        var topEkor2D []ekor2DItem
+        for e, c := range ekor2DFreq {
+                topEkor2D = append(topEkor2D, ekor2DItem{e, c})
+        }
+        sort.Slice(topEkor2D, func(i, j int) bool {
+                if topEkor2D[i].Count != topEkor2D[j].Count {
+                        return topEkor2D[i].Count > topEkor2D[j].Count
+                }
+                return topEkor2D[i].Ekor < topEkor2D[j].Ekor
+        })
+        if len(topEkor2D) > 20 {
+                topEkor2D = topEkor2D[:20]
+        }
+
+        type digitItem struct {
+                Digit int     `json:"digit"`
+                Count int     `json:"count"`
+                Pct   float64 `json:"pct"`
+        }
+        allCount := total * 4
+        var digitAllItems []digitItem
+        for d := 0; d < 10; d++ {
+                pct := 0.0
+                if allCount > 0 {
+                        pct = float64(digitAll[d]) / float64(allCount) * 1000
+                        pct = float64(int(pct+0.5)) / 10.0
+                }
+                digitAllItems = append(digitAllItems, digitItem{d, digitAll[d], pct})
+        }
+
+        type weekItem struct {
+                Label   string   `json:"label"`
+                TopEkor []string `json:"top_ekor"`
+                Total   int      `json:"total"`
+        }
+        weekMap := map[string]map[string]int{}
+        weekTotals := map[string]int{}
+        weekOrder := []string{}
+        for _, res := range all {
+                parts := strings.Split(res.Tanggal, "-")
+                if len(parts) != 3 {
+                        continue
+                }
+                year, _ := strconv.Atoi(parts[0])
+                month, _ := strconv.Atoi(parts[1])
+                day, _ := strconv.Atoi(parts[2])
+                // Hitung ISO week sederhana
+                dayOfYear := 0
+                daysInMonth := []int{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+                if (year%4 == 0 && year%100 != 0) || year%400 == 0 {
+                        daysInMonth[2] = 29
+                }
+                for m := 1; m < month; m++ {
+                        dayOfYear += daysInMonth[m]
+                }
+                dayOfYear += day
+                week := (dayOfYear-1)/7 + 1
+                key := fmt.Sprintf("%d-W%02d", year, week)
+                label := fmt.Sprintf("W%02d/%d", week, year%100)
+                if _, ok := weekMap[key]; !ok {
+                        weekMap[key] = map[string]int{}
+                        weekOrder = append(weekOrder, key)
+                        weekMap[key+"_label"] = map[string]int{} // workaround: simpan label
+                        _ = label
+                }
+                n := res.Nomor
+                for len(n) < 4 {
+                        n = "0" + n
+                }
+                weekMap[key][n[2:]]++
+                weekTotals[key]++
+        }
+        // Buat label map terpisah
+        weekLabels := map[string]string{}
+        for _, res := range all {
+                parts := strings.Split(res.Tanggal, "-")
+                if len(parts) != 3 {
+                        continue
+                }
+                year, _ := strconv.Atoi(parts[0])
+                month, _ := strconv.Atoi(parts[1])
+                day, _ := strconv.Atoi(parts[2])
+                dayOfYear := 0
+                daysInMonth := []int{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+                if (year%4 == 0 && year%100 != 0) || year%400 == 0 {
+                        daysInMonth[2] = 29
+                }
+                for m := 1; m < month; m++ {
+                        dayOfYear += daysInMonth[m]
+                }
+                dayOfYear += day
+                week := (dayOfYear-1)/7 + 1
+                key := fmt.Sprintf("%d-W%02d", year, week)
+                months := []string{"Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"}
+                weekLabels[key] = fmt.Sprintf("%s W%d", months[month-1], ((day-1)/7)+1)
+        }
+        var weekly []weekItem
+        start := 0
+        if len(weekOrder) > 8 {
+                start = len(weekOrder) - 8
+        }
+        for _, key := range weekOrder[start:] {
+                ekorCount := weekMap[key]
+                type kv struct {
+                        k string
+                        v int
+                }
+                var kvs []kv
+                for k, v := range ekorCount {
+                        kvs = append(kvs, kv{k, v})
+                }
+                sort.Slice(kvs, func(i, j int) bool { return kvs[i].v > kvs[j].v })
+                var top []string
+                for i := 0; i < 5 && i < len(kvs); i++ {
+                        top = append(top, fmt.Sprintf("%s(%d)", kvs[i].k, kvs[i].v))
+                }
+                label := weekLabels[key]
+                weekly = append(weekly, weekItem{label, top, weekTotals[key]})
+        }
+
+        posFreqSlice := make([][]int, 4)
+        posMaxSlice := make([]int, 4)
+        for pos := 0; pos < 4; pos++ {
+                posFreqSlice[pos] = posFreq[pos][:]
+                posMaxSlice[pos] = posMax[pos]
+        }
+
+        jsonResponse(w, map[string]interface{}{
+                "total":      total,
+                "first_date": firstDate,
+                "last_date":  lastDate,
+                "pos_freq":   posFreqSlice,
+                "pos_max":    posMaxSlice,
+                "top_ekor2d": topEkor2D,
+                "digit_all":  digitAllItems,
+                "weekly":     weekly,
+                "color_pos":  colorPerPos,
         })
 }
 

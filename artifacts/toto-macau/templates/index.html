@@ -239,6 +239,55 @@
   .bb-item-2d:active { transform:scale(0.94); }
   .bb-item-2d.copied { border-color:var(--green); }
   .bb-item-2d.fire { border-color:var(--accent); background:rgba(240,165,0,0.1); }
+  /* Statistik */
+  .stat-section-title { font-size:0.82rem; font-weight:700; color:var(--accent); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+  .stat-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:13px; margin-bottom:12px; }
+  .stat-summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:4px; }
+  .stat-summary-item { background:rgba(255,255,255,0.04); border-radius:9px; padding:10px 8px; text-align:center; }
+  .stat-summary-val { font-size:1.3rem; font-weight:800; color:var(--accent); }
+  .stat-summary-lbl { font-size:0.6rem; color:var(--muted); margin-top:2px; }
+
+  /* Heatmap */
+  .heatmap-wrap { overflow-x:auto; }
+  .heatmap-table { width:100%; border-collapse:separate; border-spacing:3px; min-width:260px; }
+  .heatmap-table th { font-size:0.65rem; color:var(--muted); text-align:center; padding:3px 2px; font-weight:600; }
+  .heatmap-cell { width:25%; padding:6px 4px; border-radius:6px; text-align:center; font-size:0.72rem; font-weight:700; color:#fff; cursor:default; transition:transform 0.1s; }
+  .heatmap-cell:hover { transform:scale(1.08); }
+  .heatmap-digit-label { font-size:0.62rem; color:rgba(255,255,255,0.5); display:block; margin-top:1px; }
+
+  /* Ekor Bar Chart */
+  .ekor-bar-row { display:flex; align-items:center; gap:7px; margin-bottom:5px; }
+  .ekor-bar-label { font-size:0.72rem; font-weight:700; color:#fff; font-family:monospace; min-width:22px; text-align:right; }
+  .ekor-bar-track { flex:1; height:18px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; }
+  .ekor-bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; padding-left:6px; font-size:0.62rem; font-weight:700; color:#000; transition:width 0.5s ease; }
+  .ekor-bar-count { font-size:0.65rem; color:var(--muted); min-width:18px; }
+
+  /* Digit All Chart */
+  .digit-chart { display:grid; grid-template-columns:repeat(10,1fr); gap:4px; margin-top:8px; }
+  .digit-col { display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .digit-bar-outer { width:100%; height:60px; display:flex; align-items:flex-end; }
+  .digit-bar-inner { width:100%; border-radius:4px 4px 0 0; transition:height 0.5s ease; min-height:3px; }
+  .digit-col-label { font-size:0.62rem; color:var(--muted); }
+  .digit-col-pct { font-size:0.58rem; color:var(--accent); font-weight:700; }
+
+  /* Color per pos */
+  .color-pos-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .color-pos-card { background:rgba(255,255,255,0.04); border-radius:8px; padding:8px 5px; text-align:center; }
+  .color-pos-name { font-size:0.62rem; color:var(--accent); font-weight:700; margin-bottom:5px; }
+  .color-pos-bar { height:8px; border-radius:4px; background:rgba(255,255,255,0.07); overflow:hidden; margin-bottom:3px; position:relative; }
+  .color-pos-merah { height:100%; background:#e94560; border-radius:4px 0 0 4px; float:left; }
+  .color-pos-hitam { height:100%; background:#555; border-radius:0 4px 4px 0; float:right; }
+  .color-pos-pct { font-size:0.58rem; display:flex; justify-content:space-between; }
+
+  /* Weekly trend */
+  .weekly-table { width:100%; border-collapse:collapse; }
+  .weekly-table th { font-size:0.62rem; color:var(--muted); padding:4px 6px; text-align:left; border-bottom:1px solid var(--border); }
+  .weekly-table td { font-size:0.68rem; padding:6px 6px; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:top; }
+  .weekly-table tr:last-child td { border-bottom:none; }
+  .weekly-week { color:var(--accent); font-weight:700; white-space:nowrap; }
+  .weekly-top { display:flex; flex-wrap:wrap; gap:3px; }
+  .weekly-ekor-pill { background:rgba(240,165,0,0.12); border:1px solid rgba(240,165,0,0.3); border-radius:4px; padding:1px 6px; font-size:0.62rem; color:var(--accent); font-family:monospace; font-weight:700; }
+
   /* Rekomendasi Final */
   .rek-card { background:linear-gradient(135deg,rgba(0,200,83,0.08),rgba(240,165,0,0.06)); border:1.5px solid var(--green); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
   .rek-header { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:8px; }
@@ -284,6 +333,7 @@
   <div class="tab" onclick="switchTab('paito')">Paito</div>
   <div class="tab" onclick="switchTab('winrate')">Akurasi</div>
   <div class="tab" onclick="switchTab('bbcamp')">BB Camp.</div>
+  <div class="tab" onclick="switchTab('statistik')">Statistik</div>
 </div>
 
 <div class="content">
@@ -419,6 +469,13 @@
     </div>
   </div>
 
+  <!-- STATISTIK TAB -->
+  <div class="section" id="tab-statistik">
+    <div id="statistikContent">
+      <div class="loading"><div class="spinner"></div>Memuat statistik...</div>
+    </div>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -441,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function switchTab(name) {
   currentTab = name;
-  const tabNames = ['prediksi','input','import','history','paito','winrate','bbcamp'];
+  const tabNames = ['prediksi','input','import','history','paito','winrate','bbcamp','statistik'];
   document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', tabNames[i] === name));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
@@ -450,6 +507,7 @@ function switchTab(name) {
   if (name === 'winrate') loadWinRate();
   if (name === 'input') loadStatusForInput();
   if (name === 'bbcamp') loadBBCamp();
+  if (name === 'statistik') loadStatistik();
 }
 
 function showMethod(method) {
@@ -1354,6 +1412,189 @@ function bbCopy(num, el) {
   el.classList.add('copied');
   setTimeout(() => el.classList.remove('copied'), 1500);
   showToast(num + ' disalin!');
+}
+
+// ===== STATISTIK =====
+async function loadStatistik() {
+  const el = document.getElementById('statistikContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Memuat statistik...</div>';
+  try {
+    const res = await fetch('/statistik');
+    const data = await res.json();
+    if (!data.total) { el.innerHTML = '<div class="loading">Belum ada data hasil.</div>'; return; }
+    renderStatistik(data);
+  } catch(e) {
+    el.innerHTML = '<div class="loading">Gagal memuat statistik.</div>';
+  }
+}
+
+function renderStatistik(d) {
+  const posNames = ['AS','KOP','KEP','EKOR'];
+  const posColors = ['#f0a500','#6488ea','#00c853','#e94560'];
+
+  // 1. Ringkasan
+  const fd = formatDate(d.first_date), ld = formatDate(d.last_date);
+  let html = `
+  <div class="stat-card">
+    <div class="stat-section-title">📊 Ringkasan Data</div>
+    <div class="stat-summary-grid">
+      <div class="stat-summary-item">
+        <div class="stat-summary-val">${d.total}</div>
+        <div class="stat-summary-lbl">Total Hasil</div>
+      </div>
+      <div class="stat-summary-item">
+        <div class="stat-summary-val">${d.total * 4}</div>
+        <div class="stat-summary-lbl">Total Digit</div>
+      </div>
+      <div class="stat-summary-item">
+        <div class="stat-summary-val">${(d.top_ekor2d[0]||{count:0}).count}x</div>
+        <div class="stat-summary-lbl">Ekor Terlaris</div>
+      </div>
+    </div>
+    <div style="font-size:0.62rem;color:var(--muted);margin-top:7px;text-align:center">${fd} — ${ld}</div>
+  </div>`;
+
+  // 2. Heatmap posisi digit
+  html += `
+  <div class="stat-card">
+    <div class="stat-section-title">🔥 Frekuensi Digit per Posisi</div>
+    <div class="heatmap-wrap">
+      <table class="heatmap-table">
+        <thead><tr>
+          <th style="text-align:left;min-width:16px">Digit</th>
+          ${posNames.map((p,i) => `<th style="color:${posColors[i]}">${p}</th>`).join('')}
+        </tr></thead>
+        <tbody>`;
+  for (let digit = 0; digit <= 9; digit++) {
+    html += `<tr><td style="font-size:0.68rem;font-weight:700;color:var(--muted);text-align:center;padding:2px 0">${digit}</td>`;
+    for (let pos = 0; pos < 4; pos++) {
+      const count = d.pos_freq[pos][digit];
+      const maxVal = d.pos_max[pos];
+      const intensity = maxVal > 0 ? count / maxVal : 0;
+      const alpha = Math.round(intensity * 0.85 * 100) / 100;
+      const bg = pos === 0 ? `rgba(240,165,0,${alpha})` :
+                 pos === 1 ? `rgba(100,136,234,${alpha})` :
+                 pos === 2 ? `rgba(0,200,83,${alpha})` :
+                             `rgba(233,69,96,${alpha})`;
+      const textColor = intensity > 0.6 ? '#000' : intensity > 0.3 ? '#fff' : 'rgba(255,255,255,0.5)';
+      html += `<td><div class="heatmap-cell" style="background:${bg};color:${textColor}" title="Digit ${digit} di posisi ${posNames[pos]}: ${count}x">
+        ${count}
+        <span class="heatmap-digit-label">${(count / d.total * 100).toFixed(1)}%</span>
+      </div></td>`;
+    }
+    html += `</tr>`;
+  }
+  html += `</tbody></table></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+      ${posNames.map((p,i) => `<span style="font-size:0.62rem;color:${posColors[i]}">■ ${p}</span>`).join('')}
+      <span style="font-size:0.62rem;color:var(--muted);margin-left:4px">— warna lebih terang = lebih sering</span>
+    </div>
+  </div>`;
+
+  // 3. Frekuensi digit semua posisi (bar chart vertikal)
+  html += `
+  <div class="stat-card">
+    <div class="stat-section-title">📈 Frekuensi Digit Keseluruhan</div>
+    <div class="digit-chart">`;
+  const maxDigitAll = Math.max(...d.digit_all.map(x => x.count));
+  d.digit_all.forEach(item => {
+    const heightPct = maxDigitAll > 0 ? (item.count / maxDigitAll * 100) : 0;
+    const isHot = item.pct >= 11.0;
+    const isCold = item.pct <= 8.5;
+    const barColor = isHot ? 'var(--accent)' : isCold ? '#444' : 'rgba(100,136,234,0.7)';
+    html += `<div class="digit-col">
+      <div class="digit-col-pct">${item.pct}%</div>
+      <div class="digit-bar-outer">
+        <div class="digit-bar-inner" style="height:${heightPct}%;background:${barColor}"></div>
+      </div>
+      <div class="digit-col-label" style="color:${isHot?'var(--accent)':isCold?'#555':'var(--muted)'};font-weight:${isHot?700:400}">${item.digit}</div>
+    </div>`;
+  });
+  html += `</div>
+    <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+      <span style="font-size:0.62rem"><span style="color:var(--accent)">■</span> Hot (≥11%)</span>
+      <span style="font-size:0.62rem"><span style="color:#6488ea">■</span> Normal</span>
+      <span style="font-size:0.62rem"><span style="color:#444">■</span> Cold (≤8.5%)</span>
+    </div>
+  </div>`;
+
+  // 4. Top ekor 2D
+  html += `
+  <div class="stat-card">
+    <div class="stat-section-title">🎯 Top Ekor 2D (Terlaris)</div>`;
+  const maxEkorCount = d.top_ekor2d.length > 0 ? d.top_ekor2d[0].count : 1;
+  d.top_ekor2d.forEach((item, idx) => {
+    const widthPct = maxEkorCount > 0 ? (item.count / maxEkorCount * 100) : 0;
+    const isTop3 = idx < 3;
+    const barColor = isTop3 ? 'var(--accent)' : idx < 8 ? 'rgba(100,136,234,0.8)' : 'rgba(255,255,255,0.25)';
+    const textColor = isTop3 ? '#000' : 'rgba(255,255,255,0.7)';
+    html += `<div class="ekor-bar-row">
+      <span class="ekor-bar-label" style="color:${isTop3?'var(--accent)':'#fff'}">${item.ekor}</span>
+      <div class="ekor-bar-track">
+        <div class="ekor-bar-fill" style="width:${widthPct}%;background:${barColor};color:${textColor}">
+          ${item.count}x
+        </div>
+      </div>
+      <span class="ekor-bar-count">${(item.count/d.total*100).toFixed(1)}%</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // 5. Distribusi warna per posisi
+  html += `
+  <div class="stat-card">
+    <div class="stat-section-title">🔴⚫ Merah / Hitam per Posisi</div>
+    <div class="color-pos-grid">`;
+  const colorPosArr = Array.isArray(d.color_pos) ? d.color_pos : Object.values(d.color_pos);
+  colorPosArr.forEach((cp, pos) => {
+    const total = cp.merah + cp.hitam;
+    const merahPct = total > 0 ? Math.round(cp.merah / total * 100) : 50;
+    const hitamPct = 100 - merahPct;
+    html += `<div class="color-pos-card">
+      <div class="color-pos-name">${posNames[pos]}</div>
+      <div class="color-pos-bar">
+        <div class="color-pos-merah" style="width:${merahPct}%"></div>
+        <div class="color-pos-hitam" style="width:${hitamPct}%"></div>
+      </div>
+      <div class="color-pos-pct">
+        <span style="color:#e94560">${merahPct}%</span>
+        <span style="color:#666">${hitamPct}%</span>
+      </div>
+    </div>`;
+  });
+  html += `</div>
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <span style="font-size:0.62rem"><span style="color:#e94560">■</span> Merah (ganjil)</span>
+      <span style="font-size:0.62rem"><span style="color:#555">■</span> Hitam (genap)</span>
+    </div>
+  </div>`;
+
+  // 6. Tren mingguan
+  if (d.weekly && d.weekly.length > 0) {
+    html += `
+  <div class="stat-card">
+    <div class="stat-section-title">📅 Tren Ekor 2D Mingguan</div>
+    <table class="weekly-table">
+      <thead><tr>
+        <th>Minggu</th>
+        <th>Sesi</th>
+        <th>Top 5 Ekor 2D</th>
+      </tr></thead>
+      <tbody>`;
+    d.weekly.forEach(w => {
+      html += `<tr>
+        <td class="weekly-week">${w.label}</td>
+        <td style="color:var(--muted)">${w.total}</td>
+        <td><div class="weekly-top">
+          ${(w.top_ekor||[]).map((e,i) => `<span class="weekly-ekor-pill" style="${i===0?'background:rgba(240,165,0,0.22);border-color:var(--accent)':''}">${e}</span>`).join('')}
+        </div></td>
+      </tr>`;
+    });
+    html += `</tbody></table>
+  </div>`;
+  }
+
+  document.getElementById('statistikContent').innerHTML = html;
 }
 
 // Helpers
