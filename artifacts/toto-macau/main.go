@@ -38,6 +38,7 @@ func main() {
         mux.HandleFunc("/rekomendasi", handleRekomendasi)
         mux.HandleFunc("/regenerate", handleRegenerate)
         mux.HandleFunc("/statistik", handleStatistik)
+        mux.HandleFunc("/tune", handleTune)
 
         log.Printf("Server Macau 4D berjalan di port %s", port)
         if err := http.ListenAndServe(":"+port, corsMiddleware(mux)); err != nil {
@@ -819,6 +820,16 @@ func handleStatistik(w http.ResponseWriter, r *http.Request) {
                 "weekly":     weekly,
                 "color_pos":  colorPerPos,
         })
+}
+
+// POST /tune — jalankan grid search, update activePaitoConfig, kembalikan hasil
+func handleTune(w http.ResponseWriter, r *http.Request) {
+        if r.Method != "POST" {
+                http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                return
+        }
+        result := tunePaitoConfig()
+        jsonResponse(w, result)
 }
 
 func generateAndSavePredictions(tanggal string, sesi int, history []Result) {

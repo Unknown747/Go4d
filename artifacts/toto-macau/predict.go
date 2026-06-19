@@ -145,6 +145,10 @@ func diversifyPredictions(nums []string, limit int) []string {
 //   C) Gap/overdue sebagai fallback jika transisi sparse
 // ============================================================
 func predictPaito(history []Result) []string {
+        return predictPaitoWithConfig(history, activePaitoConfig)
+}
+
+func predictPaitoWithConfig(history []Result, cfg PaitoConfig) []string {
         if len(history) == 0 {
                 return generateRandom(4, 0)
         }
@@ -158,7 +162,7 @@ func predictPaito(history []Result) []string {
         // ── A. Multi-lag transition per posisi ───────────────────
         // transLag[lag][pos][fromDigit][toDigit]
         // lag=0 → 1 langkah (t-1→t), lag=1 → 2 langkah (t-2→t), lag=2 → 3 langkah (t-3→t)
-        lagWeights := [3]float64{1.0, 0.6, 0.3}
+        lagWeights := [3]float64{1.0, cfg.Lag2Weight, cfg.Lag3Weight}
         var transLag [3][4][10][10]float64
 
         for lag := 0; lag < 3; lag++ {
@@ -241,7 +245,7 @@ func predictPaito(history []Result) []string {
                 }
         }
 
-        multiLagPool := combinePositions4D(candidateDigits, 40)
+        multiLagPool := combinePositions4D(candidateDigits, cfg.MLagPoolMax)
 
         // ── B. Digit delta pattern antar sesi ────────────────────
         // delta[pos] = (curr[pos] - prev[pos] + 10) % 10
@@ -275,7 +279,7 @@ func predictPaito(history []Result) []string {
         var deltaPool []string
         seenDelta := map[string]bool{}
         for _, entry := range deltaList {
-                if len(deltaPool) >= 15 {
+                if len(deltaPool) >= cfg.DeltaPoolMax {
                         break
                 }
                 var digits [4]int
