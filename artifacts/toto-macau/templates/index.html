@@ -723,7 +723,7 @@ function renderPredictions(data) {
     },
     math: {
       name: 'MATRIX 4D',
-      desc: 'Korelasi antar posisi digit — kombinasi digit yang paling sering muncul bersama (co-occurrence, window 60 sesi)',
+      desc: 'Transition Matrix (Markov orde-1) — digit yang paling sering muncul SETELAH digit terakhir per posisi (70% transisi + 30% frekuensi, window 80 sesi)',
       badge: '5 nomor',
       perf: { text: '2.5% hit 2D · 41% Shio', color: 'var(--accent)' }
     },

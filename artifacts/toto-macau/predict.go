@@ -96,26 +96,38 @@ func colorCode4D(nomor string) string {
 }
 
 // ============================================================
-// diversifyPredictions: reorder candidates to maximise unique 2D ekor
-// coverage while keeping higher-scored items first.
+// diversifyPredictions: reorder candidates untuk memaksimalkan keragaman
+// EKOR 2D sekaligus menghindari AS digit yang terlalu seragam.
+// Tier A: ekor baru + AS baru (paling beragam)
+// Tier B: ekor baru + AS sudah terpakai (keragaman ekor saja)
+// Tier C: ekor sudah terpakai (backup)
 // ============================================================
 func diversifyPredictions(nums []string, limit int) []string {
         seenEkor := map[string]bool{}
-        var primary, secondary []string
+        seenAS := map[string]bool{}
+        var tierA, tierB, tierC []string
         for _, n := range nums {
                 n4 := n
                 for len(n4) < 4 {
                         n4 = "0" + n4
                 }
                 ekor := n4[2:]
-                if !seenEkor[ekor] {
+                as := string(n4[0])
+                newEkor := !seenEkor[ekor]
+                newAS := !seenAS[as]
+                if newEkor && newAS {
+                        // Hanya update seen untuk tier A agar tier B masih bisa dipilih
                         seenEkor[ekor] = true
-                        primary = append(primary, n)
+                        seenAS[as] = true
+                        tierA = append(tierA, n)
+                } else if newEkor {
+                        tierB = append(tierB, n)
                 } else {
-                        secondary = append(secondary, n)
+                        tierC = append(tierC, n)
                 }
         }
-        result := append(primary, secondary...)
+        result := append(tierA, tierB...)
+        result = append(result, tierC...)
         if len(result) > limit {
                 result = result[:limit]
         }
@@ -493,8 +505,10 @@ func ekorFreq2D(ekor string, history []Result) int {
 }
 
 // ============================================================
-// Method 6: MATRIX — analisis korelasi antar posisi digit,
-// temukan pasangan posisi yang sering muncul bersama.
+// Method 6: MATRIX — Transition Matrix per posisi.
+// Untuk tiap posisi, hitung digit apa yang paling sering
+// muncul SETELAH digit terakhir yang keluar (Markov chain orde-1).
+// Jika data transisi kurang, fallback ke frekuensi global.
 // ============================================================
 func predictMath(history []Result) []string {
         if len(history) == 0 {
@@ -502,58 +516,80 @@ func predictMath(history []Result) []string {
         }
 
         n := len(history)
-        if n > 60 {
-                n = 60
+        if n > 80 {
+                n = 80
         }
         recent := history[:n]
 
-        // Kumpulkan frekuensi digit per posisi (window panjang, decay sangat lemah)
-        posFreq := [4][10]float64{}
-        for k, r := range recent {
-                d := parse4D(r.Nomor)
-                w := math.Exp(-float64(k) * 0.03)
+        // Build transition matrix: trans[pos][fromDigit][toDigit]
+        // History adalah newest-first: recent[0]=terbaru, recent[1]=sebelumnya.
+        // Transisi: recent[i+1].digit → recent[i].digit (older→newer)
+        var trans [4][10][10]float64
+        for i := 0; i < len(recent)-1; i++ {
+                curr := parse4D(recent[i].Nomor)   // lebih baru
+                prev := parse4D(recent[i+1].Nomor) // lebih lama
+                // Setelah prev muncul, curr muncul berikutnya
+                w := 1.0
+                if i < 20 {
+                        w = 2.5 // boost 20 transisi terkini
+                }
                 for pos := 0; pos < 4; pos++ {
-                        posFreq[pos][d[pos]] += w
+                        trans[pos][prev[pos]][curr[pos]] += w
                 }
         }
 
-        // Gap per posisi
-        lastSeen := [4][10]int{}
-        for pos := 0; pos < 4; pos++ {
-                for d := 0; d < 10; d++ {
-                        lastSeen[pos][d] = n + 1
-                }
-        }
+        // Digit terakhir yang keluar (recent[0] = hasil paling baru)
+        lastDigits := parse4D(recent[0].Nomor)
+
+        // Frekuensi global per posisi (fallback jika transisi sparse)
+        var globalFreq [4][10]float64
         for k, r := range recent {
                 d := parse4D(r.Nomor)
+                w := math.Exp(-float64(k) * 0.04)
                 for pos := 0; pos < 4; pos++ {
-                        if lastSeen[pos][d[pos]] == n+1 {
-                                lastSeen[pos][d[pos]] = k
-                        }
+                        globalFreq[pos][d[pos]] += w
                 }
         }
 
-        // Untuk setiap posisi, buat skor kombinasi freq + overdue
         candidateDigits := [4][]int{}
         for pos := 0; pos < 4; pos++ {
+                fromDigit := lastDigits[pos]
+
+                // Skor = 70% transisi dari digit terakhir + 30% frekuensi global
                 type ds struct {
                         d     int
                         score float64
                 }
+                // Normalisasi transisi
+                transTotal := 0.0
+                for d := 0; d < 10; d++ {
+                        transTotal += trans[pos][fromDigit][d]
+                }
+                freqTotal := 0.0
+                for d := 0; d < 10; d++ {
+                        freqTotal += globalFreq[pos][d]
+                }
+
                 var ranked []ds
                 for d := 0; d < 10; d++ {
-                        gapScore := float64(lastSeen[pos][d]) / float64(n+1)
-                        // Bobot: 50% frekuensi, 50% overdue → lebih seimbang dari metode lain
-                        score := posFreq[pos][d]*0.5 + gapScore*4.0
+                        transScore := 0.0
+                        if transTotal > 0 {
+                                transScore = trans[pos][fromDigit][d] / transTotal
+                        }
+                        freqScore := 0.0
+                        if freqTotal > 0 {
+                                freqScore = globalFreq[pos][d] / freqTotal
+                        }
+                        score := transScore*0.7 + freqScore*0.3
                         ranked = append(ranked, ds{d, score})
                 }
                 sort.Slice(ranked, func(i, j int) bool { return ranked[i].score > ranked[j].score })
-                // 4 kandidat per posisi
-                for i := 0; i < 4 && i < len(ranked); i++ {
+                // 5 kandidat per posisi
+                for i := 0; i < 5 && i < len(ranked); i++ {
                         candidateDigits[pos] = append(candidateDigits[pos], ranked[i].d)
                 }
         }
-        pool := combinePositions4D(candidateDigits, 50)
+        pool := combinePositions4D(candidateDigits, 60)
         return diversifyPredictions(pool, 5)
 }
 
