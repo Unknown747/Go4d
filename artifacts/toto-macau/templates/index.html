@@ -516,6 +516,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', tabNames[i] === name));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'prediksi') loadPredictions();
   if (name === 'history') loadHistory();
   if (name === 'paito') loadPaito();
   if (name === 'winrate') loadWinRate();

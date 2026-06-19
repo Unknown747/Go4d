@@ -120,12 +120,10 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
                 }
         }
 
+        // Selalu regenerate agar prediksi selalu mencerminkan data hasil terbaru
+        history := getRecentResults(100)
+        generateAndSavePredictions(tanggal, sesi, history)
         preds := getLatestPredictions(tanggal, sesi)
-        if len(preds) == 0 {
-                history := getRecentResults(100)
-                generateAndSavePredictions(tanggal, sesi, history)
-                preds = getLatestPredictions(tanggal, sesi)
-        }
 
         // Bangun map per metode
         methodNums := map[string][]string{}
