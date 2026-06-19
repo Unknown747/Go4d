@@ -115,6 +115,14 @@
   /* Source pills */
   .source-pill { font-size: 0.52rem; font-weight: 800; padding: 1px 4px; border-radius: 4px; line-height: 1.4; }
 
+  /* BB Badge */
+  .bb-badge {
+    font-size: 0.5rem; font-weight: 800; padding: 1px 5px; border-radius: 4px; line-height: 1.5; letter-spacing: 0.5px;
+  }
+  .bb-badge.bb4d { background: rgba(0,200,83,0.2); color: #00c853; border: 1px solid rgba(0,200,83,0.5); }
+  .bb-badge.bb3d { background: rgba(240,165,0,0.2); color: var(--accent); border: 1px solid rgba(240,165,0,0.4); }
+  .bb-badge.bb2d { background: rgba(100,180,255,0.15); color: #64b4ff; border: 1px solid rgba(100,180,255,0.35); }
+
   /* Form */
   .form-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 12px; }
   .form-title { font-size: 0.88rem; font-weight: 700; color: var(--accent); margin-bottom: 13px; }
@@ -483,6 +491,7 @@ let currentTab = 'prediksi';
 let currentMethod = 'gabungan';
 let predData = null;
 let statusData = null;
+let bbDigitSet = new Set();
 
 const jadwalSesi = ['00:01','13:00','16:00','19:00','22:00','23:00'];
 
@@ -646,8 +655,10 @@ function quickFill(tanggal, sesi) {
 
 async function loadPredictions() {
   try {
-    const res = await fetch('/predictions');
-    predData = await res.json();
+    const [predRes, bbRes] = await Promise.all([fetch('/predictions'), fetch('/bbfs')]);
+    predData = await predRes.json();
+    const bbData = await bbRes.json();
+    bbDigitSet = new Set((bbData.bb_digits || []).map(d => d.toString()));
     renderPredictions(predData);
     await loadStatus();
   } catch(e) {
@@ -760,6 +771,16 @@ function renderPredictions(data) {
   const perfLine = (!isSubDigit && info.perf)
     ? `<div style="font-size:0.62rem;margin-top:4px;color:${info.perf.color};font-weight:600">${info.perf.text}</div>`
     : '';
+  const bbLegend = !isSubDigit
+    ? `<div style="font-size:0.59rem;margin-top:4px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px;align-items:center">
+        <span style="color:var(--muted)">BB:</span>
+        <span class="bb-badge bb4d">BB4D</span><span>=semua 4 digit masuk BB Set</span>
+        <span style="color:rgba(255,255,255,0.2)">·</span>
+        <span class="bb-badge bb3d">BB3D</span><span>=3 digit terakhir</span>
+        <span style="color:rgba(255,255,255,0.2)">·</span>
+        <span class="bb-badge bb2d">BB2D</span><span>=ekor 2 digit</span>
+      </div>`
+    : '';
   const gabLegend = isGabungan
     ? `<div style="font-size:0.59rem;margin-top:4px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px;align-items:center">
         <span><span style="color:var(--accent);font-weight:700">★ emas</span>=3+ metode</span>
@@ -781,7 +802,7 @@ function renderPredictions(data) {
           <span style="font-size:0.62rem;padding:2px 7px;border-radius:10px;font-weight:700;${badgeColor}">${info.badge||''}</span>
         </div>
         <div class="method-desc">${info.desc}</div>
-        ${perfLine}${gabLegend}
+        ${perfLine}${gabLegend}${bbLegend}
       </div>
       <button class="copy-all-btn" onclick='copyAll(${JSON.stringify(allNums)})'>📋 Copy</button>
     </div>
@@ -800,6 +821,18 @@ function renderPredictions(data) {
       `<span class="source-pill" style="background:${mm.bg};color:${mm.color};border:1px solid ${mm.color}40">${mm.label}</span>`
     ).join('');
 
+    // BB indicator
+    let bbBadge = '';
+    if (bbDigitSet.size > 0 && !isSubDigit) {
+      const n4 = item.nomor.padStart(4, '0');
+      const allDigits = n4.split('').every(d => bbDigitSet.has(d));
+      const last3 = n4.slice(1).split('').every(d => bbDigitSet.has(d));
+      const last2 = n4.slice(2).split('').every(d => bbDigitSet.has(d));
+      if (allDigits)     bbBadge = '<span class="bb-badge bb4d">BB4D</span>';
+      else if (last3)    bbBadge = '<span class="bb-badge bb3d">BB3D</span>';
+      else if (last2)    bbBadge = '<span class="bb-badge bb2d">BB2D</span>';
+    }
+
     const itemClass = isSubDigit ? 'num-item sub-item' : 'num-item';
 
     html += `
@@ -809,6 +842,7 @@ function renderPredictions(data) {
       <div class="num-right">
         <div class="num-shio">${item.shio||''}</div>
         ${sources.length ? `<div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:flex-end">${sourcePills}</div>` : ''}
+        ${bbBadge ? `<div style="display:flex;justify-content:flex-end">${bbBadge}</div>` : ''}
         <div class="num-warna">${wHtml}</div>
         <span style="font-size:0.65rem;color:var(--muted)">📋</span>
       </div>
