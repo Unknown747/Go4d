@@ -1,0 +1,1 @@
+- [Backtest findings & method changes](backtest-findings.md) — EKORAS/PolaEkor dihapus, diganti HotEkor; filterPastResults dibatasi 5 sesi saja

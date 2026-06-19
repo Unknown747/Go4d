@@ -309,7 +309,7 @@
       <button class="method-tab" onclick="showMethod('paito')">Paito</button>
       <button class="method-tab" onclick="showMethod('shio')">Shio</button>
       <button class="method-tab" onclick="showMethod('ai')">Gap Analysis</button>
-      <button class="method-tab" onclick="showMethod('ekoras')">Pola Ekor</button>
+      <button class="method-tab" onclick="showMethod('hotekor')">Hot Ekor</button>
       <button class="method-tab" onclick="showMethod('math')">Matrix</button>
     </div>
     <div class="method-tabs" style="margin-top:-4px">
@@ -637,7 +637,7 @@ function renderPredictions(data) {
     paito:    { name: 'PAITO 4D',    desc: 'Digit overdue per posisi — cari angka yang paling lama tidak muncul', badge: '4D' },
     shio:     { name: 'SHIO 4D',     desc: 'Siklus 12 zodiak — shio due score + boost shio sangat jarang (15+ draw)', badge: '4D' },
     ai:       { name: 'HOT · COLD 4D', desc: 'Blend: 2 digit paling sering (Hot) + 1 digit paling lama tidak muncul (Cold)', badge: '4D' },
-    ekoras:   { name: 'AS / EKOR 4D',desc: 'Fokus digit AS & Ekor — hot+cold blend + boost ekor 2D yang overdue', badge: '4D' },
+    hotekor:  { name: 'HOT EKOR 2D', desc: 'Ekor 2D paling sering muncul dalam histori nyata — bobot lebih tinggi untuk sesi terkini', badge: '4D' },
     math:     { name: 'RUMUS 4D',    desc: 'Cermin · Jumlah digit · Delta ±1/5 · Cross AS↔Ekor', badge: '4D' },
     '3d':     { name: 'PECAHAN 3D',  desc: '3 digit terakhir dari setiap prediksi 4D — tanpa duplikat', badge: '3D' },
     '2d':     { name: 'PECAHAN 2D',  desc: '2 digit terakhir (Ekor) dari setiap prediksi 4D — tanpa duplikat', badge: '2D' },
@@ -653,7 +653,7 @@ function renderPredictions(data) {
       { key:'paito',  label:'P',  color:'#4fc3f7', bg:'rgba(79,195,247,0.15)'  },
       { key:'ai',     label:'HC', color:'#ce93d8', bg:'rgba(206,147,216,0.15)' },
       { key:'shio',   label:'S',  color:'#81c784', bg:'rgba(129,199,132,0.15)' },
-      { key:'ekoras', label:'E',  color:'#ffb74d', bg:'rgba(255,183,77,0.15)'  },
+      { key:'hotekor', label:'HE', color:'#ffb74d', bg:'rgba(255,183,77,0.15)' },
       { key:'math',   label:'R',  color:'#f0a500', bg:'rgba(240,165,0,0.15)'   },
     ];
     for (const mm of methodMeta) {

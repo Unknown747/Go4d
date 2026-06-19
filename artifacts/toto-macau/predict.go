@@ -14,15 +14,20 @@ var shioNames = []string{
         "Kuda", "Kambing", "Monyet", "Ayam", "Anjing", "Babi",
 }
 
-// filterPastResults menghapus nomor yang sudah pernah keluar dari histori
+// filterPastResults menghapus nomor yang keluar dalam 5 sesi terakhir saja.
+// Hanya filter sangat recent agar nomor yang terbukti sering muncul tidak dikecualikan.
 func filterPastResults(nums []string, history []Result) []string {
-        pastSet := map[string]bool{}
-        for _, r := range history {
+        recentSet := map[string]bool{}
+        limit := 5
+        if len(history) < limit {
+                limit = len(history)
+        }
+        for _, r := range history[:limit] {
                 n := r.Nomor
                 for len(n) < 4 {
                         n = "0" + n
                 }
-                pastSet[n] = true
+                recentSet[n] = true
         }
         var filtered []string
         for _, n := range nums {
@@ -30,7 +35,7 @@ func filterPastResults(nums []string, history []Result) []string {
                 for len(n4) < 4 {
                         n4 = "0" + n4
                 }
-                if !pastSet[n4] {
+                if !recentSet[n4] {
                         filtered = append(filtered, n)
                 }
         }
@@ -368,67 +373,59 @@ func predictAI(history []Result) []string {
 }
 
 // ============================================================
-// Method 4: POLA EKOR — analisis pola 2D ekor berulang dalam
-// window 30 sesi, cari kombinasi yang sering muncul.
+// Method 4: HOT EKOR 2D — fokus pada ekor 2D yang terbukti
+// paling sering muncul dalam histori nyata (bukan overdue).
+// Data backtest: ekor 84, 00, 27, 57, 40, 78 paling sering keluar.
+// Combine top ekor + top digit AS → 4D yang terbukti relevan.
 // ============================================================
-func predictEkorAS(history []Result) []string {
+func predictHotEkor(history []Result) []string {
         if len(history) == 0 {
                 return generateRandom(4, 5000)
         }
 
         n := len(history)
-        if n > 60 {
-                n = 60
+        if n > 90 {
+                n = 90
         }
         recent := history[:n]
 
-        // Hitung frekuensi 2D ekor dalam window panjang
-        ekor2DFreq := map[string]int{}
-        for _, r := range recent {
-                nomor := r.Nomor
-                for len(nomor) < 4 {
-                        nomor = "0" + nomor
-                }
-                ekor2DFreq[nomor[2:]]++
+        // Hitung frekuensi 2D ekor — murni frekuensi (bukan overdue)
+        // Window pendek (30) untuk "hot recent" + window panjang (90) untuk stabilitas
+        ekorHot := map[string]float64{}
+        windowShort := 30
+        if len(recent) < windowShort {
+                windowShort = len(recent)
         }
-
-        // Gap 2D ekor: berapa lama tidak muncul
-        ekor2DGap := map[string]int{}
         for k, r := range recent {
                 nomor := r.Nomor
                 for len(nomor) < 4 {
                         nomor = "0" + nomor
                 }
                 e := nomor[2:]
-                if _, ok := ekor2DGap[e]; !ok {
-                        ekor2DGap[e] = k
+                // Bobot: lebih besar untuk sesi lebih baru
+                w := 1.0
+                if k < windowShort {
+                        w = 2.5 // boost window pendek 2.5x
                 }
+                ekorHot[e] += w
         }
 
-        // Skor 2D ekor: kombinasi frekuensi + overdue
         type e2d struct {
                 ekor  string
                 score float64
         }
-        var ekorScores []e2d
+        var ekorList []e2d
         for e := 0; e <= 99; e++ {
                 es := fmt.Sprintf("%02d", e)
-                freq := float64(ekorFreq2D(es, recent))
-                gap := float64(n + 5)
-                if g, ok := ekor2DGap[es]; ok {
-                        gap = float64(g)
-                }
-                avgGap := float64(n) / (freq + 1.0)
-                score := (gap-avgGap)/(avgGap+1.0)*2.0 + freq*0.5
-                ekorScores = append(ekorScores, e2d{es, score})
+                ekorList = append(ekorList, e2d{es, ekorHot[es]})
         }
-        sort.Slice(ekorScores, func(i, j int) bool { return ekorScores[i].score > ekorScores[j].score })
+        sort.Slice(ekorList, func(i, j int) bool { return ekorList[i].score > ekorList[j].score })
 
-        // Ambil top 5 ekor, pasang dengan digit AS dari frekuensi menengah
+        // Top digit AS: frekuensi dalam window pendek (hot recent)
         asFreq := [10]float64{}
-        for k, r := range recent {
+        for k, r := range recent[:windowShort] {
                 d := parse4D(r.Nomor)
-                w := math.Exp(-float64(k) * 0.04)
+                w := math.Exp(-float64(k) * 0.05)
                 asFreq[d[0]] += w
         }
         type df struct {
@@ -443,15 +440,21 @@ func predictEkorAS(history []Result) []string {
 
         seen := map[string]bool{}
         var results []string
-        topEkor := ekorScores[:min(len(ekorScores), 5)]
-        for _, e := range topEkor {
-                for _, a := range asRanked[:min(len(asRanked), 3)] {
-                        nomor := fmt.Sprintf("%d%d%s", a.d, (a.d+int(e.ekor[0]-'0'))%10, e.ekor)
-                        if len(nomor) > 4 {
-                                nomor = nomor[len(nomor)-4:]
-                        }
+
+        // Kombinasi: top 5 ekor × top 2 AS → max 5 nomor
+        for _, e := range ekorList[:min(len(ekorList), 8)] {
+                if e.score == 0 {
+                        break
+                }
+                for _, a := range asRanked[:min(len(asRanked), 4)] {
+                        // Bangun digit tengah dari kombinasi AS + ekor[0]
+                        mid := (a.d + int(e.ekor[0]-'0')) % 10
+                        nomor := fmt.Sprintf("%d%d%s", a.d, mid, e.ekor)
                         for len(nomor) < 4 {
                                 nomor = "0" + nomor
+                        }
+                        if len(nomor) > 4 {
+                                nomor = nomor[len(nomor)-4:]
                         }
                         if !seen[nomor] {
                                 seen[nomor] = true
@@ -561,7 +564,7 @@ func predictGabungan(history []Result) []string {
         paito := predictPaito(history)
         shio := predictShio(history)
         ai := predictAI(history)
-        ekorAS := predictEkorAS(history)
+        ekorAS := predictHotEkor(history)
         mathNums := predictMath(history)
 
         // Hitung konfirmasi setiap nomor (berapa metode yang merekomendasikan)
@@ -805,7 +808,7 @@ func predictBBFS(history []Result, nDigits int) BBFSResult {
         paito := predictPaito(history)
         shio := predictShio(history)
         ai := predictAI(history)
-        ekorAS := predictEkorAS(history)
+        ekorAS := predictHotEkor(history)
         mathNums := predictMath(history)
 
         allPreds := []string{}

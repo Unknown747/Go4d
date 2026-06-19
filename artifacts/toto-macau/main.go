@@ -145,7 +145,7 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
         confirmCount := map[string]int{}
         firstSeen := map[string]int{}
         prioCounter := 0
-        priorityKeys := []string{"paito", "ai", "math", "shio", "ekoras"}
+        priorityKeys := []string{"paito", "ai", "math", "shio", "hotekor"}
         for _, key := range priorityKeys {
                 for _, n := range methodNums[key] {
                         confirmCount[n]++
@@ -438,7 +438,7 @@ func handleRekomendasi(w http.ResponseWriter, r *http.Request) {
         paito := predictPaito(history)
         shio := predictShio(history)
         ai := predictAI(history)
-        ekoras := predictEkorAS(history)
+        hotEkor := predictHotEkor(history)
         math := predictMath(history)
         gabungan := predictGabungan(history)
 
@@ -453,8 +453,8 @@ func handleRekomendasi(w http.ResponseWriter, r *http.Request) {
         for _, n := range ai {
                 confirmMap[n] = append(confirmMap[n], "Gap Analysis")
         }
-        for _, n := range ekoras {
-                confirmMap[n] = append(confirmMap[n], "Pola Ekor")
+        for _, n := range hotEkor {
+                confirmMap[n] = append(confirmMap[n], "Hot Ekor")
         }
         for _, n := range math {
                 confirmMap[n] = append(confirmMap[n], "Matrix")
@@ -549,7 +549,7 @@ func handleRekomendasi(w http.ResponseWriter, r *http.Request) {
                 Count   int      `json:"count"`
         }
         var focus2D []Rek2D
-        allPreds := append(append(append(append(append(paito, shio...), ai...), ekoras...), math...), gabungan...)
+        allPreds := append(append(append(append(append(paito, shio...), ai...), hotEkor...), math...), gabungan...)
         for _, n := range allPreds {
                 for len(n) < 4 {
                         n = "0" + n
@@ -642,13 +642,13 @@ func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
         paito := filterPastResults(predictPaito(history), history)
         shioNums := filterPastResults(predictShio(history), history)
         ai := filterPastResults(predictAI(history), history)
-        ekorAS := filterPastResults(predictEkorAS(history), history)
+        hotEkor := filterPastResults(predictHotEkor(history), history)
         mathNums := filterPastResults(predictMath(history), history)
 
         savePredictions(tanggal, sesi, "PAITO", paito)
         savePredictions(tanggal, sesi, "SHIO", shioNums)
         savePredictions(tanggal, sesi, "AI", ai)
-        savePredictions(tanggal, sesi, "EKORAS", ekorAS)
+        savePredictions(tanggal, sesi, "HOTEKOR", hotEkor)
         savePredictions(tanggal, sesi, "MATH", mathNums)
 
         gabungan := filterPastResults(predictGabungan(history), history)
