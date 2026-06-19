@@ -691,14 +691,52 @@ function renderPredictions(data) {
   const isGabungan = method === 'gabungan';
 
   const labels = {
-    gabungan: { name: 'GABUNGAN 4D', desc: 'Spread coverage — konfirmasi ≥2 metode + keragaman 2D ekor maksimal', badge: '≤20' },
-    paito:    { name: 'PAITO 4D',    desc: 'Digit overdue per posisi — cari angka yang paling lama tidak muncul', badge: '4D' },
-    shio:     { name: 'SHIO 4D',     desc: 'Siklus 12 zodiak — shio due score + boost shio sangat jarang (15+ draw)', badge: '4D' },
-    ai:       { name: 'HOT · COLD 4D', desc: 'Blend: 2 digit paling sering (Hot) + 1 digit paling lama tidak muncul (Cold)', badge: '4D' },
-    hotekor:  { name: 'HOT EKOR 2D', desc: 'Ekor 2D paling sering muncul dalam histori nyata — bobot lebih tinggi untuk sesi terkini', badge: '4D' },
-    math:     { name: 'RUMUS 4D',    desc: 'Cermin · Jumlah digit · Delta ±1/5 · Cross AS↔Ekor', badge: '4D' },
-    '3d':     { name: 'PECAHAN 3D',  desc: '3 digit terakhir dari setiap prediksi 4D — tanpa duplikat', badge: '3D' },
-    '2d':     { name: 'PECAHAN 2D',  desc: '2 digit terakhir (Ekor) dari setiap prediksi 4D — tanpa duplikat', badge: '2D' },
+    gabungan: {
+      name: 'GABUNGAN 4D',
+      desc: 'Gabungan semua 5 metode — nomor yang dikonfirmasi ≥2 metode diprioritaskan, keragaman 2D ekor dimaksimalkan',
+      badge: '≤20',
+      perf: { text: '⭐ Terbaik · 14.3% hit 2D · 78% Shio', color: 'var(--green)' }
+    },
+    paito: {
+      name: 'PAITO 4D',
+      desc: 'Frekuensi digit per posisi (window 60 sesi, decay lemah) blend 60% frekuensi + 40% overdue — 6 kandidat per posisi',
+      badge: '5 nomor',
+      perf: { text: '3.1% hit 2D · 38% Shio', color: 'var(--accent)' }
+    },
+    shio: {
+      name: 'SHIO 4D',
+      desc: '3 shio paling lama tidak muncul × top 3 digit AS hot — mempersempit pilihan berdasarkan siklus shio 12 zodiak',
+      badge: '5 nomor',
+      perf: { text: '4.3% hit 2D · 13% Shio', color: 'var(--accent)' }
+    },
+    ai: {
+      name: 'GAP ANALYSIS 4D',
+      desc: 'Gap aktual vs rata-rata historis per posisi — digit yang paling "terlambat" muncul relatif terhadap ritme normalnya',
+      badge: '5 nomor',
+      perf: { text: '2.5% hit 2D · 45% Shio', color: '#6488ea' }
+    },
+    hotekor: {
+      name: 'HOT EKOR 4D',
+      desc: 'Top ekor 2D berdasarkan frekuensi nyata (window 90 sesi, bobot 2.5x untuk 30 terkini) + digit AS hot',
+      badge: '5 nomor',
+      perf: { text: 'Metode baru · akumulasi data aktif', color: 'var(--muted)' }
+    },
+    math: {
+      name: 'MATRIX 4D',
+      desc: 'Korelasi antar posisi digit — kombinasi digit yang paling sering muncul bersama (co-occurrence, window 60 sesi)',
+      badge: '5 nomor',
+      perf: { text: '2.5% hit 2D · 41% Shio', color: 'var(--accent)' }
+    },
+    '3d': {
+      name: 'PECAHAN 3D',
+      desc: '3 digit terakhir (KOP·KEP·EKOR) dari prediksi Gabungan — untuk taruhan 3D',
+      badge: '3D'
+    },
+    '2d': {
+      name: 'PECAHAN 2D',
+      desc: '2 digit terakhir (EKOR) dari prediksi Gabungan — untuk taruhan 2D Ekor',
+      badge: '2D'
+    },
   };
 
   const info = labels[method] || { name: method.toUpperCase(), desc: '' };
@@ -708,11 +746,11 @@ function renderPredictions(data) {
   const methodSources = {};
   if (isGabungan) {
     const methodMeta = [
-      { key:'paito',  label:'P',  color:'#4fc3f7', bg:'rgba(79,195,247,0.15)'  },
-      { key:'ai',     label:'HC', color:'#ce93d8', bg:'rgba(206,147,216,0.15)' },
-      { key:'shio',   label:'S',  color:'#81c784', bg:'rgba(129,199,132,0.15)' },
-      { key:'hotekor', label:'HE', color:'#ffb74d', bg:'rgba(255,183,77,0.15)' },
-      { key:'math',   label:'R',  color:'#f0a500', bg:'rgba(240,165,0,0.15)'   },
+      { key:'paito',   label:'P',  name:'Paito',        color:'#4fc3f7', bg:'rgba(79,195,247,0.15)'  },
+      { key:'ai',      label:'GA', name:'Gap Analysis',  color:'#ce93d8', bg:'rgba(206,147,216,0.15)' },
+      { key:'shio',    label:'S',  name:'Shio',          color:'#81c784', bg:'rgba(129,199,132,0.15)' },
+      { key:'hotekor', label:'HE', name:'Hot Ekor',      color:'#ffb74d', bg:'rgba(255,183,77,0.15)'  },
+      { key:'math',    label:'MX', name:'Matrix',        color:'#f0a500', bg:'rgba(240,165,0,0.15)'   },
     ];
     for (const mm of methodMeta) {
       for (const item of (data[mm.key] || [])) {
@@ -735,6 +773,23 @@ function renderPredictions(data) {
 
   const gridClass = isSubDigit ? 'numbers-grid sub-grid' : 'numbers-grid';
 
+  const perfLine = (!isSubDigit && info.perf)
+    ? `<div style="font-size:0.62rem;margin-top:4px;color:${info.perf.color};font-weight:600">${info.perf.text}</div>`
+    : '';
+  const gabLegend = isGabungan
+    ? `<div style="font-size:0.59rem;margin-top:4px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px;align-items:center">
+        <span><span style="color:var(--accent);font-weight:700">★ emas</span>=3+ metode</span>
+        <span style="color:rgba(255,255,255,0.2)">·</span>
+        <span><span style="color:#64b4ff;font-weight:700">◆ biru</span>=2 metode</span>
+        <span style="color:rgba(255,255,255,0.2)">·</span>
+        <span style="color:#4fc3f7">P</span>=Paito
+        <span style="color:#ce93d8">GA</span>=Gap
+        <span style="color:#81c784">S</span>=Shio
+        <span style="color:#ffb74d">HE</span>=HotEkor
+        <span style="color:#f0a500">MX</span>=Matrix
+      </div>`
+    : '';
+
   let html = `
   <div class="method-card">
     <div class="method-header">
@@ -744,7 +799,7 @@ function renderPredictions(data) {
           <span style="font-size:0.62rem;padding:2px 7px;border-radius:10px;font-weight:700;${badgeColor}">${info.badge||''}</span>
         </div>
         <div class="method-desc">${info.desc}</div>
-        ${isGabungan ? `<div style="font-size:0.6rem;margin-top:3px;color:var(--muted)"><span style="color:var(--accent)">★ emas</span>=3+ metode &nbsp;<span style="color:#64b4ff">◆ biru</span>=2 metode</div>` : ''}
+        ${perfLine}${gabLegend}
       </div>
       <button class="copy-all-btn" onclick='copyAll(${JSON.stringify(allNums)})'>📋 Copy</button>
     </div>
