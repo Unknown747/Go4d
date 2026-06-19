@@ -358,7 +358,6 @@
       <button class="method-tab active" onclick="showMethod('gabungan')">Gabungan</button>
       <button class="method-tab" onclick="showMethod('paito')">Paito</button>
       <button class="method-tab" onclick="showMethod('shio')">Shio</button>
-      <button class="method-tab" onclick="showMethod('hotekor')">Hot Ekor</button>
       <button class="method-tab" onclick="showMethod('math')">Matrix</button>
     </div>
     <div class="method-tabs" style="margin-top:-4px">
@@ -692,9 +691,9 @@ function renderPredictions(data) {
   const labels = {
     gabungan: {
       name: 'GABUNGAN 4D',
-      desc: 'Gabungan 4 metode (Paito+Shio+HotEkor+Matrix) — nomor yang dikonfirmasi ≥2 metode diprioritaskan, keragaman 2D ekor dimaksimalkan',
-      badge: '≤20',
-      perf: { text: '⭐ Terbaik · 15.3% hit 2D · 78% Shio', color: 'var(--green)' }
+      desc: 'Gabungan 3 metode terbaik (Paito+Shio+Matrix) — nomor yang dikonfirmasi ≥2 metode diprioritaskan, keragaman 2D ekor dimaksimalkan',
+      badge: '≤15',
+      perf: { text: '⭐ Terbaik · 11.9% hit 2D · 78% Shio', color: 'var(--green)' }
     },
     paito: {
       name: 'PAITO 4D',
@@ -708,23 +707,11 @@ function renderPredictions(data) {
       badge: '5 nomor',
       perf: { text: '4.3% hit 2D · 13% Shio', color: 'var(--accent)' }
     },
-    ai: {
-      name: 'GAP ANALYSIS 4D',
-      desc: 'Gap aktual vs rata-rata historis per posisi — digit yang paling "terlambat" muncul relatif terhadap ritme normalnya',
-      badge: '5 nomor',
-      perf: { text: '2.5% hit 2D · 45% Shio', color: '#6488ea' }
-    },
-    hotekor: {
-      name: 'HOT EKOR 4D',
-      desc: 'Top ekor 2D berdasarkan frekuensi nyata (window 90 sesi, bobot 2.5x untuk 30 terkini) + digit AS hot',
-      badge: '5 nomor',
-      perf: { text: 'Metode baru · akumulasi data aktif', color: 'var(--muted)' }
-    },
     math: {
       name: 'MATRIX 4D',
       desc: 'Transition Matrix (Markov orde-1) — digit yang paling sering muncul SETELAH digit terakhir per posisi (70% transisi + 30% frekuensi, window 80 sesi)',
       badge: '5 nomor',
-      perf: { text: '2.5% hit 2D · 41% Shio', color: 'var(--accent)' }
+      perf: { text: '5.1% hit 2D · 41% Shio', color: 'var(--accent)' }
     },
     '3d': {
       name: 'PECAHAN 3D',
@@ -745,10 +732,9 @@ function renderPredictions(data) {
   const methodSources = {};
   if (isGabungan) {
     const methodMeta = [
-      { key:'paito',   label:'P',  name:'Paito',    color:'#4fc3f7', bg:'rgba(79,195,247,0.15)'  },
-      { key:'shio',    label:'S',  name:'Shio',     color:'#81c784', bg:'rgba(129,199,132,0.15)' },
-      { key:'hotekor', label:'HE', name:'Hot Ekor', color:'#ffb74d', bg:'rgba(255,183,77,0.15)'  },
-      { key:'math',    label:'MX', name:'Matrix',   color:'#f0a500', bg:'rgba(240,165,0,0.15)'   },
+      { key:'paito', label:'P',  name:'Paito',  color:'#4fc3f7', bg:'rgba(79,195,247,0.15)'  },
+      { key:'shio',  label:'S',  name:'Shio',   color:'#81c784', bg:'rgba(129,199,132,0.15)' },
+      { key:'math',  label:'MX', name:'Matrix', color:'#f0a500', bg:'rgba(240,165,0,0.15)'   },
     ];
     for (const mm of methodMeta) {
       for (const item of (data[mm.key] || [])) {
@@ -782,7 +768,6 @@ function renderPredictions(data) {
         <span style="color:rgba(255,255,255,0.2)">·</span>
         <span style="color:#4fc3f7">P</span>=Paito
         <span style="color:#81c784">S</span>=Shio
-        <span style="color:#ffb74d">HE</span>=HotEkor
         <span style="color:#f0a500">MX</span>=Matrix
       </div>`
     : '';

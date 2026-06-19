@@ -599,14 +599,13 @@ func predictMath(history []Result) []string {
 func predictGabungan(history []Result) []string {
         paito := predictPaito(history)
         shio := predictShio(history)
-        ekorAS := predictHotEkor(history)
         mathNums := predictMath(history)
 
         // Hitung konfirmasi setiap nomor (berapa metode yang merekomendasikan)
         confirmCount := map[string]int{}
         firstSeen := map[string]int{}
         counter := 0
-        for _, nums := range [][]string{paito, shio, ekorAS, mathNums} {
+        for _, nums := range [][]string{paito, shio, mathNums} {
                 for _, n := range nums {
                         confirmCount[n]++
                         if _, ok := firstSeen[n]; !ok {
@@ -623,7 +622,7 @@ func predictGabungan(history []Result) []string {
         }
         seen := map[string]bool{}
         var all []item
-        for _, nums := range [][]string{paito, shio, ekorAS, mathNums} {
+        for _, nums := range [][]string{paito, shio, mathNums} {
                 for _, n := range nums {
                         if !seen[n] {
                                 seen[n] = true
@@ -654,7 +653,7 @@ func predictGabungan(history []Result) []string {
 
         // Fase 2: isi sisa slot dengan prioritas 2D ekor yang belum tercakup
         for _, it := range all {
-                if len(result) >= 20 {
+                if len(result) >= 15 {
                         break
                 }
                 alreadyIn := false
@@ -679,7 +678,7 @@ func predictGabungan(history []Result) []string {
 
         // Fase 3: isi sisa dengan nomor apapun yang belum masuk
         for _, it := range all {
-                if len(result) >= 20 {
+                if len(result) >= 15 {
                         break
                 }
                 alreadyIn := false
@@ -694,8 +693,8 @@ func predictGabungan(history []Result) []string {
                 }
         }
 
-        if len(result) > 20 {
-                result = result[:20]
+        if len(result) > 15 {
+                result = result[:15]
         }
         return result
 }

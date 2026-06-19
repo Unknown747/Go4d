@@ -161,12 +161,10 @@ func runBacktest() BacktestReport {
                 total, hit2d, hit3d, hit4d int
         }
 
-        methodKeys := []string{"PAITO", "SHIO", "AI", "HOTEKOR", "MATH", "GABUNGAN"}
+        methodKeys := []string{"PAITO", "SHIO", "MATH", "GABUNGAN"}
         methodLabels := map[string]string{
                 "PAITO":    "Paito",
                 "SHIO":     "Shio",
-                "AI":       "Gap Analysis",
-                "HOTEKOR":  "Hot Ekor 2D",
                 "MATH":     "Matrix",
                 "GABUNGAN": "Gabungan",
         }
@@ -197,8 +195,6 @@ func runBacktest() BacktestReport {
                 methodPreds := map[string][]string{
                         "PAITO":    predictPaito(history),
                         "SHIO":     predictShio(history),
-                        "AI":       predictAI(history),
-                        "HOTEKOR":  predictHotEkor(history),
                         "MATH":     predictMath(history),
                         "GABUNGAN": predictGabungan(history),
                 }
