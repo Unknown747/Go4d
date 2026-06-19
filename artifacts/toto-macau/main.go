@@ -146,7 +146,7 @@ func handleGetPredictions(w http.ResponseWriter, r *http.Request) {
         confirmCount := map[string]int{}
         firstSeen := map[string]int{}
         prioCounter := 0
-        priorityKeys := []string{"paito", "ai", "math", "shio", "hotekor"}
+        priorityKeys := []string{"paito", "math", "shio", "hotekor"}
         for _, key := range priorityKeys {
                 for _, n := range methodNums[key] {
                         confirmCount[n]++
@@ -438,7 +438,6 @@ func handleRekomendasi(w http.ResponseWriter, r *http.Request) {
         // Kumpulkan prediksi semua metode
         paito := predictPaito(history)
         shio := predictShio(history)
-        ai := predictAI(history)
         hotEkor := predictHotEkor(history)
         math := predictMath(history)
         gabungan := predictGabungan(history)
@@ -450,9 +449,6 @@ func handleRekomendasi(w http.ResponseWriter, r *http.Request) {
         }
         for _, n := range shio {
                 confirmMap[n] = append(confirmMap[n], "Shio")
-        }
-        for _, n := range ai {
-                confirmMap[n] = append(confirmMap[n], "Gap Analysis")
         }
         for _, n := range hotEkor {
                 confirmMap[n] = append(confirmMap[n], "Hot Ekor")
@@ -550,7 +546,7 @@ func handleRekomendasi(w http.ResponseWriter, r *http.Request) {
                 Count   int      `json:"count"`
         }
         var focus2D []Rek2D
-        allPreds := append(append(append(append(append(paito, shio...), ai...), hotEkor...), math...), gabungan...)
+        allPreds := append(append(append(append(paito, shio...), hotEkor...), math...), gabungan...)
         for _, n := range allPreds {
                 for len(n) < 4 {
                         n = "0" + n
@@ -832,13 +828,11 @@ func handleStatistik(w http.ResponseWriter, r *http.Request) {
 func generateAndSavePredictions(tanggal string, sesi int, history []Result) {
         paito := filterPastResults(predictPaito(history), history)
         shioNums := filterPastResults(predictShio(history), history)
-        ai := filterPastResults(predictAI(history), history)
         hotEkor := filterPastResults(predictHotEkor(history), history)
         mathNums := filterPastResults(predictMath(history), history)
 
         savePredictions(tanggal, sesi, "PAITO", paito)
         savePredictions(tanggal, sesi, "SHIO", shioNums)
-        savePredictions(tanggal, sesi, "AI", ai)
         savePredictions(tanggal, sesi, "HOTEKOR", hotEkor)
         savePredictions(tanggal, sesi, "MATH", mathNums)
 

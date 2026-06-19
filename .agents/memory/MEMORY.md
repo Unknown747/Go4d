@@ -1,1 +1,1 @@
-- [Backtest findings & method changes](backtest-findings.md) — EKORAS/PolaEkor dihapus, diganti HotEkor; filterPastResults dibatasi 5 sesi saja
+- [Backtest findings & method changes](backtest-findings.md) — Gap Analysis dihapus (1.7% hit, terburuk); Matrix diganti Transition Matrix (5.1%); diversifyPredictions pakai 3-tier AS+ekor

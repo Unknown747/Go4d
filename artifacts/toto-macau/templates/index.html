@@ -358,7 +358,6 @@
       <button class="method-tab active" onclick="showMethod('gabungan')">Gabungan</button>
       <button class="method-tab" onclick="showMethod('paito')">Paito</button>
       <button class="method-tab" onclick="showMethod('shio')">Shio</button>
-      <button class="method-tab" onclick="showMethod('ai')">Gap Analysis</button>
       <button class="method-tab" onclick="showMethod('hotekor')">Hot Ekor</button>
       <button class="method-tab" onclick="showMethod('math')">Matrix</button>
     </div>
@@ -693,9 +692,9 @@ function renderPredictions(data) {
   const labels = {
     gabungan: {
       name: 'GABUNGAN 4D',
-      desc: 'Gabungan semua 5 metode — nomor yang dikonfirmasi ≥2 metode diprioritaskan, keragaman 2D ekor dimaksimalkan',
+      desc: 'Gabungan 4 metode (Paito+Shio+HotEkor+Matrix) — nomor yang dikonfirmasi ≥2 metode diprioritaskan, keragaman 2D ekor dimaksimalkan',
       badge: '≤20',
-      perf: { text: '⭐ Terbaik · 14.3% hit 2D · 78% Shio', color: 'var(--green)' }
+      perf: { text: '⭐ Terbaik · 15.3% hit 2D · 78% Shio', color: 'var(--green)' }
     },
     paito: {
       name: 'PAITO 4D',
@@ -746,11 +745,10 @@ function renderPredictions(data) {
   const methodSources = {};
   if (isGabungan) {
     const methodMeta = [
-      { key:'paito',   label:'P',  name:'Paito',        color:'#4fc3f7', bg:'rgba(79,195,247,0.15)'  },
-      { key:'ai',      label:'GA', name:'Gap Analysis',  color:'#ce93d8', bg:'rgba(206,147,216,0.15)' },
-      { key:'shio',    label:'S',  name:'Shio',          color:'#81c784', bg:'rgba(129,199,132,0.15)' },
-      { key:'hotekor', label:'HE', name:'Hot Ekor',      color:'#ffb74d', bg:'rgba(255,183,77,0.15)'  },
-      { key:'math',    label:'MX', name:'Matrix',        color:'#f0a500', bg:'rgba(240,165,0,0.15)'   },
+      { key:'paito',   label:'P',  name:'Paito',    color:'#4fc3f7', bg:'rgba(79,195,247,0.15)'  },
+      { key:'shio',    label:'S',  name:'Shio',     color:'#81c784', bg:'rgba(129,199,132,0.15)' },
+      { key:'hotekor', label:'HE', name:'Hot Ekor', color:'#ffb74d', bg:'rgba(255,183,77,0.15)'  },
+      { key:'math',    label:'MX', name:'Matrix',   color:'#f0a500', bg:'rgba(240,165,0,0.15)'   },
     ];
     for (const mm of methodMeta) {
       for (const item of (data[mm.key] || [])) {
@@ -783,7 +781,6 @@ function renderPredictions(data) {
         <span><span style="color:#64b4ff;font-weight:700">◆ biru</span>=2 metode</span>
         <span style="color:rgba(255,255,255,0.2)">·</span>
         <span style="color:#4fc3f7">P</span>=Paito
-        <span style="color:#ce93d8">GA</span>=Gap
         <span style="color:#81c784">S</span>=Shio
         <span style="color:#ffb74d">HE</span>=HotEkor
         <span style="color:#f0a500">MX</span>=Matrix
