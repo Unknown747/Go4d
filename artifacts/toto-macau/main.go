@@ -39,6 +39,7 @@ func main() {
         mux.HandleFunc("/regenerate", handleRegenerate)
         mux.HandleFunc("/statistik", handleStatistik)
         mux.HandleFunc("/tune", handleTune)
+        mux.HandleFunc("/tunehistory", handleTuneHistory)
 
         log.Printf("Server Macau 4D berjalan di port %s", port)
         if err := http.ListenAndServe(":"+port, corsMiddleware(mux)); err != nil {
@@ -830,6 +831,15 @@ func handleTune(w http.ResponseWriter, r *http.Request) {
         }
         result := tunePaitoConfig()
         jsonResponse(w, result)
+}
+
+// GET /tunehistory — kembalikan riwayat tuning terakhir
+func handleTuneHistory(w http.ResponseWriter, r *http.Request) {
+        history := getTuneHistory(20)
+        if history == nil {
+                history = []TuneHistoryRow{}
+        }
+        jsonResponse(w, history)
 }
 
 func generateAndSavePredictions(tanggal string, sesi int, history []Result) {

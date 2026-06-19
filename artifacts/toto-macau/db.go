@@ -58,6 +58,19 @@ func createTables() {
                 )`,
                 `CREATE UNIQUE INDEX IF NOT EXISTS idx_pred_once ON predictions(tanggal, sesi, metode)`,
                 `CREATE INDEX IF NOT EXISTS idx_results_tanggal ON results(tanggal)`,
+                `CREATE TABLE IF NOT EXISTS tune_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        lag2_weight REAL,
+                        lag3_weight REAL,
+                        delta_pool_max INTEGER,
+                        mlag_pool_max INTEGER,
+                        best_rate_2d REAL,
+                        prev_rate_2d REAL,
+                        improved REAL,
+                        combos INTEGER,
+                        tested INTEGER
+                )`,
         }
         for _, q := range queries {
                 if _, err := db.Exec(q); err != nil {
@@ -317,6 +330,58 @@ func nextSessionInfo() (string, int) {
         // Semua sesi hari ini sudah selesai → besok sesi 1
         tomorrow := nowWIB().AddDate(0, 0, 1).Format("2006-01-02")
         return tomorrow, 1
+}
+
+// TuneHistoryRow — satu baris riwayat tuning dari DB
+type TuneHistoryRow struct {
+        ID           int     `json:"id"`
+        CreatedAt    string  `json:"created_at"`
+        Lag2Weight   float64 `json:"lag2_weight"`
+        Lag3Weight   float64 `json:"lag3_weight"`
+        DeltaPoolMax int     `json:"delta_pool_max"`
+        MLagPoolMax  int     `json:"mlag_pool_max"`
+        BestRate2D   float64 `json:"best_rate_2d"`
+        PrevRate2D   float64 `json:"prev_rate_2d"`
+        Improved     float64 `json:"improved"`
+        Combos       int     `json:"combos"`
+        Tested       int     `json:"tested"`
+}
+
+func saveTuneHistory(r TuneResult) {
+        _, err := db.Exec(`
+                INSERT INTO tune_history
+                (lag2_weight,lag3_weight,delta_pool_max,mlag_pool_max,best_rate_2d,prev_rate_2d,improved,combos,tested)
+                VALUES (?,?,?,?,?,?,?,?,?)`,
+                r.BestConfig.Lag2Weight, r.BestConfig.Lag3Weight,
+                r.BestConfig.DeltaPoolMax, r.BestConfig.MLagPoolMax,
+                r.BestRate2D, r.PrevRate2D, r.Improved,
+                r.Combos, r.Tested,
+        )
+        if err != nil {
+                log.Printf("saveTuneHistory: %v", err)
+        }
+}
+
+func getTuneHistory(limit int) []TuneHistoryRow {
+        rows, err := db.Query(`
+                SELECT id,created_at,lag2_weight,lag3_weight,delta_pool_max,mlag_pool_max,
+                       best_rate_2d,prev_rate_2d,improved,combos,tested
+                FROM tune_history ORDER BY id DESC LIMIT ?`, limit)
+        if err != nil {
+                return nil
+        }
+        defer rows.Close()
+        var out []TuneHistoryRow
+        for rows.Next() {
+                var h TuneHistoryRow
+                _ = rows.Scan(&h.ID, &h.CreatedAt,
+                        &h.Lag2Weight, &h.Lag3Weight,
+                        &h.DeltaPoolMax, &h.MLagPoolMax,
+                        &h.BestRate2D, &h.PrevRate2D, &h.Improved,
+                        &h.Combos, &h.Tested)
+                out = append(out, h)
+        }
+        return out
 }
 
 // getTodayResults: semua hasil hari ini (6 sesi)

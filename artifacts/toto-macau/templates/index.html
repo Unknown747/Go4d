@@ -468,6 +468,7 @@
         🔧 Auto-Tune Paito — Cari Parameter Terbaik dari Data Historis
       </button>
       <div id="tuneResult" style="margin-top:8px"></div>
+      <div id="tuneHistory" style="margin-top:8px"></div>
     </div>
     <div id="winrateContent">
       <div class="loading"><div class="spinner"></div>Menghitung...</div>
@@ -1105,6 +1106,58 @@ async function loadWinRate() {
   } catch(e) {
     document.getElementById('winrateContent').innerHTML = '<div class="loading">Gagal memuat</div>';
   }
+  loadTuneHistory();
+}
+
+async function loadTuneHistory() {
+  try {
+    const res = await fetch('/tunehistory');
+    const rows = await res.json();
+    renderTuneHistory(rows);
+  } catch(e) {}
+}
+
+function renderTuneHistory(rows) {
+  const box = document.getElementById('tuneHistory');
+  if (!rows || rows.length === 0) { box.innerHTML = ''; return; }
+  let html = `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:4px">
+      <div style="padding:8px 12px;font-size:0.72rem;font-weight:700;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px">
+        📋 Riwayat Tuning
+        <span style="font-weight:400;font-size:0.63rem">(${rows.length} sesi terakhir)</span>
+      </div>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:0.65rem">
+        <thead>
+          <tr style="background:rgba(255,255,255,0.03);color:var(--muted)">
+            <th style="padding:5px 8px;text-align:left;white-space:nowrap">Waktu</th>
+            <th style="padding:5px 8px;text-align:center">Lag-2</th>
+            <th style="padding:5px 8px;text-align:center">Lag-3</th>
+            <th style="padding:5px 8px;text-align:center">Δ-max</th>
+            <th style="padding:5px 8px;text-align:center">Pool</th>
+            <th style="padding:5px 8px;text-align:center">Hit 2D</th>
+            <th style="padding:5px 8px;text-align:center">Δ</th>
+          </tr>
+        </thead>
+        <tbody>`;
+  rows.forEach((r, i) => {
+    const dt = r.created_at ? r.created_at.substring(0,16).replace('T',' ') : '-';
+    const imp = (r.improved||0);
+    const impColor = imp >= 0 ? '#00c853' : '#e94560';
+    const impSign  = imp >= 0 ? '+' : '';
+    const rowBg = i === 0 ? 'background:rgba(0,200,83,0.05)' : '';
+    html += `<tr style="border-top:1px solid var(--border);${rowBg}">
+      <td style="padding:5px 8px;white-space:nowrap;color:var(--muted)">${dt}</td>
+      <td style="padding:5px 8px;text-align:center;font-weight:600">${r.lag2_weight}</td>
+      <td style="padding:5px 8px;text-align:center;font-weight:600">${r.lag3_weight}</td>
+      <td style="padding:5px 8px;text-align:center">${r.delta_pool_max}</td>
+      <td style="padding:5px 8px;text-align:center">${r.mlag_pool_max}</td>
+      <td style="padding:5px 8px;text-align:center;font-weight:700;color:#00c853">${(r.best_rate_2d||0).toFixed(1)}%</td>
+      <td style="padding:5px 8px;text-align:center;font-weight:700;color:${impColor}">${impSign}${imp.toFixed(1)}%</td>
+    </tr>`;
+  });
+  html += `</tbody></table></div></div>`;
+  box.innerHTML = html;
 }
 
 async function runTune() {
@@ -1145,8 +1198,9 @@ async function runTune() {
           </div>
           <div style="margin-top:8px;font-size:0.63rem;color:var(--muted)">${d.note}</div>
         </div>`;
-      // Reload backtest + winrate agar tabel terupdate
+      // Reload backtest + winrate + history agar tabel terupdate
       await loadWinRate();
+      await loadTuneHistory();
     }
   } catch(e) {
     box.innerHTML = `<div style="font-size:0.78rem;color:#e94560;padding:8px">Gagal menjalankan tuning: ${e.message}</div>`;
